@@ -12,7 +12,7 @@ VAULTPLAY is a personal, non-commercial full-stack web app for tracking video ga
 
 ## Current state
 
-**M1 in progress.** React + Vite frontend and Express + TypeScript backend are scaffolded. PostgreSQL connection via `pg` pool is established and verified. Remastering M1 exit criterion: confirm the React app loads in the browser end-to-end.
+**M1 complete.** React + Vite frontend, Express + TypeScript backend, PostgreSQL via `pg` pool, Tailwind CSS v4 + shadcn/ui, and Prettier + ESLint are all set up and verified. Tagged as `M1` on `master`.
 
 ---
 

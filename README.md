@@ -11,7 +11,7 @@ A personal full-stack web app for tracking video games across three statuses: **
 | Frontend | React 18, Vite, TypeScript |
 | Backend | Node.js, Express 5, TypeScript |
 | Database | PostgreSQL (hosted on Neon) |
-| UI Components | shadcn/ui (planned) |
+| UI Components | shadcn/ui |
 | AI Features | Claude API (planned) |
 | Game Data | RAWG API (planned) |
 
@@ -108,7 +108,7 @@ cd client && npm run dev
 
 | # | Focus | Status |
 |---|---|---|
-| M1 | Foundation — scaffold, DB connection | In progress |
+| M1 | Foundation — scaffold, DB connection | Complete ✅ |
 | M2 | Game Catalog — RAWG integration | Planned |
 | M3 | Vault Manager — CRUD & filtering | Planned |
 | M4 | Discovery Engine — AI recommendations | Planned |
