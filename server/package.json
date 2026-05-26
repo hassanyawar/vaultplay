@@ -8,6 +8,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "lint": "eslint src/**/*.ts",
+    "format": "prettier --write .",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [],
@@ -26,6 +27,11 @@
     "@types/express": "^5.0.6",
     "@types/node": "^25.9.1",
     "@types/pg": "^8.20.0",
+    "@typescript-eslint/eslint-plugin": "^8.60.0",
+    "@typescript-eslint/parser": "^8.60.0",
+    "eslint": "^10.4.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.3",
     "ts-node-dev": "^2.0.0",
     "typescript": "^6.0.3"
   }
