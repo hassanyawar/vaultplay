@@ -12,7 +12,7 @@ VAULTPLAY is a personal, non-commercial full-stack web app for tracking video ga
 
 ## Current state
 
-The project is at the **pre-M1 stage** — planning documents only, no application code yet. Development commands below reflect the intended post-M1 state and will be accurate once M1 scaffolding is complete.
+**M1 in progress.** React + Vite frontend and Express + TypeScript backend are scaffolded. PostgreSQL connection via `pg` pool is established and verified. Remaining M1 exit criterion: confirm the React app loads in the browser end-to-end.
 
 ---
 
@@ -40,11 +40,11 @@ Frontend runs on Vite dev server (default port 5173). Backend runs on Express (d
 
 Database is PostgreSQL hosted on Neon (serverless). All DB credentials are in `.env` — never committed.
 
+**DB driver:** Use `pg` (`Pool`) for all database access — not `@neondatabase/serverless`. The serverless driver uses HTTP fetch and is designed for edge runtimes; `pg` uses TCP and is correct for this persistent Express server. Both are installed; only `pg` should be used.
+
 ---
 
 ## Development commands
-
-> Commands below are the intended post-M1 setup. Update this section after M1 scaffolding is complete.
 
 ```bash
 # Frontend
