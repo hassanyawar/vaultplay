@@ -78,7 +78,7 @@ VAULTPLAY
 #### Exit criteria
 - [x] API returns a test response (`GET /api/health`)
 - [x] DB connects (`GET /api/db-health` verified)
-- [ ] App loads in browser (not yet verified)
+- [x] App loads in browser
 
 ---
 
