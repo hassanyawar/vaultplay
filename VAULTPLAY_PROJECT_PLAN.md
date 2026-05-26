@@ -60,20 +60,25 @@ VAULTPLAY
 ### M1 — Foundation
 **Goal:** Project running locally end-to-end with an empty shell.
 **Estimate:** 1–2 days
+**Status:** 🟡 In Progress
 
 #### Your tasks
-- [ ] Initialize React + Vite frontend
-- [ ] Set up Express backend
-- [ ] Configure PostgreSQL + define schema
-- [ ] Set up environment variables & project structure
+- [x] Initialize React + Vite frontend
+- [x] Set up Express backend
+- [x] Configure PostgreSQL + define schema
+- [x] Set up environment variables & project structure
 
 #### AI tasks
-- [ ] Scaffold boilerplate & folder structure
-- [ ] Generate DB schema from requirements
-- [ ] Set up ESLint, Prettier, TypeScript config
+- [x] Scaffold boilerplate & folder structure
+- [x] Generate DB schema from requirements
+- [x] Set up TypeScript config (client + server)
 - [ ] Configure Tailwind CSS + shadcn/ui
+- [ ] Set up Prettier
 
-**Exit criteria:** App loads in browser, API returns a test response, DB connects.
+#### Exit criteria
+- [x] API returns a test response (`GET /api/health`)
+- [x] DB connects (`GET /api/db-health` verified)
+- [ ] App loads in browser (not yet verified)
 
 ---
 
