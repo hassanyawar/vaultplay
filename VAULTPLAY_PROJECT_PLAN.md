@@ -60,7 +60,7 @@ VAULTPLAY
 ### M1 — Foundation
 **Goal:** Project running locally end-to-end with an empty shell.
 **Estimate:** 1–2 days
-**Status:** 🟡 In Progress
+**Status:** ✅ Complete
 
 #### Your tasks
 - [x] Initialize React + Vite frontend
@@ -72,8 +72,8 @@ VAULTPLAY
 - [x] Scaffold boilerplate & folder structure
 - [x] Generate DB schema from requirements
 - [x] Set up TypeScript config (client + server)
-- [ ] Configure Tailwind CSS + shadcn/ui
-- [ ] Set up Prettier
+- [x] Configure Tailwind CSS + shadcn/ui
+- [x] Set up Prettier
 
 #### Exit criteria
 - [x] API returns a test response (`GET /api/health`)
