@@ -12,7 +12,7 @@ VAULTPLAY is a personal, non-commercial full-stack web app for tracking video ga
 
 ## Current state
 
-**M1 in progress.** React + Vite frontend and Express + TypeScript backend are scaffolded. PostgreSQL connection via `pg` pool is established and verified. Remaining M1 exit criterion: confirm the React app loads in the browser end-to-end.
+**M1 in progress.** React + Vite frontend and Express + TypeScript backend are scaffolded. PostgreSQL connection via `pg` pool is established and verified. Remastering M1 exit criterion: confirm the React app loads in the browser end-to-end.
 
 ---
 
@@ -77,12 +77,12 @@ cd server && npx jest src/path/to/file.test.ts
 ## Git workflow
 
 - **No git remote is currently configured.** Before pushing or creating remote PRs, verify a remote exists: `git remote -v`. Only push if a remote is present.
-- **Always create a feature branch for each milestone task.** Never commit milestone work directly to `develop` or `main`.
+- **Always create a feature branch for each milestone task.** Never commit milestone work directly to `develop` or `master`.
   - Branch naming: `feature/<short-description>` (e.g. `feature/express-boilerplate`, `feature/db-schema`)
 - Merge feature branches into `develop` via `--no-ff` merge commits.
-- `main` receives merges from `develop` at milestone boundaries only.
-- **No force-pushes to `main`.**
-- Milestone boundaries are tagged on `main`.
+- `master` receives merges from `develop` at milestone boundaries only.
+- **No force-pushes to `master`.**
+- Milestone boundaries are tagged on `master`.
 
 ---
 
