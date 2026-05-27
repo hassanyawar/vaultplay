@@ -1,19 +1,26 @@
 import type { IDiscoveryService } from './interface';
 import type { Recommendation, StalledGame, GenreAffinity } from './types';
+import { RuleBasedDiscoveryService } from './rule-based';
 
-// Stub — implement when ANTHROPIC_API_KEY is available.
-// Must satisfy IDiscoveryService so the factory can swap it in without
-// touching routes or frontend.
+// AI-powered discovery service. Each method falls back to RuleBasedDiscoveryService
+// until the Claude API implementation is written. This means adding ANTHROPIC_API_KEY
+// to .env is always safe — the app stays functional while AI calls are built out
+// incrementally, one method at a time.
 export class AiDiscoveryService implements IDiscoveryService {
+  private fallback = new RuleBasedDiscoveryService();
+
   async getNextToPlay(): Promise<Recommendation[]> {
-    throw new Error('AiDiscoveryService: not yet implemented');
+    // TODO: call Claude API with vault data to generate ranked recommendations
+    return this.fallback.getNextToPlay();
   }
 
   async getStalledGames(): Promise<StalledGame[]> {
-    throw new Error('AiDiscoveryService: not yet implemented');
+    // TODO: call Claude API to surface and contextualise stalled games
+    return this.fallback.getStalledGames();
   }
 
   async getGenreAffinity(): Promise<GenreAffinity[]> {
-    throw new Error('AiDiscoveryService: not yet implemented');
+    // TODO: call Claude API to analyse and explain genre preferences
+    return this.fallback.getGenreAffinity();
   }
 }
