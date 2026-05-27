@@ -113,7 +113,7 @@ cd client && npm run dev
 |---|---|---|
 | M1 | Foundation — scaffold, DB connection | Complete ✅ |
 | M2 | Game Catalog — RAWG integration | Complete ✅ |
-| M3 | Vault Manager — CRUD & filtering | Planned |
+| M3 | Vault Manager — CRUD & filtering | Complete ✅ |
 | M4 | Discovery Engine — AI recommendations | Planned |
 | M5 | Dashboard & Stats | Planned |
 | M6 | Polish & Deploy | Planned |
