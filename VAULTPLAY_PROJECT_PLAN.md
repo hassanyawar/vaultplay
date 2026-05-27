@@ -133,22 +133,45 @@ VAULTPLAY
 
 ---
 
-### M4 — Discovery Engine *(AI-heavy)*
-**Goal:** AI helps you decide what to play next and makes sense of your vault.
-**Estimate:** 5–7 days
+### M4 — Discovery Engine
+**Goal:** Surface meaningful "what to play next" suggestions from your vault data.
+**Estimate:** 3–5 days
+**Status:** ✅ Complete
+
+#### Architecture — Strategy Pattern
+The discovery engine is built as a modular service with a shared `IDiscoveryService`
+interface. The factory selects the active implementation based on environment:
+- No `ANTHROPIC_API_KEY` → `RuleBasedDiscoveryService` (default)
+- `ANTHROPIC_API_KEY` present → `AiDiscoveryService` (drop-in upgrade)
+
+Route handlers and frontend are implementation-agnostic — swapping engines requires
+no changes outside the service layer.
+
+```
+server/src/services/discovery/
+├── types.ts        — shared types: Recommendation, GenreAffinity, etc.
+├── interface.ts    — IDiscoveryService contract
+├── rule-based.ts   — RuleBasedDiscoveryService (SQL-based logic)
+├── ai.ts           — AiDiscoveryService (Claude API, built as stub for now)
+└── index.ts        — factory: picks implementation from env
+```
 
 #### Your tasks
-- [ ] Validate and approve AI suggestions
-- [ ] Define your preference signals (what matters to you)
-- [ ] Test NLP queries with real data
+- [x] Validate suggestion quality with real vault data — feels accurate
 
 #### AI tasks
-- [ ] Natural language search engine ("short games I haven't finished")
-- [ ] Recommendation engine based on your ratings
-- [ ] Auto-tagging games by mood & genre from metadata
-- [ ] Notes summarization for long session logs
+- [x] Define `IDiscoveryService` interface and shared types
+- [x] `RuleBasedDiscoveryService` — genre affinity scoring, backlog ranking
+- [x] `AiDiscoveryService` — stub implementation (ready for Claude API later)
+- [x] Factory — selects implementation from `ANTHROPIC_API_KEY` env var
+- [x] `GET /api/discover/next` — top 3–5 "play next" suggestions with reasoning
+- [x] `GET /api/discover/stalled` — playing games inactive the longest
+- [x] `GET /api/discover/genre-affinity` — genres ranked by your average rating
+- [x] Discover tab in frontend — recommendations grid, stalled cards, genre affinity
+- [x] Animations — staggered card entrance, count-up ratings, bar fill, cover shimmer
 
-**Exit criteria:** Ask AI "what should I play next?" and get a meaningful answer.
+**Exit criteria:** App surfaces meaningful "what to play next" suggestions based
+on vault data. Swapping to AI requires only adding `ANTHROPIC_API_KEY` to `.env`.
 
 ---
 

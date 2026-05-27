@@ -1,4 +1,12 @@
-import type { GameSearchResult, SavedGame, VaultEntry, VaultUpdatePayload } from '@/types/game';
+import type {
+  GameSearchResult,
+  SavedGame,
+  VaultEntry,
+  VaultUpdatePayload,
+  Recommendation,
+  StalledGame,
+  GenreAffinity,
+} from '@/types/game';
 
 export async function searchGames(query: string): Promise<GameSearchResult[]> {
   const res = await fetch(`/api/games/search?q=${encodeURIComponent(query)}`);
@@ -80,4 +88,34 @@ export async function deleteVaultEntry(id: number): Promise<void> {
     const { error } = (await res.json()) as { error: string };
     throw new Error(error ?? 'Failed to delete entry');
   }
+}
+
+export async function getNextToPlay(): Promise<Recommendation[]> {
+  const res = await fetch('/api/discover/next');
+  if (!res.ok) {
+    const { error } = (await res.json()) as { error: string };
+    throw new Error(error ?? 'Failed to load recommendations');
+  }
+  const data = (await res.json()) as { recommendations: Recommendation[] };
+  return data.recommendations;
+}
+
+export async function getStalledGames(): Promise<StalledGame[]> {
+  const res = await fetch('/api/discover/stalled');
+  if (!res.ok) {
+    const { error } = (await res.json()) as { error: string };
+    throw new Error(error ?? 'Failed to load stalled games');
+  }
+  const data = (await res.json()) as { stalled: StalledGame[] };
+  return data.stalled;
+}
+
+export async function getGenreAffinity(): Promise<GenreAffinity[]> {
+  const res = await fetch('/api/discover/genre-affinity');
+  if (!res.ok) {
+    const { error } = (await res.json()) as { error: string };
+    throw new Error(error ?? 'Failed to load genre affinity');
+  }
+  const data = (await res.json()) as { affinity: GenreAffinity[] };
+  return data.affinity;
 }
