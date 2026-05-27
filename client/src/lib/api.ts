@@ -64,6 +64,16 @@ export async function updateVaultEntry(
   return data.entry;
 }
 
+export async function getVaultPlatforms(): Promise<string[]> {
+  const res = await fetch('/api/vault/platforms');
+  if (!res.ok) {
+    const { error } = (await res.json()) as { error: string };
+    throw new Error(error ?? 'Failed to load platforms');
+  }
+  const data = (await res.json()) as { platforms: string[] };
+  return data.platforms;
+}
+
 export async function deleteVaultEntry(id: number): Promise<void> {
   const res = await fetch(`/api/vault/${id}`, { method: 'DELETE' });
   if (!res.ok) {

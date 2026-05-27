@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { VaultCard } from '@/components/VaultCard';
-import { getVault } from '@/lib/api';
+import { getVault, getVaultPlatforms } from '@/lib/api';
 import type { VaultEntry } from '@/types/game';
 
 const SORT_OPTIONS = [
@@ -18,7 +18,16 @@ export function VaultPage() {
   const [error, setError] = useState('');
 
   const [filterStatus, setFilterStatus] = useState('');
+  const [filterPlatform, setFilterPlatform] = useState('');
+  const [filterRating, setFilterRating] = useState('');
   const [sort, setSort] = useState('added_desc');
+  const [platforms, setPlatforms] = useState<string[]>([]);
+
+  useEffect(() => {
+    getVaultPlatforms()
+      .then(setPlatforms)
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -26,7 +35,12 @@ export function VaultPage() {
     async function load() {
       setStatus('loading');
       try {
-        const data = await getVault({ status: filterStatus || undefined, sort });
+        const data = await getVault({
+          status: filterStatus || undefined,
+          platform: filterPlatform || undefined,
+          rating: filterRating ? parseInt(filterRating, 10) : undefined,
+          sort,
+        });
         if (!cancelled) {
           setEntries(data);
           setStatus('done');
@@ -43,7 +57,7 @@ export function VaultPage() {
     return () => {
       cancelled = true;
     };
-  }, [filterStatus, sort]);
+  }, [filterStatus, filterPlatform, filterRating, sort]);
 
   function handleUpdate(id: number, updated: Partial<VaultEntry>) {
     setEntries((prev) => prev.map((e) => (e.id === id ? { ...e, ...updated } : e)));
@@ -84,6 +98,32 @@ export function VaultPage() {
           </select>
 
           <select
+            value={filterPlatform}
+            onChange={(e) => setFilterPlatform(e.target.value)}
+            className="text-sm border border-input rounded-md px-3 py-1.5 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          >
+            <option value="">All platforms</option>
+            {platforms.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={filterRating}
+            onChange={(e) => setFilterRating(e.target.value)}
+            className="text-sm border border-input rounded-md px-3 py-1.5 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          >
+            <option value="">Any rating</option>
+            {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+              <option key={n} value={n}>
+                {n} / 10
+              </option>
+            ))}
+          </select>
+
+          <select
             value={sort}
             onChange={(e) => setSort(e.target.value)}
             className="text-sm border border-input rounded-md px-3 py-1.5 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
@@ -106,7 +146,9 @@ export function VaultPage() {
 
         {status === 'done' && entries.length === 0 && (
           <p className="text-center text-muted-foreground text-sm py-12">
-            {filterStatus ? 'No games with this status.' : 'Your vault is empty. Search for games to add them.'}
+            {filterStatus || filterPlatform || filterRating
+              ? 'No games match the selected filters.'
+              : 'Your vault is empty. Search for games to add them.'}
           </p>
         )}
 

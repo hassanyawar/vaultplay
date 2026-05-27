@@ -128,6 +128,20 @@ router.patch('/:id', async (req: Request, res: Response) => {
   }
 });
 
+router.get('/platforms', async (_req: Request, res: Response) => {
+  try {
+    const result = await pool.query(
+      `SELECT DISTINCT unnest(g.platforms) AS platform
+       FROM vault_entries ve
+       JOIN games g ON g.id = ve.game_id
+       ORDER BY platform`
+    );
+    res.json({ platforms: result.rows.map((r: { platform: string }) => r.platform) });
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
 router.delete('/:id', async (req: Request, res: Response) => {
   const id = parseInt(req.params.id as string, 10);
   if (isNaN(id)) {
