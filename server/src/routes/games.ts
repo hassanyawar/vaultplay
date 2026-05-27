@@ -5,6 +5,15 @@ import type { GameSearchResult } from '../types/rawg';
 
 const router = Router();
 
+router.get('/', async (_req: Request, res: Response) => {
+  try {
+    const result = await pool.query('SELECT * FROM games ORDER BY created_at DESC');
+    res.json({ games: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
 router.get('/search', async (req: Request, res: Response) => {
   const q = req.query.q as string | undefined;
 

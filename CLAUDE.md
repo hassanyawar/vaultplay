@@ -12,7 +12,7 @@ VAULTPLAY is a personal, non-commercial full-stack web app for tracking video ga
 
 ## Current state
 
-**M1 complete.** React + Vite frontend, Express + TypeScript backend, PostgreSQL via `pg` pool, Tailwind CSS v4 + shadcn/ui, and Prettier + ESLint are all set up and verified. Tagged as `M1` on `master`.
+**M1 complete** — tagged `M1` on `master`. **M2 in progress.** RAWG service layer and `GET /api/games/search` + `POST /api/games` endpoints are done and verified. Next: game search UI with cover art and Add to Vault button.
 
 ---
 
