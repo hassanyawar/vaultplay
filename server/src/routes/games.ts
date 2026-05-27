@@ -53,7 +53,14 @@ router.post('/', async (req: Request, res: Response) => {
       return;
     }
 
-    res.status(201).json({ game: result.rows[0] });
+    const game = result.rows[0];
+
+    await pool.query(
+      `INSERT INTO vault_entries (game_id) VALUES ($1) ON CONFLICT DO NOTHING`,
+      [game.id]
+    );
+
+    res.status(201).json({ game });
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
   }
