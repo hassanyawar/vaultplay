@@ -49,6 +49,18 @@ router.post('/', async (req: Request, res: Response) => {
     );
 
     if (result.rowCount === 0) {
+      // Game row exists — check if vault entry was deleted and needs to be recreated
+      const existing = await pool.query('SELECT * FROM games WHERE rawg_id = $1', [rawgId]);
+      const game = existing.rows[0];
+      const vaultCheck = await pool.query(
+        'SELECT id FROM vault_entries WHERE game_id = $1',
+        [game.id]
+      );
+      if (vaultCheck.rowCount === 0) {
+        await pool.query('INSERT INTO vault_entries (game_id) VALUES ($1)', [game.id]);
+        res.status(201).json({ game });
+        return;
+      }
       res.status(200).json({ message: 'Game already in vault', alreadyExists: true });
       return;
     }
