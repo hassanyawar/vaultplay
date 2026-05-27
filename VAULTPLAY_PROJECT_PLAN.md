@@ -111,17 +111,23 @@ VAULTPLAY
 ### M3 — Vault Manager
 **Goal:** Manage personal game data — status, ratings, notes.
 **Estimate:** 3–5 days
+**Status:** ✅ Complete
 
 #### Your tasks
-- [ ] Write your actual reviews & ratings
-- [ ] Decide status for each game
-- [ ] Validate CRUD flows manually
+- [x] Validate CRUD flows manually
 
 #### AI tasks
-- [ ] Generate CRUD API routes for vault entries
-- [ ] Build filter & sort logic on backend
-- [ ] Build status toggle UI (Backlog / Playing / Completed)
-- [ ] Build rating system (score out of 10)
+- [x] Migrate `vault_entries` table + `vault_status` enum to Neon
+- [x] `POST /api/games` auto-creates vault entry on save; handles re-add after delete
+- [x] `GET /api/vault` — list with filter by status, platform, rating and sort support
+- [x] `GET /api/vault/platforms` — distinct platforms for filter dropdown
+- [x] `PATCH /api/vault/:id` — update status, rating, notes, review
+- [x] `DELETE /api/vault/:id` — remove vault entry
+- [x] `VaultEntry`, `VaultStatus`, `VaultUpdatePayload` frontend types
+- [x] `getVault`, `updateVaultEntry`, `deleteVaultEntry`, `getVaultPlatforms` in api.ts
+- [x] `VaultCard` — cover art, status badge, status toggle, rating select, notes editor, delete
+- [x] `VaultPage` — vault list, filter by status/platform/rating, sort bar, live counts
+- [x] Tab navigation — Search ↔ My Vault
 
 **Exit criteria:** Full CRUD on game list. Filter by status, platform, and rating works.
 

@@ -79,6 +79,9 @@ cd client && npm run dev
 |---|---|---|
 | GET | `/api/health` | Server liveness check |
 | GET | `/api/db-health` | Database connectivity check |
+| GET | `/api/games/search?q=` | Search games via RAWG |
+| GET | `/api/games` | List saved games |
+| POST | `/api/games` | Save a game to the vault |
 
 ---
 
@@ -109,8 +112,8 @@ cd client && npm run dev
 | # | Focus | Status |
 |---|---|---|
 | M1 | Foundation — scaffold, DB connection | Complete ✅ |
-| M2 | Game Catalog — RAWG integration | Planned |
-| M3 | Vault Manager — CRUD & filtering | Planned |
+| M2 | Game Catalog — RAWG integration | Complete ✅ |
+| M3 | Vault Manager — CRUD & filtering | Complete ✅ |
 | M4 | Discovery Engine — AI recommendations | Planned |
 | M5 | Dashboard & Stats | Planned |
 | M6 | Polish & Deploy | Planned |
