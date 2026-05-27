@@ -12,7 +12,7 @@ VAULTPLAY is a personal, non-commercial full-stack web app for tracking video ga
 
 ## Current state
 
-**M1 complete** — tagged `M1` on `master`. **M2 in progress.** RAWG service layer and `GET /api/games/search` + `POST /api/games` endpoints are done and verified. Next: game search UI with cover art and Add to Vault button.
+**M1 complete** — tagged `M1` on `master`. **M2 complete** — RAWG search, game cards with cover art, and Add to Vault all working and verified. Ready for M3 (vault list, CRUD, filtering).
 
 ---
 
