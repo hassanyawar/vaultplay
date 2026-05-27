@@ -85,19 +85,26 @@ VAULTPLAY
 ### M2 — Game Catalog
 **Goal:** You can search for a game and add it to your vault.
 **Estimate:** 3–5 days
+**Status:** ✅ Complete
 
 #### Your tasks
-- [ ] Store selected game in PostgreSQL
-- [ ] Decide which RAWG fields to keep
-- [ ] Review and validate game metadata
+- [x] Store selected game in PostgreSQL
+- [x] Review and validate game metadata
 
 #### AI tasks
-- [ ] Write RAWG API wrapper & service layer
-- [ ] Generate TypeScript types from RAWG response
-- [ ] Build search UI with cover art display
-- [ ] Display platform & metadata per game
+- [x] Write RAWG API wrapper & service layer (`src/services/rawg.ts`)
+- [x] Generate TypeScript types from RAWG response (`src/types/rawg.ts`)
+- [x] `GET /api/games/search?q=` — proxies RAWG, returns clean results
+- [x] `POST /api/games` — saves game to Postgres (ON CONFLICT DO NOTHING)
+- [x] `GET /api/games` — lists saved games
+- [x] Build search UI with cover art display
+- [x] Display platform & metadata per game
+- [x] Add to Vault button wired to POST /api/games
 
-**Exit criteria:** Search a game, see cover art + platforms, save it to DB.
+#### Exit criteria
+- [x] `GET /api/games/search?q=hades` returns game data
+- [x] Search UI renders results with cover art + platforms in browser
+- [x] Saving a game via UI persists it to DB (verified via GET /api/games)
 
 ---
 
