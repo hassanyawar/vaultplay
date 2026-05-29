@@ -108,11 +108,11 @@ router.get('/completions-by-month', async (_req, res) => {
     count: number;
   }>(`
     SELECT
-      EXTRACT(YEAR  FROM updated_at)::int AS year,
-      EXTRACT(MONTH FROM updated_at)::int AS month,
-      COUNT(*)::int                       AS count
+      EXTRACT(YEAR  FROM completed_at)::int AS year,
+      EXTRACT(MONTH FROM completed_at)::int AS month,
+      COUNT(*)::int                         AS count
     FROM vault_entries
-    WHERE status = 'completed'
+    WHERE status = 'completed' AND completed_at IS NOT NULL
     GROUP BY year, month
     ORDER BY year ASC, month ASC
   `);

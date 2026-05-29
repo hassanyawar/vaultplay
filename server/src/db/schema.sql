@@ -18,8 +18,9 @@ CREATE TABLE IF NOT EXISTS vault_entries (
   rating     SMALLINT CHECK (rating >= 1 AND rating <= 10),
   notes      TEXT,
   review     TEXT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  completed_at TIMESTAMPTZ
 );
 
 CREATE INDEX IF NOT EXISTS idx_vault_entries_status  ON vault_entries(status);
