@@ -9,18 +9,15 @@ import { RuleBasedDiscoveryService } from './rule-based';
 export class AiDiscoveryService implements IDiscoveryService {
   private fallback = new RuleBasedDiscoveryService();
 
-  async getNextToPlay(): Promise<Recommendation[]> {
-    // TODO: call Claude API with vault data to generate ranked recommendations
-    return this.fallback.getNextToPlay();
+  async getNextToPlay(userId: number): Promise<Recommendation[]> {
+    return this.fallback.getNextToPlay(userId);
   }
 
-  async getStalledGames(): Promise<StalledGame[]> {
-    // TODO: call Claude API to surface and contextualise stalled games
-    return this.fallback.getStalledGames();
+  async getStalledGames(userId: number): Promise<StalledGame[]> {
+    return this.fallback.getStalledGames(userId);
   }
 
-  async getGenreAffinity(): Promise<GenreAffinity[]> {
-    // TODO: call Claude API to analyse and explain genre preferences
-    return this.fallback.getGenreAffinity();
+  async getGenreAffinity(userId: number): Promise<GenreAffinity[]> {
+    return this.fallback.getGenreAffinity(userId);
   }
 }

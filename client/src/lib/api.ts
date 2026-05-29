@@ -1,4 +1,5 @@
 import type {
+  AuthUser,
   GameSearchResult,
   SavedGame,
   VaultEntry,
@@ -13,8 +14,56 @@ import type {
   GenreBreakdown,
 } from '@/types/game';
 
+function apiFetch(url: string, options?: RequestInit): Promise<Response> {
+  return fetch(url, { ...options, credentials: 'include' });
+}
+
+// Auth
+
+export async function register(email: string, password: string): Promise<AuthUser> {
+  const res = await apiFetch('/api/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!res.ok) {
+    const { error } = (await res.json()) as { error: string };
+    throw new Error(error ?? 'Registration failed');
+  }
+  const data = (await res.json()) as { user: AuthUser };
+  return data.user;
+}
+
+export async function login(email: string, password: string): Promise<AuthUser> {
+  const res = await apiFetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!res.ok) {
+    const { error } = (await res.json()) as { error: string };
+    throw new Error(error ?? 'Login failed');
+  }
+  const data = (await res.json()) as { user: AuthUser };
+  return data.user;
+}
+
+export async function logout(): Promise<void> {
+  await apiFetch('/api/auth/logout', { method: 'POST' });
+}
+
+export async function getMe(): Promise<AuthUser | null> {
+  const res = await apiFetch('/api/auth/me');
+  if (res.status === 401) return null;
+  if (!res.ok) return null;
+  const data = (await res.json()) as { user: AuthUser };
+  return data.user;
+}
+
+// Games
+
 export async function searchGames(query: string): Promise<GameSearchResult[]> {
-  const res = await fetch(`/api/games/search?q=${encodeURIComponent(query)}`);
+  const res = await apiFetch(`/api/games/search?q=${encodeURIComponent(query)}`);
   if (!res.ok) {
     const { error } = (await res.json()) as { error: string };
     throw new Error(error ?? 'Search failed');
@@ -26,7 +75,7 @@ export async function searchGames(query: string): Promise<GameSearchResult[]> {
 export async function saveGame(
   game: GameSearchResult
 ): Promise<{ game?: SavedGame; alreadyExists?: boolean }> {
-  const res = await fetch('/api/games', {
+  const res = await apiFetch('/api/games', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(game),
@@ -37,6 +86,8 @@ export async function saveGame(
   }
   return res.json() as Promise<{ game?: SavedGame; alreadyExists?: boolean }>;
 }
+
+// Vault
 
 export async function getVault(params?: {
   status?: string;
@@ -51,7 +102,7 @@ export async function getVault(params?: {
   if (params?.sort) qs.set('sort', params.sort);
 
   const url = `/api/vault${qs.toString() ? `?${qs.toString()}` : ''}`;
-  const res = await fetch(url);
+  const res = await apiFetch(url);
   if (!res.ok) {
     const { error } = (await res.json()) as { error: string };
     throw new Error(error ?? 'Failed to load vault');
@@ -60,11 +111,8 @@ export async function getVault(params?: {
   return data.entries;
 }
 
-export async function updateVaultEntry(
-  id: number,
-  update: VaultUpdatePayload
-): Promise<VaultEntry> {
-  const res = await fetch(`/api/vault/${id}`, {
+export async function updateVaultEntry(id: number, update: VaultUpdatePayload): Promise<VaultEntry> {
+  const res = await apiFetch(`/api/vault/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(update),
@@ -78,7 +126,7 @@ export async function updateVaultEntry(
 }
 
 export async function getVaultPlatforms(): Promise<string[]> {
-  const res = await fetch('/api/vault/platforms');
+  const res = await apiFetch('/api/vault/platforms');
   if (!res.ok) {
     const { error } = (await res.json()) as { error: string };
     throw new Error(error ?? 'Failed to load platforms');
@@ -88,15 +136,17 @@ export async function getVaultPlatforms(): Promise<string[]> {
 }
 
 export async function deleteVaultEntry(id: number): Promise<void> {
-  const res = await fetch(`/api/vault/${id}`, { method: 'DELETE' });
+  const res = await apiFetch(`/api/vault/${id}`, { method: 'DELETE' });
   if (!res.ok) {
     const { error } = (await res.json()) as { error: string };
     throw new Error(error ?? 'Failed to delete entry');
   }
 }
 
+// Discover
+
 export async function getNextToPlay(): Promise<Recommendation[]> {
-  const res = await fetch('/api/discover/next');
+  const res = await apiFetch('/api/discover/next');
   if (!res.ok) {
     const { error } = (await res.json()) as { error: string };
     throw new Error(error ?? 'Failed to load recommendations');
@@ -106,7 +156,7 @@ export async function getNextToPlay(): Promise<Recommendation[]> {
 }
 
 export async function getStalledGames(): Promise<StalledGame[]> {
-  const res = await fetch('/api/discover/stalled');
+  const res = await apiFetch('/api/discover/stalled');
   if (!res.ok) {
     const { error } = (await res.json()) as { error: string };
     throw new Error(error ?? 'Failed to load stalled games');
@@ -116,7 +166,7 @@ export async function getStalledGames(): Promise<StalledGame[]> {
 }
 
 export async function getGenreAffinity(): Promise<GenreAffinity[]> {
-  const res = await fetch('/api/discover/genre-affinity');
+  const res = await apiFetch('/api/discover/genre-affinity');
   if (!res.ok) {
     const { error } = (await res.json()) as { error: string };
     throw new Error(error ?? 'Failed to load genre affinity');
@@ -125,8 +175,10 @@ export async function getGenreAffinity(): Promise<GenreAffinity[]> {
   return data.affinity;
 }
 
+// Stats
+
 export async function getStatsSummary(): Promise<StatsSummary> {
-  const res = await fetch('/api/stats/summary');
+  const res = await apiFetch('/api/stats/summary');
   if (!res.ok) {
     const { error } = (await res.json()) as { error: string };
     throw new Error(error ?? 'Failed to load stats summary');
@@ -136,7 +188,7 @@ export async function getStatsSummary(): Promise<StatsSummary> {
 }
 
 export async function getCurrentlyPlaying(): Promise<CurrentlyPlayingGame[]> {
-  const res = await fetch('/api/stats/currently-playing');
+  const res = await apiFetch('/api/stats/currently-playing');
   if (!res.ok) {
     const { error } = (await res.json()) as { error: string };
     throw new Error(error ?? 'Failed to load currently playing');
@@ -146,7 +198,7 @@ export async function getCurrentlyPlaying(): Promise<CurrentlyPlayingGame[]> {
 }
 
 export async function getRecentlyAdded(): Promise<RecentlyAddedGame[]> {
-  const res = await fetch('/api/stats/recently-added');
+  const res = await apiFetch('/api/stats/recently-added');
   if (!res.ok) {
     const { error } = (await res.json()) as { error: string };
     throw new Error(error ?? 'Failed to load recently added');
@@ -156,7 +208,7 @@ export async function getRecentlyAdded(): Promise<RecentlyAddedGame[]> {
 }
 
 export async function getCompletionsByMonth(): Promise<CompletionByMonth[]> {
-  const res = await fetch('/api/stats/completions-by-month');
+  const res = await apiFetch('/api/stats/completions-by-month');
   if (!res.ok) {
     const { error } = (await res.json()) as { error: string };
     throw new Error(error ?? 'Failed to load completions by month');
@@ -166,7 +218,7 @@ export async function getCompletionsByMonth(): Promise<CompletionByMonth[]> {
 }
 
 export async function getGenreBreakdown(): Promise<GenreBreakdown[]> {
-  const res = await fetch('/api/stats/genre-breakdown');
+  const res = await apiFetch('/api/stats/genre-breakdown');
   if (!res.ok) {
     const { error } = (await res.json()) as { error: string };
     throw new Error(error ?? 'Failed to load genre breakdown');

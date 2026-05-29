@@ -1,3 +1,8 @@
+export interface AuthUser {
+  userId: number;
+  email: string;
+}
+
 export interface GameSearchResult {
   rawgId: number;
   title: string;
