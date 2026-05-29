@@ -12,7 +12,7 @@ VAULTPLAY is a personal, non-commercial full-stack web app for tracking video ga
 
 ## Current state
 
-**M1 complete** — tagged `M1` on `master`. **M2 complete** — tagged `M2` on `master`. **M3 complete** — tagged `M3` on `master`. **M4 complete** — rule-based discovery engine (what to play next, stalled games, genre affinity) with AI upgrade path via strategy pattern. Ready for M5 (dashboard & stats).
+**M1 complete** — tagged `M1` on `master`. **M2 complete** — tagged `M2` on `master`. **M3 complete** — tagged `M3` on `master`. **M4 complete** — tagged `M4` on `master`. **M5 complete** — dashboard with stat cards, progress bar, currently playing, recently added, completions-by-month chart, and genre breakdown chart. Ready for M6 (polish & deploy).
 
 ---
 
