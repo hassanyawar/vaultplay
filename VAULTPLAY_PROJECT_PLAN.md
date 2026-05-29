@@ -238,8 +238,8 @@ on vault data. Swapping to AI requires only adding `ANTHROPIC_API_KEY` to `.env`
 ---
 
 ### M7 — Polish & Deploy
-**Goal:** VAULTPLAY is live and looks great.
-**Estimate:** 2–3 days
+**Goal:** VAULTPLAY is live, performant, and looks great.
+**Estimate:** 3–4 days
 
 #### Your tasks
 - [ ] Deploy frontend to Vercel
@@ -252,8 +252,10 @@ on vault data. Swapping to AI requires only adding `ANTHROPIC_API_KEY` to `.env`
 - [ ] Write deployment config files (fly.toml, Dockerfile, vercel.json)
 - [ ] Dark/light mode implementation
 - [ ] Responsive design polish
+- [ ] Add `loading="lazy"` to all `<img>` tags (vault, search, dashboard, discover) — eliminates simultaneous image request flood on page load
+- [ ] Pagination on vault list and search results — load 12–16 entries at a time, load more on demand
 
-**Exit criteria:** VAULTPLAY is live at a public URL.
+**Exit criteria:** VAULTPLAY is live at a public URL, images load lazily, and large vaults don't degrade on initial load.
 
 ---
 
@@ -303,8 +305,8 @@ on vault data. Swapping to AI requires only adding `ANTHROPIC_API_KEY` to `.env`
 | M4 — Discovery Engine | AI features | 5–7 days |
 | M5 — Dashboard | Charts & stats | 3–4 days |
 | M6 — Auth & Multi-User | Accounts & per-user vaults | 4–6 days |
-| M7 — Polish & Deploy | Ship it | 2–3 days |
-| **Total** | | **~5–6 weeks** |
+| M7 — Polish & Deploy | Ship it | 3–4 days |
+| **Total** | | **~5–7 weeks** |
 
 ---
 
