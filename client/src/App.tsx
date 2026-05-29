@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { SearchPage } from '@/pages/SearchPage';
 import { VaultPage } from '@/pages/VaultPage';
 import { DiscoverPage } from '@/pages/DiscoverPage';
+import { DashboardPage } from '@/pages/DashboardPage';
 
-type Tab = 'search' | 'vault' | 'discover';
+type Tab = 'search' | 'vault' | 'discover' | 'dashboard';
 
 const TAB_LABELS: Record<Tab, string> = {
   search: 'Search',
   vault: 'My Vault',
   discover: 'Discover',
+  dashboard: 'Dashboard',
 };
 
 function App() {
@@ -18,7 +20,7 @@ function App() {
     <div>
       <nav className="border-b border-border bg-card">
         <div className="max-w-5xl mx-auto px-4 flex gap-1 pt-3">
-          {(['search', 'vault', 'discover'] as Tab[]).map((t) => (
+          {(['search', 'vault', 'discover', 'dashboard'] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -37,6 +39,7 @@ function App() {
       {tab === 'search' && <SearchPage />}
       {tab === 'vault' && <VaultPage />}
       {tab === 'discover' && <DiscoverPage />}
+      {tab === 'dashboard' && <DashboardPage />}
     </div>
   );
 }
