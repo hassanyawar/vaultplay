@@ -89,6 +89,11 @@ router.patch('/:id', async (req: Request, res: Response) => {
   if (status !== undefined) {
     params.push(status);
     fields.push(`status = $${params.length}::vault_status`);
+    if (status === 'completed') {
+      fields.push(`completed_at = NOW()`);
+    } else {
+      fields.push(`completed_at = NULL`);
+    }
   }
   if (rating !== undefined) {
     params.push(rating);

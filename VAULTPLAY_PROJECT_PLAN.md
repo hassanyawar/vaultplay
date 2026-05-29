@@ -178,17 +178,25 @@ on vault data. Swapping to AI requires only adding `ANTHROPIC_API_KEY` to `.env`
 ### M5 — Dashboard & Stats
 **Goal:** A visual overview of your gaming life.
 **Estimate:** 3–4 days
+**Status:** ✅ Complete
 
 #### Your tasks
-- [ ] Decide which stats feel meaningful to you
-- [ ] Review charts with real vault data
-- [ ] Design "currently playing" hero section
+- [x] Decide which stats feel meaningful to you
+- [x] Review charts with real vault data
+- [x] Design "currently playing" hero section
 
 #### AI tasks
-- [ ] Generate chart components from data schema
-- [ ] Write stat aggregation SQL queries
-- [ ] Games played per month/year chart
-- [ ] Genre breakdown chart
+- [x] `GET /api/stats/summary` — vault counts by status, avg rating, last activity timestamp
+- [x] `GET /api/stats/currently-playing` — up to 3 playing games with cover and days active
+- [x] `GET /api/stats/recently-added` — last 4 vault additions
+- [x] `GET /api/stats/completions-by-month` — completions grouped by month using `completed_at`
+- [x] `GET /api/stats/genre-breakdown` — top 10 genres by vault count
+- [x] Colored stat cards (blue/amber/green/purple accents) with segmented progress bar
+- [x] Currently Playing hero card with cover art, platforms, days active badge
+- [x] Most Recently Added cover grid (4 entries, relative timestamps)
+- [x] Completions bar chart — last 12 months, Recharts, green bars
+- [x] Genre breakdown horizontal bar chart — Recharts, purple shades
+- [x] `completed_at` column on `vault_entries` for accurate completion date tracking
 
 **Exit criteria:** Dashboard shows real data from your vault visually.
 
