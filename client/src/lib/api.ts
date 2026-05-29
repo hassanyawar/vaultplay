@@ -9,6 +9,8 @@ import type {
   StatsSummary,
   CurrentlyPlayingGame,
   RecentlyAddedGame,
+  CompletionByMonth,
+  GenreBreakdown,
 } from '@/types/game';
 
 export async function searchGames(query: string): Promise<GameSearchResult[]> {
@@ -151,4 +153,24 @@ export async function getRecentlyAdded(): Promise<RecentlyAddedGame[]> {
   }
   const data = (await res.json()) as { games: RecentlyAddedGame[] };
   return data.games;
+}
+
+export async function getCompletionsByMonth(): Promise<CompletionByMonth[]> {
+  const res = await fetch('/api/stats/completions-by-month');
+  if (!res.ok) {
+    const { error } = (await res.json()) as { error: string };
+    throw new Error(error ?? 'Failed to load completions by month');
+  }
+  const data = (await res.json()) as { completions: CompletionByMonth[] };
+  return data.completions;
+}
+
+export async function getGenreBreakdown(): Promise<GenreBreakdown[]> {
+  const res = await fetch('/api/stats/genre-breakdown');
+  if (!res.ok) {
+    const { error } = (await res.json()) as { error: string };
+    throw new Error(error ?? 'Failed to load genre breakdown');
+  }
+  const data = (await res.json()) as { breakdown: GenreBreakdown[] };
+  return data.breakdown;
 }

@@ -101,4 +101,52 @@ router.get('/recently-added', async (_req, res) => {
   });
 });
 
+router.get('/completions-by-month', async (_req, res) => {
+  const result = await pool.query<{
+    year: number;
+    month: number;
+    count: number;
+  }>(`
+    SELECT
+      EXTRACT(YEAR  FROM updated_at)::int AS year,
+      EXTRACT(MONTH FROM updated_at)::int AS month,
+      COUNT(*)::int                       AS count
+    FROM vault_entries
+    WHERE status = 'completed'
+    GROUP BY year, month
+    ORDER BY year ASC, month ASC
+  `);
+
+  res.json({
+    completions: result.rows.map((row) => ({
+      year: row.year,
+      month: row.month,
+      count: row.count,
+    })),
+  });
+});
+
+router.get('/genre-breakdown', async (_req, res) => {
+  const result = await pool.query<{
+    genre: string;
+    count: number;
+  }>(`
+    SELECT
+      unnest(g.genres) AS genre,
+      COUNT(*)::int    AS count
+    FROM vault_entries ve
+    JOIN games g ON g.id = ve.game_id
+    GROUP BY genre
+    ORDER BY count DESC
+    LIMIT 10
+  `);
+
+  res.json({
+    breakdown: result.rows.map((row) => ({
+      genre: row.genre,
+      count: row.count,
+    })),
+  });
+});
+
 export default router;

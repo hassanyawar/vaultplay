@@ -96,3 +96,14 @@ export interface RecentlyAddedGame {
   coverUrl: string | null;
   addedAt: string;
 }
+
+export interface CompletionByMonth {
+  year: number;
+  month: number;
+  count: number;
+}
+
+export interface GenreBreakdown {
+  genre: string;
+  count: number;
+}
