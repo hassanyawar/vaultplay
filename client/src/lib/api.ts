@@ -6,6 +6,9 @@ import type {
   Recommendation,
   StalledGame,
   GenreAffinity,
+  StatsSummary,
+  CurrentlyPlayingGame,
+  RecentlyAddedGame,
 } from '@/types/game';
 
 export async function searchGames(query: string): Promise<GameSearchResult[]> {
@@ -118,4 +121,34 @@ export async function getGenreAffinity(): Promise<GenreAffinity[]> {
   }
   const data = (await res.json()) as { affinity: GenreAffinity[] };
   return data.affinity;
+}
+
+export async function getStatsSummary(): Promise<StatsSummary> {
+  const res = await fetch('/api/stats/summary');
+  if (!res.ok) {
+    const { error } = (await res.json()) as { error: string };
+    throw new Error(error ?? 'Failed to load stats summary');
+  }
+  const data = (await res.json()) as { summary: StatsSummary };
+  return data.summary;
+}
+
+export async function getCurrentlyPlaying(): Promise<CurrentlyPlayingGame[]> {
+  const res = await fetch('/api/stats/currently-playing');
+  if (!res.ok) {
+    const { error } = (await res.json()) as { error: string };
+    throw new Error(error ?? 'Failed to load currently playing');
+  }
+  const data = (await res.json()) as { games: CurrentlyPlayingGame[] };
+  return data.games;
+}
+
+export async function getRecentlyAdded(): Promise<RecentlyAddedGame[]> {
+  const res = await fetch('/api/stats/recently-added');
+  if (!res.ok) {
+    const { error } = (await res.json()) as { error: string };
+    throw new Error(error ?? 'Failed to load recently added');
+  }
+  const data = (await res.json()) as { games: RecentlyAddedGame[] };
+  return data.games;
 }

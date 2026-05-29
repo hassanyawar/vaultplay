@@ -70,3 +70,29 @@ export interface GenreAffinity {
   totalRated: number;
   totalInVault: number;
 }
+
+export interface StatsSummary {
+  total: number;
+  backlog: number;
+  playing: number;
+  completed: number;
+  averageRating: number | null;
+  lastActivityAt: string | null;
+}
+
+export interface CurrentlyPlayingGame {
+  vaultEntryId: number;
+  gameId: number;
+  title: string;
+  coverUrl: string | null;
+  platforms: string[];
+  daysSincePlaying: number;
+}
+
+export interface RecentlyAddedGame {
+  vaultEntryId: number;
+  gameId: number;
+  title: string;
+  coverUrl: string | null;
+  addedAt: string;
+}
