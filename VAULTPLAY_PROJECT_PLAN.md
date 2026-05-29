@@ -50,7 +50,8 @@ VAULTPLAY
 ├── M3 — Vault Manager      (status, ratings, notes)
 ├── M4 — Discovery Engine   (AI recommendations & filtering)
 ├── M5 — Dashboard & Stats  (visual overview of your gaming)
-└── M6 — Polish & Deploy    (UI refinement, deployment)
+├── M6 — Auth & Multi-User  (accounts, per-user vaults, JWT)
+└── M7 — Polish & Deploy    (UI refinement, deployment)
 ```
 
 ---
@@ -202,19 +203,53 @@ on vault data. Swapping to AI requires only adding `ANTHROPIC_API_KEY` to `.env`
 
 ---
 
-### M6 — Polish & Deploy
+### M6 — Auth & Multi-User
+**Goal:** Multiple users can each have their own independent vault.
+**Estimate:** 4–6 days
+
+#### Architecture
+- `users` table stores accounts (id, email, password hash)
+- `vault_entries` gains a `user_id` FK — all personal data is scoped per user
+- `games` table stays shared (RAWG metadata cache, no ownership)
+- JWT-based auth: `POST /api/auth/register` + `POST /api/auth/login` return a signed token
+- Auth middleware verifies the token on every protected route
+- All vault, stats, and discover queries are filtered by the authenticated user's id
+
+#### Your tasks
+- [ ] Test register and login flows
+- [ ] Verify vault data is fully isolated between accounts
+- [ ] Share with friends for early testing
+
+#### AI tasks
+- [ ] Add `users` table to schema; add `user_id` FK to `vault_entries`
+- [ ] Migrate existing vault data to a seed/admin user
+- [ ] `POST /api/auth/register` — create account (hashed password via bcrypt)
+- [ ] `POST /api/auth/login` — verify credentials, return JWT
+- [ ] `GET /api/auth/me` — return current user from token
+- [ ] JWT auth middleware applied to all vault, games, stats, and discover routes
+- [ ] Scope all vault + stats queries to `req.user.id`
+- [ ] Login and register pages in frontend
+- [ ] Token storage (httpOnly cookie or localStorage) + auth context
+- [ ] Protected route wrapper — redirect to login if unauthenticated
+- [ ] Logout button in nav
+
+**Exit criteria:** Two separate accounts each see only their own vault data. Register, login, and logout all work.
+
+---
+
+### M7 — Polish & Deploy
 **Goal:** VAULTPLAY is live and looks great.
 **Estimate:** 2–3 days
 
 #### Your tasks
 - [ ] Deploy frontend to Vercel
 - [ ] Deploy backend to Fly.io
-- [ ] Provision PostgreSQL on Neon
+- [ ] Confirm Neon DB credentials for production
 - [ ] Final UX review & personal taste adjustments
 
 #### AI tasks
 - [ ] Audit code for security issues
-- [ ] Write deployment config files
+- [ ] Write deployment config files (fly.toml, Dockerfile, vercel.json)
 - [ ] Dark/light mode implementation
 - [ ] Responsive design polish
 
@@ -267,8 +302,9 @@ on vault data. Swapping to AI requires only adding `ANTHROPIC_API_KEY` to `.env`
 | M3 — Vault Manager | CRUD & filtering | 3–5 days |
 | M4 — Discovery Engine | AI features | 5–7 days |
 | M5 — Dashboard | Charts & stats | 3–4 days |
-| M6 — Polish & Deploy | Ship it | 2–3 days |
-| **Total** | | **~3–4 weeks** |
+| M6 — Auth & Multi-User | Accounts & per-user vaults | 4–6 days |
+| M7 — Polish & Deploy | Ship it | 2–3 days |
+| **Total** | | **~5–6 weeks** |
 
 ---
 
