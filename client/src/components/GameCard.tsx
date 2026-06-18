@@ -32,7 +32,7 @@ export function GameCard({ game }: GameCardProps) {
     <div className="flex flex-col rounded-lg border border-border bg-card overflow-hidden">
       <div className="aspect-[3/4] bg-muted">
         {game.coverUrl ? (
-          <img src={game.coverUrl} alt={game.title} className="w-full h-full object-cover" />
+          <img src={game.coverUrl} alt={game.title} className="w-full h-full object-cover" loading="lazy" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
             No image
@@ -40,15 +40,15 @@ export function GameCard({ game }: GameCardProps) {
         )}
       </div>
 
-      <div className="flex flex-col gap-2 p-3 flex-1">
-        <h3 className="font-semibold text-sm leading-snug text-foreground">{game.title}</h3>
+      <div className="flex flex-col gap-1.5 p-2 sm:p-3 flex-1">
+        <h3 className="font-semibold text-xs sm:text-sm leading-snug text-foreground">{game.title}</h3>
 
         {game.releaseYear && (
           <p className="text-xs text-muted-foreground">{game.releaseYear}</p>
         )}
 
         {game.platforms.length > 0 && (
-          <div className="flex flex-wrap gap-1">
+          <div className="hidden sm:flex flex-wrap gap-1">
             {game.platforms.slice(0, 4).map((p) => (
               <span
                 key={p}

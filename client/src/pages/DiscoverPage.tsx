@@ -89,7 +89,7 @@ export function DiscoverPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-4 py-12 flex flex-col gap-24">
+      <div className="max-w-3xl mx-auto px-3 sm:px-4 py-6 sm:py-12 flex flex-col gap-12 sm:gap-24">
 
         <section>
           <h2 className="text-2xl font-bold text-foreground mb-1">What to play next</h2>
@@ -101,7 +101,7 @@ export function DiscoverPage() {
               Rate some completed games to get personalised suggestions.
             </p>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-8">
+            <div className="grid grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 mt-8">
               {recommendations.map((rec, i) => {
                 const rankColor =
                   i === 0 ? 'bg-amber-400 text-white' :
@@ -125,6 +125,7 @@ export function DiscoverPage() {
                           src={rec.coverUrl}
                           alt={rec.title}
                           className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                          loading="lazy"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
@@ -137,18 +138,18 @@ export function DiscoverPage() {
                         #{i + 1}
                       </span>
                     </div>
-                    <div className="flex flex-col gap-1.5 p-3">
-                      <h3 className="font-semibold text-sm text-foreground leading-snug line-clamp-2">
+                    <div className="flex flex-col gap-1 p-2 sm:p-3">
+                      <h3 className="font-semibold text-xs sm:text-sm text-foreground leading-snug line-clamp-2">
                         {rec.title}
                       </h3>
-                      <div className="flex flex-wrap gap-1">
+                      <div className="hidden sm:flex flex-wrap gap-1">
                         {rec.genres.slice(0, 2).map((g) => (
                           <span key={g} className="text-xs bg-muted text-muted-foreground rounded-full px-2 py-0.5">
                             {g}
                           </span>
                         ))}
                       </div>
-                      <p className="text-xs text-muted-foreground italic border-l-2 border-border pl-2 mt-0.5">
+                      <p className="hidden sm:block text-xs text-muted-foreground italic border-l-2 border-border pl-2 mt-0.5">
                         {rec.reason}
                       </p>
                     </div>
@@ -189,7 +190,7 @@ export function DiscoverPage() {
                   >
                     <div className="w-20 shrink-0 rounded-xl overflow-hidden bg-muted shadow-sm" style={{ height: '104px' }}>
                       {game.coverUrl ? (
-                        <img src={game.coverUrl} alt={game.title} className="w-full h-full object-cover" />
+                        <img src={game.coverUrl} alt={game.title} className="w-full h-full object-cover" loading="lazy" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
                           No img
