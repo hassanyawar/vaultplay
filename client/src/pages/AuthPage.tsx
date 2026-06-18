@@ -292,13 +292,13 @@ export function AuthPage() {
               fontWeight: 600,
               fontSize: '23px',
               letterSpacing: '0.02em',
-              marginBottom: '2px',
+              margin: '0 0 2px 0',
               color: 'var(--auth-text)',
             }}
           >
             {mode === 'signin' ? 'Welcome back' : 'New player'}
           </h1>
-          <p className="mb-3" style={{ color: 'var(--auth-muted)', fontSize: '13px' }}>
+          <p className="mb-5" style={{ color: 'var(--auth-muted)', fontSize: '13px' }}>
             {mode === 'signin' ? 'Pick up where you left off.' : 'Start building your collection.'}
           </p>
 
