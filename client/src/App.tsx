@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Search, Archive, Compass, LayoutDashboard, Settings2, ShieldCheck, type LucideIcon } from 'lucide-react';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { SearchPage } from '@/pages/SearchPage';
@@ -19,6 +20,24 @@ const TAB_LABELS: Record<Tab, string> = {
   dashboard: 'Dashboard',
   settings: 'Settings',
   admin: 'Admin',
+};
+
+const BOTTOM_NAV_LABELS: Record<Tab, string> = {
+  search: 'Search',
+  vault: 'Vault',
+  discover: 'Discover',
+  dashboard: 'Stats',
+  settings: 'Settings',
+  admin: 'Admin',
+};
+
+const TAB_ICONS: Record<Tab, LucideIcon> = {
+  search: Search,
+  vault: Archive,
+  discover: Compass,
+  dashboard: LayoutDashboard,
+  settings: Settings2,
+  admin: ShieldCheck,
 };
 
 function AppShell() {
@@ -56,17 +75,20 @@ function AppShell() {
   );
 
   return (
-    <div>
-      <nav className="border-b border-border bg-card">
+    <div className="pb-16 md:pb-0">
+      {/* Mobile: slim header — brand + user controls */}
+      <header className="sticky top-0 z-40 border-b border-border bg-card md:hidden">
+        <div className="flex items-center justify-between px-4 py-2.5">
+          <span className="text-xs font-bold tracking-widest text-foreground">VAULTPLAY</span>
+          <div className="flex items-center gap-3">{userControls}</div>
+        </div>
+      </header>
+
+      {/* Desktop: tab bar + user controls */}
+      <nav className="border-b border-border bg-card hidden md:block sticky top-0 z-40">
         <div className="max-w-5xl mx-auto px-4">
-          {/* Mobile: user bar sits above the tab row */}
-          <div className="flex items-center justify-between py-2 border-b border-border md:hidden">
-            <span className="text-xs font-semibold text-foreground tracking-widest">VAULTPLAY</span>
-            <div className="flex items-center gap-3">{userControls}</div>
-          </div>
-          {/* Tab row — scrollable on mobile, single-line with user controls on desktop */}
-          <div className="flex items-end overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
-            <div className="flex items-center gap-1 pt-3 min-w-max">
+          <div className="flex items-end">
+            <div className="flex items-center gap-1 pt-3">
               {tabs.map((t) => (
                 <button
                   key={t}
@@ -81,8 +103,7 @@ function AppShell() {
                 </button>
               ))}
             </div>
-            {/* Desktop-only user controls */}
-            <div className="ml-auto hidden md:flex items-center gap-3 pb-2 pl-4 shrink-0">{userControls}</div>
+            <div className="ml-auto flex items-center gap-3 pb-2 pl-4 shrink-0">{userControls}</div>
           </div>
         </div>
       </nav>
@@ -93,6 +114,28 @@ function AppShell() {
       {tab === 'dashboard' && <DashboardPage />}
       {tab === 'settings' && <SettingsPage />}
       {tab === 'admin' && user.isAdmin && <AdminPage />}
+
+      {/* Mobile: bottom navigation bar */}
+      <nav className="fixed bottom-0 left-0 right-0 border-t border-border bg-card md:hidden z-50">
+        <div className="flex items-center justify-around px-2 py-2">
+          {tabs.map((t) => {
+            const Icon = TAB_ICONS[t];
+            const active = tab === t;
+            return (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className={`flex flex-col items-center gap-0.5 px-3 py-1 min-w-0 transition-colors ${
+                  active ? 'text-foreground' : 'text-muted-foreground'
+                }`}
+              >
+                <Icon size={20} strokeWidth={active ? 2.5 : 1.75} />
+                <span className="text-[10px] font-medium leading-none">{BOTTOM_NAV_LABELS[t]}</span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 }

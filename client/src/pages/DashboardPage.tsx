@@ -306,7 +306,7 @@ export function DashboardPage() {
   const isLoading = !summary && !error;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10">
+    <div className="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-10">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-foreground">Your Vault</h1>
         <p className="text-sm text-muted-foreground mt-1">

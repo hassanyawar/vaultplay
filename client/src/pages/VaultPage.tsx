@@ -76,9 +76,9 @@ export function VaultPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-4 py-12">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold tracking-tight text-foreground mb-1">My Vault</h1>
+      <div className="max-w-3xl mx-auto px-3 sm:px-4 py-6 sm:py-12">
+        <div className="mb-5 sm:mb-8">
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground mb-1">My Vault</h1>
           <p className="text-muted-foreground text-sm">
             {counts.all} game{counts.all !== 1 ? 's' : ''} · {counts.playing} playing ·{' '}
             {counts.completed} completed · {counts.backlog} backlog

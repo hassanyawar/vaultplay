@@ -89,7 +89,7 @@ export function DiscoverPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-4 py-12 flex flex-col gap-24">
+      <div className="max-w-3xl mx-auto px-3 sm:px-4 py-6 sm:py-12 flex flex-col gap-12 sm:gap-24">
 
         <section>
           <h2 className="text-2xl font-bold text-foreground mb-1">What to play next</h2>
