@@ -264,11 +264,11 @@ on vault data. Swapping to AI requires only adding `ANTHROPIC_API_KEY` to `.env`
 - [ ] Final UX review & personal taste adjustments
 
 #### AI tasks
-- [ ] Audit code for security issues
+- [x] Audit code for security issues — rate limiting, startup env checks, error message masking, admin self-delete guard
+- [x] Add `loading="lazy"` to all `<img>` tags (vault, search, dashboard, discover) — eliminates simultaneous image request flood on page load
 - [ ] Write deployment config files (fly.toml, Dockerfile, vercel.json)
 - [ ] Dark/light mode implementation
 - [ ] Responsive design polish
-- [ ] Add `loading="lazy"` to all `<img>` tags (vault, search, dashboard, discover) — eliminates simultaneous image request flood on page load
 - [ ] Pagination on vault list and search results — load 12–16 entries at a time, load more on demand
 
 **Exit criteria:** VAULTPLAY is live at a public URL, images load lazily, and large vaults don't degrade on initial load.

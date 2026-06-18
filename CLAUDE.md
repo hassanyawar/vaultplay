@@ -12,7 +12,7 @@ VAULTPLAY is a personal, non-commercial full-stack web app for tracking video ga
 
 ## Current state
 
-**M1 complete** — tagged `M1` on `master`. **M2 complete** — tagged `M2` on `master`. **M3 complete** — tagged `M3` on `master`. **M4 complete** — tagged `M4` on `master`. **M5 complete** — tagged `M5` on `master`. **M6 complete** — JWT auth with httpOnly cookies, per-user vault scoping, change password, admin panel, username support. Ready for M7 (polish & deploy).
+**M1 complete** — tagged `M1` on `master`. **M2 complete** — tagged `M2` on `master`. **M3 complete** — tagged `M3` on `master`. **M4 complete** — tagged `M4` on `master`. **M5 complete** — tagged `M5` on `master`. **M6 complete** — JWT auth with httpOnly cookies, per-user vault scoping, change password, admin panel, username support. **M7 in progress** — security audit done (rate limiting, env checks, error masking), lazy loading on all images. Next: deployment configs.
 
 ---
 
