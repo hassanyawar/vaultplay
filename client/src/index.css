@@ -267,3 +267,105 @@ code {
     @apply font-sans;
   }
 }
+
+/* ─── Auth page ─────────────────────────────────────────────────────────── */
+
+/* Remove root border when auth page is mounted */
+#root.auth-mode {
+  border-inline: none;
+}
+
+/* Light-mode CSS vars */
+.auth-page {
+  --auth-void: #EFEAF8;
+  --auth-panel: rgba(255, 255, 255, 0.74);
+  --auth-panel-edge: rgba(124, 92, 255, 0.28);
+  --auth-card-shadow: 0 26px 60px -28px rgba(75, 55, 160, 0.45);
+  --auth-inner-top: rgba(255, 255, 255, 0.7);
+  --auth-violet: #6D45F0;
+  --auth-violet-bright: #7C5CFF;
+  --auth-gold: #E89A2B;
+  --auth-bracket: #C97E12;
+  --auth-text: #1B1830;
+  --auth-muted: #635E80;
+  --auth-faint: #9A95B5;
+  --auth-ok: #16B981;
+  --auth-grid-line: rgba(124, 92, 255, 0.10);
+  --auth-input-bg: rgba(255, 255, 255, 0.78);
+  --auth-input-bg-focus: #fff;
+  --auth-input-edge: rgba(124, 92, 255, 0.22);
+  --auth-toggle-bg: rgba(255, 255, 255, 0.6);
+  --auth-toggle-edge: rgba(124, 92, 255, 0.3);
+  --auth-aurora-opacity: 0.32;
+  --auth-vignette: radial-gradient(ellipse 95% 85% at 50% 38%, transparent 50%, rgba(176, 164, 222, 0.5) 100%);
+}
+
+/* Dark-mode overrides */
+.dark .auth-page {
+  --auth-void: #0A0912;
+  --auth-panel: rgba(20, 17, 36, 0.66);
+  --auth-panel-edge: rgba(139, 108, 255, 0.26);
+  --auth-card-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.9);
+  --auth-inner-top: rgba(255, 255, 255, 0.05);
+  --auth-violet: #8B6CFF;
+  --auth-violet-bright: #A78BFF;
+  --auth-gold: #FFC15E;
+  --auth-bracket: #FFC15E;
+  --auth-text: #ECEAF7;
+  --auth-muted: #8E89AE;
+  --auth-faint: #5C5878;
+  --auth-ok: #46E0A8;
+  --auth-grid-line: rgba(139, 108, 255, 0.07);
+  --auth-input-bg: rgba(8, 7, 16, 0.7);
+  --auth-input-bg-focus: rgba(12, 10, 24, 0.9);
+  --auth-input-edge: rgba(139, 108, 255, 0.18);
+  --auth-toggle-bg: rgba(255, 255, 255, 0.05);
+  --auth-toggle-edge: rgba(139, 108, 255, 0.25);
+  --auth-aurora-opacity: 0.55;
+  --auth-vignette: radial-gradient(ellipse 90% 80% at 50% 38%, transparent 45%, rgba(5, 4, 12, 0.85) 100%);
+}
+
+/* Keyframes */
+@keyframes auth-aurora-1 { 50% { transform: translate(14%, 10%) scale(1.12); } }
+@keyframes auth-aurora-2 { 50% { transform: translate(-12%, -8%) scale(1.08); } }
+@keyframes auth-aurora-3 { 50% { transform: translate(-10%, -12%) scale(1.15); } }
+@keyframes auth-dot-pulse {
+  0%   { box-shadow: 0 0 0 0   rgba(70, 224, 168, 0.5); }
+  70%  { box-shadow: 0 0 0 7px rgba(70, 224, 168, 0);   }
+  100% { box-shadow: 0 0 0 0   rgba(70, 224, 168, 0);   }
+}
+
+/* Aurora blob animations */
+.auth-aurora-container { opacity: var(--auth-aurora-opacity); transition: opacity 0.35s ease; }
+.auth-aurora-1 { animation: auth-aurora-1 22s ease-in-out infinite; }
+.auth-aurora-2 { animation: auth-aurora-2 27s ease-in-out infinite; }
+.auth-aurora-3 { animation: auth-aurora-3 19s ease-in-out infinite; }
+
+/* Pulsing status dot */
+.auth-dot { animation: auth-dot-pulse 2.4s ease-out infinite; }
+
+/* Input field */
+.auth-input::placeholder { color: var(--auth-faint); opacity: 1; }
+.auth-input:focus {
+  outline: none !important;
+  background: var(--auth-input-bg-focus) !important;
+  border-color: var(--auth-violet) !important;
+  box-shadow: 0 0 0 3px rgba(139, 108, 255, 0.18), 0 0 22px -6px rgba(139, 108, 255, 0.5);
+}
+
+/* Submit button */
+.auth-submit {
+  transition: background-position 0.4s ease, transform 0.08s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+.auth-submit:hover:not(:disabled) {
+  background-position: 100% 0 !important;
+  box-shadow: 0 16px 38px -10px rgba(232, 154, 43, 0.6) !important;
+}
+.auth-submit:active:not(:disabled) {
+  transform: translateY(1px) scale(0.995);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-aurora-1, .auth-aurora-2, .auth-aurora-3, .auth-dot { animation: none; }
+  .auth-submit, .auth-aurora-container { transition: none; }
+}

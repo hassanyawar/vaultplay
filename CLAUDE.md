@@ -14,6 +14,8 @@ VAULTPLAY is a personal, non-commercial full-stack web app for tracking video ga
 
 **M1 complete** — tagged `M1` on `master`. **M2 complete** — tagged `M2` on `master`. **M3 complete** — tagged `M3` on `master`. **M4 complete** — tagged `M4` on `master`. **M5 complete** — tagged `M5` on `master`. **M6 complete** — JWT auth with httpOnly cookies, per-user vault scoping, change password, admin panel, username support. **M7 complete** — tagged `M7` on `master`. Deployed to Vercel + Railway, dark/light mode, mobile responsive with bottom nav, load-more pagination.
 
+**M7 ongoing polish** — auth page visual overhaul in progress: unified `AuthPage` (replaces `LoginPage` + `RegisterPage`), aurora animated background, glassmorphism card, Chakra Petch + IBM Plex Mono fonts, violet→gold gradient CTA button, password show/hide toggle.
+
 ---
 
 ## Planned architecture
