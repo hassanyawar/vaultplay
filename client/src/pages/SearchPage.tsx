@@ -6,20 +6,28 @@ import type { GameSearchResult } from '@/types/game';
 
 export function SearchPage() {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<GameSearchResult[]>([]);
-  const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+  const [currentQuery, setCurrentQuery] = useState('');
+  const [allResults, setAllResults] = useState<GameSearchResult[]>([]);
+  const [hasMore, setHasMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [status, setStatus] = useState<'idle' | 'loading' | 'loading-more' | 'done' | 'error'>('idle');
   const [error, setError] = useState('');
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-    if (!query.trim()) return;
+    const q = query.trim();
+    if (!q) return;
 
     setStatus('loading');
     setError('');
+    setAllResults([]);
+    setPage(1);
+    setCurrentQuery(q);
 
     try {
-      const data = await searchGames(query.trim());
-      setResults(data);
+      const { results, hasMore: more } = await searchGames(q, 1);
+      setAllResults(results);
+      setHasMore(more);
       setStatus('done');
     } catch (err) {
       setError((err as Error).message);
@@ -27,15 +35,29 @@ export function SearchPage() {
     }
   }
 
+  async function loadMore() {
+    const nextPage = page + 1;
+    setStatus('loading-more');
+    try {
+      const { results: newResults, hasMore: more } = await searchGames(currentQuery, nextPage);
+      setAllResults((prev) => [...prev, ...newResults]);
+      setHasMore(more);
+      setPage(nextPage);
+      setStatus('done');
+    } catch {
+      setStatus('done');
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-5xl mx-auto px-4 py-12">
-        <div className="mb-10 text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-foreground mb-2">VAULTPLAY</h1>
+      <div className="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-12">
+        <div className="mb-6 sm:mb-10 text-center">
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground mb-2">VAULTPLAY</h1>
           <p className="text-muted-foreground">Search for a game and add it to your vault.</p>
         </div>
 
-        <form onSubmit={handleSearch} className="flex gap-2 mb-10">
+        <form onSubmit={(e) => void handleSearch(e)} className="flex gap-2 mb-6 sm:mb-10">
           <input
             type="text"
             value={query}
@@ -52,16 +74,30 @@ export function SearchPage() {
           <p className="text-center text-destructive text-sm mb-6">{error}</p>
         )}
 
-        {status === 'done' && results.length === 0 && (
-          <p className="text-center text-muted-foreground text-sm">No games found for "{query}".</p>
+        {status === 'done' && allResults.length === 0 && (
+          <p className="text-center text-muted-foreground text-sm">No games found for "{currentQuery}".</p>
         )}
 
-        {results.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {results.map((game) => (
-              <GameCard key={game.rawgId} game={game} />
-            ))}
-          </div>
+        {allResults.length > 0 && (
+          <>
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+              {allResults.map((game) => (
+                <GameCard key={game.rawgId} game={game} />
+              ))}
+            </div>
+
+            {hasMore && (
+              <div className="mt-6 text-center">
+                <Button
+                  variant="outline"
+                  onClick={() => void loadMore()}
+                  disabled={status === 'loading-more'}
+                >
+                  {status === 'loading-more' ? 'Loading…' : 'Load more results'}
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
