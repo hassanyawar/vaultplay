@@ -2,19 +2,11 @@ import { Router, Request, Response } from 'express';
 import { pool } from '../db/client';
 import { searchGames } from '../services/rawg';
 import type { GameSearchResult } from '../types/rawg';
+import { requireAuth } from '../middleware/auth';
 
 const router = Router();
 
-router.get('/', async (_req: Request, res: Response) => {
-  try {
-    const result = await pool.query('SELECT * FROM games ORDER BY created_at DESC');
-    res.json({ games: result.rows });
-  } catch (err) {
-    res.status(500).json({ error: (err as Error).message });
-  }
-});
-
-router.get('/search', async (req: Request, res: Response) => {
+router.get('/search', requireAuth, async (req: Request, res: Response) => {
   const q = req.query.q as string | undefined;
 
   if (!q || q.trim().length === 0) {
@@ -30,9 +22,10 @@ router.get('/search', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', requireAuth, async (req: Request, res: Response) => {
   const { rawgId, title, coverUrl, platforms, genres, releaseYear } =
     req.body as GameSearchResult;
+  const userId = req.user!.userId;
 
   if (!rawgId || !title) {
     res.status(400).json({ error: 'rawgId and title are required' });
@@ -49,15 +42,18 @@ router.post('/', async (req: Request, res: Response) => {
     );
 
     if (result.rowCount === 0) {
-      // Game row exists — check if vault entry was deleted and needs to be recreated
+      // Game row exists — check if this user's vault entry was deleted and needs to be recreated
       const existing = await pool.query('SELECT * FROM games WHERE rawg_id = $1', [rawgId]);
       const game = existing.rows[0];
       const vaultCheck = await pool.query(
-        'SELECT id FROM vault_entries WHERE game_id = $1',
-        [game.id]
+        'SELECT id FROM vault_entries WHERE game_id = $1 AND user_id = $2',
+        [game.id, userId]
       );
       if (vaultCheck.rowCount === 0) {
-        await pool.query('INSERT INTO vault_entries (game_id) VALUES ($1)', [game.id]);
+        await pool.query(
+          'INSERT INTO vault_entries (game_id, user_id) VALUES ($1, $2)',
+          [game.id, userId]
+        );
         res.status(201).json({ game });
         return;
       }
@@ -66,10 +62,9 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     const game = result.rows[0];
-
     await pool.query(
-      `INSERT INTO vault_entries (game_id) VALUES ($1) ON CONFLICT DO NOTHING`,
-      [game.id]
+      `INSERT INTO vault_entries (game_id, user_id) VALUES ($1, $2)`,
+      [game.id, userId]
     );
 
     res.status(201).json({ game });

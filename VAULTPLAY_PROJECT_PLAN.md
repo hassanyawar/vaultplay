@@ -38,6 +38,8 @@
 - Search & filter vault by status, platform, rating
 - AI-powered recommendations & natural language search
 - Dashboard with stats and charts
+- Multi-user accounts with per-user vaults (JWT auth, httpOnly cookies)
+- Admin panel — manage users and their vault data
 
 ---
 
@@ -204,36 +206,48 @@ on vault data. Swapping to AI requires only adding `ANTHROPIC_API_KEY` to `.env`
 ---
 
 ### M6 — Auth & Multi-User
-**Goal:** Multiple users can each have their own independent vault.
+**Goal:** Multiple users can each have their own independent vault, with account management and an admin panel.
 **Estimate:** 4–6 days
 
 #### Architecture
-- `users` table stores accounts (id, email, password hash)
+- `users` table stores accounts (id, email, password hash, is_admin flag)
 - `vault_entries` gains a `user_id` FK — all personal data is scoped per user
 - `games` table stays shared (RAWG metadata cache, no ownership)
-- JWT-based auth: `POST /api/auth/register` + `POST /api/auth/login` return a signed token
+- JWT-based auth: `POST /api/auth/register` + `POST /api/auth/login` issue httpOnly cookie tokens
 - Auth middleware verifies the token on every protected route
+- Admin middleware restricts admin routes to users with `is_admin = true`
 - All vault, stats, and discover queries are filtered by the authenticated user's id
 
 #### Your tasks
-- [ ] Test register and login flows
+- [x] Test register and login flows
 - [ ] Verify vault data is fully isolated between accounts
+- [ ] Test change password flow
+- [ ] Test admin panel
 - [ ] Share with friends for early testing
 
 #### AI tasks
-- [ ] Add `users` table to schema; add `user_id` FK to `vault_entries`
-- [ ] Migrate existing vault data to a seed/admin user
-- [ ] `POST /api/auth/register` — create account (hashed password via bcrypt)
-- [ ] `POST /api/auth/login` — verify credentials, return JWT
-- [ ] `GET /api/auth/me` — return current user from token
-- [ ] JWT auth middleware applied to all vault, games, stats, and discover routes
-- [ ] Scope all vault + stats queries to `req.user.id`
-- [ ] Login and register pages in frontend
-- [ ] Token storage (httpOnly cookie or localStorage) + auth context
-- [ ] Protected route wrapper — redirect to login if unauthenticated
-- [ ] Logout button in nav
+- [x] Add `users` table to schema; add `user_id` FK to `vault_entries`
+- [x] Migrate existing vault data to seed user; reassign to real account; delete seed user
+- [x] `POST /api/auth/register` — create account (hashed password via bcrypt)
+- [x] `POST /api/auth/login` — verify credentials, issue httpOnly JWT cookie
+- [x] `POST /api/auth/logout` — clear cookie
+- [x] `GET /api/auth/me` — return current user from token
+- [x] JWT auth middleware applied to all vault, games, stats, and discover routes
+- [x] Scope all vault + stats queries to `req.user.id`
+- [x] Login and register pages in frontend
+- [x] httpOnly cookie token storage + AuthContext + session restore on mount
+- [x] Unauthenticated users redirected to login; logout button in nav
+- [ ] `PATCH /api/auth/password` — change password (requires current password + new password)
+- [ ] Change password UI in frontend
+- [ ] `is_admin` column on `users` table
+- [ ] `requireAdmin` middleware
+- [ ] `GET /api/admin/users` — list all users with vault counts
+- [ ] `GET /api/admin/users/:id/vault` — view any user's vault entries
+- [ ] `PATCH /api/admin/users/:id/vault/:entryId` — edit any vault entry
+- [ ] `DELETE /api/admin/users/:id` — delete a user and their data
+- [ ] Admin panel UI — user list, vault viewer, user management actions
 
-**Exit criteria:** Two separate accounts each see only their own vault data. Register, login, and logout all work.
+**Exit criteria:** Two separate accounts each see only their own vault. Register, login, logout, and change password all work. Admin user can view and manage all accounts.
 
 ---
 
@@ -256,6 +270,21 @@ on vault data. Swapping to AI requires only adding `ANTHROPIC_API_KEY` to `.env`
 - [ ] Pagination on vault list and search results — load 12–16 entries at a time, load more on demand
 
 **Exit criteria:** VAULTPLAY is live at a public URL, images load lazily, and large vaults don't degrade on initial load.
+
+---
+
+## Future Features
+
+Features not in any current milestone but worth revisiting if bandwidth allows.
+These are fully scoped ideas — they just didn't fit the current plan or have external dependencies.
+
+| Feature | Description | Why deferred |
+|---|---|---|
+| **Forgot password** | Email a time-limited reset link to the user's address | Requires an email service. Resend (free tier) needs a verified custom domain to send to arbitrary addresses. Nodemailer + Gmail is an option for low volume. Defer until a domain is available or email infra is set up. |
+| **Dark / light mode toggle** | User-controlled theme switching persisted to localStorage | Low priority for personal use; can be added in a later polish pass |
+| **Public profile / shareable vault** | Read-only link to a user's completed/playing games | Requires visibility scoping and a public route; good social feature if app grows |
+| **Import from other services** | Bulk import from Steam, Backloggd, HowLongToBeat | Complex parsing per platform; high value if onboarding more users |
+| **Push notifications** | Remind user about stalled games or long backlogs | Requires a notification service (e.g. web push or email); nice-to-have |
 
 ---
 

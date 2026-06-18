@@ -1,9 +1,13 @@
 import { Router } from 'express';
 import { pool } from '../db/client';
+import { requireAuth } from '../middleware/auth';
 
 const router = Router();
 
-router.get('/summary', async (_req, res) => {
+router.use(requireAuth);
+
+router.get('/summary', async (req, res) => {
+  const userId = req.user!.userId;
   const result = await pool.query<{
     total: number;
     backlog: number;
@@ -20,7 +24,8 @@ router.get('/summary', async (_req, res) => {
       ROUND(AVG(rating) FILTER (WHERE rating IS NOT NULL), 1)              AS average_rating,
       MAX(created_at)                                                       AS last_activity_at
     FROM vault_entries
-  `);
+    WHERE user_id = $1
+  `, [userId]);
 
   const row = result.rows[0];
   res.json({
@@ -35,7 +40,8 @@ router.get('/summary', async (_req, res) => {
   });
 });
 
-router.get('/currently-playing', async (_req, res) => {
+router.get('/currently-playing', async (req, res) => {
+  const userId = req.user!.userId;
   const result = await pool.query<{
     id: number;
     game_id: number;
@@ -53,10 +59,10 @@ router.get('/currently-playing', async (_req, res) => {
       EXTRACT(DAY FROM NOW() - ve.updated_at)::int AS days_since_playing
     FROM vault_entries ve
     JOIN games g ON g.id = ve.game_id
-    WHERE ve.status = 'playing'
+    WHERE ve.status = 'playing' AND ve.user_id = $1
     ORDER BY ve.updated_at DESC
     LIMIT 3
-  `);
+  `, [userId]);
 
   res.json({
     games: result.rows.map((row) => ({
@@ -70,7 +76,8 @@ router.get('/currently-playing', async (_req, res) => {
   });
 });
 
-router.get('/recently-added', async (_req, res) => {
+router.get('/recently-added', async (req, res) => {
+  const userId = req.user!.userId;
   const result = await pool.query<{
     id: number;
     game_id: number;
@@ -86,9 +93,10 @@ router.get('/recently-added', async (_req, res) => {
       ve.created_at AS added_at
     FROM vault_entries ve
     JOIN games g ON g.id = ve.game_id
+    WHERE ve.user_id = $1
     ORDER BY ve.created_at DESC
     LIMIT 4
-  `);
+  `, [userId]);
 
   res.json({
     games: result.rows.map((row) => ({
@@ -101,7 +109,8 @@ router.get('/recently-added', async (_req, res) => {
   });
 });
 
-router.get('/completions-by-month', async (_req, res) => {
+router.get('/completions-by-month', async (req, res) => {
+  const userId = req.user!.userId;
   const result = await pool.query<{
     year: number;
     month: number;
@@ -112,10 +121,10 @@ router.get('/completions-by-month', async (_req, res) => {
       EXTRACT(MONTH FROM completed_at)::int AS month,
       COUNT(*)::int                         AS count
     FROM vault_entries
-    WHERE status = 'completed' AND completed_at IS NOT NULL
+    WHERE status = 'completed' AND completed_at IS NOT NULL AND user_id = $1
     GROUP BY year, month
     ORDER BY year ASC, month ASC
-  `);
+  `, [userId]);
 
   res.json({
     completions: result.rows.map((row) => ({
@@ -126,7 +135,8 @@ router.get('/completions-by-month', async (_req, res) => {
   });
 });
 
-router.get('/genre-breakdown', async (_req, res) => {
+router.get('/genre-breakdown', async (req, res) => {
+  const userId = req.user!.userId;
   const result = await pool.query<{
     genre: string;
     count: number;
@@ -136,10 +146,11 @@ router.get('/genre-breakdown', async (_req, res) => {
       COUNT(*)::int    AS count
     FROM vault_entries ve
     JOIN games g ON g.id = ve.game_id
+    WHERE ve.user_id = $1
     GROUP BY genre
     ORDER BY count DESC
     LIMIT 10
-  `);
+  `, [userId]);
 
   res.json({
     breakdown: result.rows.map((row) => ({
