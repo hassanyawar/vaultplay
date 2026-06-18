@@ -9,6 +9,7 @@ const router = Router();
 
 router.get('/search', requireAuth, async (req: Request, res: Response) => {
   const q = req.query.q as string | undefined;
+  const page = Math.max(1, parseInt((req.query.page as string) ?? '1', 10) || 1);
 
   if (!q || q.trim().length === 0) {
     res.status(400).json({ error: 'Query parameter "q" is required' });
@@ -16,8 +17,8 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
   }
 
   try {
-    const results = await searchGames(q.trim());
-    res.json({ results });
+    const { results, hasMore } = await searchGames(q.trim(), page);
+    res.json({ results, hasMore });
   } catch (err) {
     res.status(502).json({ error: (err as Error).message });
   }

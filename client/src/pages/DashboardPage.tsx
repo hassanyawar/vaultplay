@@ -176,7 +176,7 @@ function RecentlyAddedSection({ games }: { games: RecentlyAddedGame[] }) {
   return (
     <div>
       <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-3">Most Recently Added</h2>
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {games.map((game) => (
           <div key={game.vaultEntryId} className="group flex flex-col gap-1.5">
             <div className="aspect-[3/4] rounded-lg overflow-hidden bg-muted border border-border">
@@ -251,7 +251,7 @@ function GenreBreakdownChart({ data }: { data: GenreBreakdown[] }) {
           <BarChart data={data} layout="vertical" barCategoryGap="25%">
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
             <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-            <YAxis type="category" dataKey="genre" width={90} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+            <YAxis type="category" dataKey="genre" width={80} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
             <Tooltip content={<GenreTooltip />} cursor={{ fill: 'rgba(0,0,0,0.04)' }} isAnimationActive={false} />
             <Bar
               dataKey="count"
@@ -306,7 +306,7 @@ export function DashboardPage() {
   const isLoading = !summary && !error;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10">
+    <div className="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-10">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-foreground">Your Vault</h1>
         <p className="text-sm text-muted-foreground mt-1">

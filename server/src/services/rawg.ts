@@ -25,11 +25,16 @@ function transformGame(game: RawgSearchResponse['results'][number]): GameSearchR
   };
 }
 
-export async function searchGames(query: string, pageSize = 20): Promise<GameSearchResult[]> {
+export async function searchGames(
+  query: string,
+  page = 1,
+  pageSize = 20
+): Promise<{ results: GameSearchResult[]; hasMore: boolean }> {
   const params = new URLSearchParams({
     key: getApiKey(),
     search: query,
     page_size: String(pageSize),
+    page: String(page),
   });
 
   const res = await fetch(`${RAWG_BASE_URL}/games?${params}`);
@@ -39,5 +44,8 @@ export async function searchGames(query: string, pageSize = 20): Promise<GameSea
   }
 
   const data = (await res.json()) as RawgSearchResponse;
-  return data.results.map(transformGame);
+  return {
+    results: data.results.map(transformGame),
+    hasMore: data.next !== null,
+  };
 }
