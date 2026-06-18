@@ -1,7 +1,7 @@
 import type { Recommendation, StalledGame, GenreAffinity } from './types';
 
 export interface IDiscoveryService {
-  getNextToPlay(): Promise<Recommendation[]>;
-  getStalledGames(): Promise<StalledGame[]>;
-  getGenreAffinity(): Promise<GenreAffinity[]>;
+  getNextToPlay(userId: number): Promise<Recommendation[]>;
+  getStalledGames(userId: number): Promise<StalledGame[]>;
+  getGenreAffinity(userId: number): Promise<GenreAffinity[]>;
 }

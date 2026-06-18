@@ -38,6 +38,8 @@
 - Search & filter vault by status, platform, rating
 - AI-powered recommendations & natural language search
 - Dashboard with stats and charts
+- Multi-user accounts with per-user vaults (JWT auth, httpOnly cookies)
+- Admin panel — manage users and their vault data
 
 ---
 
@@ -50,7 +52,8 @@ VAULTPLAY
 ├── M3 — Vault Manager      (status, ratings, notes)
 ├── M4 — Discovery Engine   (AI recommendations & filtering)
 ├── M5 — Dashboard & Stats  (visual overview of your gaming)
-└── M6 — Polish & Deploy    (UI refinement, deployment)
+├── M6 — Auth & Multi-User  (accounts, per-user vaults, JWT)
+└── M7 — Polish & Deploy    (UI refinement, deployment)
 ```
 
 ---
@@ -202,23 +205,87 @@ on vault data. Swapping to AI requires only adding `ANTHROPIC_API_KEY` to `.env`
 
 ---
 
-### M6 — Polish & Deploy
-**Goal:** VAULTPLAY is live and looks great.
-**Estimate:** 2–3 days
+### M6 — Auth & Multi-User
+**Goal:** Multiple users can each have their own independent vault, with account management and an admin panel.
+**Estimate:** 4–6 days
+**Status:** ✅ Complete
+
+#### Architecture
+- `users` table stores accounts (id, email, username, password hash, is_admin flag)
+- `vault_entries` gains a `user_id` FK — all personal data is scoped per user
+- `games` table stays shared (RAWG metadata cache, no ownership)
+- JWT-based auth: `POST /api/auth/register` + `POST /api/auth/login` issue httpOnly cookie tokens
+- Auth middleware verifies the token on every protected route
+- Admin middleware restricts admin routes to users with `is_admin = true`
+- All vault, stats, and discover queries are filtered by the authenticated user's id
+
+#### Your tasks
+- [x] Test register and login flows
+- [x] Verify vault data is fully isolated between accounts
+- [x] Test change password flow
+- [x] Test admin panel
+- [ ] Share with friends for early testing
+
+#### AI tasks
+- [x] Add `users` table to schema; add `user_id` FK to `vault_entries`
+- [x] Migrate existing vault data to seed user; reassign to real account; delete seed user
+- [x] `POST /api/auth/register` — create account (hashed password via bcrypt), username required
+- [x] `POST /api/auth/login` — verify credentials, issue httpOnly JWT cookie
+- [x] `POST /api/auth/logout` — clear cookie
+- [x] `GET /api/auth/me` — return current user from DB (always fresh)
+- [x] JWT auth middleware applied to all vault, games, stats, and discover routes
+- [x] Scope all vault + stats queries to `req.user.id`
+- [x] Login and register pages in frontend (register includes username field)
+- [x] httpOnly cookie token storage + AuthContext + session restore on mount
+- [x] Unauthenticated users redirected to login; logout button in nav
+- [x] `PATCH /api/auth/password` — change password (requires current password + new password)
+- [x] Change password UI in Settings tab
+- [x] `username` column on `users` (unique, alphanumeric/underscore, 3–30 chars)
+- [x] `is_admin` column on `users` table
+- [x] `requireAdmin` middleware
+- [x] `GET /api/admin/users` — list all users with vault counts
+- [x] `GET /api/admin/users/:id/vault` — view any user's vault entries
+- [x] `PATCH /api/admin/users/:id/vault/:entryId` — edit any vault entry
+- [x] `DELETE /api/admin/users/:id` — delete a user and their data
+- [x] Admin panel UI — user list, vault viewer, delete user; tab only visible to admins
+
+**Exit criteria:** ✅ Two separate accounts each see only their own vault. Register, login, logout, and change password all work. Admin user can view and manage all accounts.
+
+---
+
+### M7 — Polish & Deploy
+**Goal:** VAULTPLAY is live, performant, and looks great.
+**Estimate:** 3–4 days
 
 #### Your tasks
 - [ ] Deploy frontend to Vercel
 - [ ] Deploy backend to Fly.io
-- [ ] Provision PostgreSQL on Neon
+- [ ] Confirm Neon DB credentials for production
 - [ ] Final UX review & personal taste adjustments
 
 #### AI tasks
 - [ ] Audit code for security issues
-- [ ] Write deployment config files
+- [ ] Write deployment config files (fly.toml, Dockerfile, vercel.json)
 - [ ] Dark/light mode implementation
 - [ ] Responsive design polish
+- [ ] Add `loading="lazy"` to all `<img>` tags (vault, search, dashboard, discover) — eliminates simultaneous image request flood on page load
+- [ ] Pagination on vault list and search results — load 12–16 entries at a time, load more on demand
 
-**Exit criteria:** VAULTPLAY is live at a public URL.
+**Exit criteria:** VAULTPLAY is live at a public URL, images load lazily, and large vaults don't degrade on initial load.
+
+---
+
+## Future Features
+
+Features not in any current milestone but worth revisiting if bandwidth allows.
+These are fully scoped ideas — they just didn't fit the current plan or have external dependencies.
+
+| Feature | Description | Why deferred |
+|---|---|---|
+| **Forgot password** | Email a time-limited reset link to the user's address | Requires an email service. Resend (free tier) needs a verified custom domain to send to arbitrary addresses. Nodemailer + Gmail is an option for low volume. Defer until a domain is available or email infra is set up. |
+| **Public profile / shareable vault** | Read-only link to a user's completed/playing games | Requires visibility scoping and a public route; good social feature if app grows |
+| **Import from other services** | Bulk import from Steam, Backloggd, HowLongToBeat | Complex parsing per platform; high value if onboarding more users |
+| **Push notifications** | Remind user about stalled games or long backlogs | Requires a notification service (e.g. web push or email); nice-to-have |
 
 ---
 
@@ -267,8 +334,9 @@ on vault data. Swapping to AI requires only adding `ANTHROPIC_API_KEY` to `.env`
 | M3 — Vault Manager | CRUD & filtering | 3–5 days |
 | M4 — Discovery Engine | AI features | 5–7 days |
 | M5 — Dashboard | Charts & stats | 3–4 days |
-| M6 — Polish & Deploy | Ship it | 2–3 days |
-| **Total** | | **~3–4 weeks** |
+| M6 — Auth & Multi-User | Accounts & per-user vaults | 4–6 days |
+| M7 — Polish & Deploy | Ship it | 3–4 days |
+| **Total** | | **~5–7 weeks** |
 
 ---
 

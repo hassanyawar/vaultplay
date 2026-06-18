@@ -3,9 +3,7 @@ import type { IDiscoveryService } from './interface';
 import type { Recommendation, StalledGame, GenreAffinity } from './types';
 
 export class RuleBasedDiscoveryService implements IDiscoveryService {
-  async getNextToPlay(): Promise<Recommendation[]> {
-    // Score each backlog game by how many genres overlap with the user's
-    // highest-rated completed games. Falls back to recency if no rated games exist.
+  async getNextToPlay(userId: number): Promise<Recommendation[]> {
     type Row = {
       game_id: number; rawg_id: number; title: string; cover_url: string | null;
       platforms: string[]; genres: string[]; release_year: number | null;
@@ -16,7 +14,7 @@ export class RuleBasedDiscoveryService implements IDiscoveryService {
         SELECT unnest(g.genres) AS genre, AVG(ve.rating) AS avg_rating
         FROM vault_entries ve
         JOIN games g ON g.id = ve.game_id
-        WHERE ve.status = 'completed' AND ve.rating IS NOT NULL
+        WHERE ve.status = 'completed' AND ve.rating IS NOT NULL AND ve.user_id = $1
         GROUP BY genre
         ORDER BY avg_rating DESC
       ),
@@ -27,7 +25,7 @@ export class RuleBasedDiscoveryService implements IDiscoveryService {
           g.rawg_id, g.title, g.cover_url, g.platforms, g.genres, g.release_year
         FROM vault_entries ve
         JOIN games g ON g.id = ve.game_id
-        WHERE ve.status = 'backlog'
+        WHERE ve.status = 'backlog' AND ve.user_id = $1
       ),
       scored AS (
         SELECT
@@ -40,7 +38,7 @@ export class RuleBasedDiscoveryService implements IDiscoveryService {
                  b.cover_url, b.platforms, b.genres, b.release_year
       )
       SELECT * FROM scored ORDER BY score DESC, game_id ASC LIMIT 5
-    `);
+    `, [userId]);
 
     return result.rows.map((row) => ({
       gameId: row.game_id,
@@ -55,7 +53,7 @@ export class RuleBasedDiscoveryService implements IDiscoveryService {
     }));
   }
 
-  async getStalledGames(): Promise<StalledGame[]> {
+  async getStalledGames(userId: number): Promise<StalledGame[]> {
     const result = await pool.query<{
       id: number;
       game_id: number;
@@ -71,10 +69,10 @@ export class RuleBasedDiscoveryService implements IDiscoveryService {
         EXTRACT(DAY FROM NOW() - ve.updated_at)::int AS days_since_update
       FROM vault_entries ve
       JOIN games g ON g.id = ve.game_id
-      WHERE ve.status = 'playing'
+      WHERE ve.status = 'playing' AND ve.user_id = $1
       ORDER BY ve.updated_at ASC
       LIMIT 5
-    `);
+    `, [userId]);
 
     return result.rows.map((row) => ({
       vaultEntryId: row.id,
@@ -85,7 +83,7 @@ export class RuleBasedDiscoveryService implements IDiscoveryService {
     }));
   }
 
-  async getGenreAffinity(): Promise<GenreAffinity[]> {
+  async getGenreAffinity(userId: number): Promise<GenreAffinity[]> {
     const result = await pool.query<{
       genre: string;
       average_rating: number;
@@ -101,11 +99,12 @@ export class RuleBasedDiscoveryService implements IDiscoveryService {
         SELECT unnest(g.genres) AS genre, ve.rating
         FROM vault_entries ve
         JOIN games g ON g.id = ve.game_id
+        WHERE ve.user_id = $1
       ) sub
       GROUP BY genre
       HAVING COUNT(*) FILTER (WHERE rating IS NOT NULL) > 0
       ORDER BY average_rating DESC, total_rated DESC
-    `);
+    `, [userId]);
 
     return result.rows.map((row) => ({
       genre: row.genre,
