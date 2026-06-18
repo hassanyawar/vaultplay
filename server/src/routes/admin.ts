@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { pool } from '../db/client';
 import { requireAuth, requireAdmin } from '../middleware/auth';
+import { serverError } from '../lib/errors';
 
 const router = Router();
 
@@ -25,7 +26,7 @@ router.get('/users', async (_req, res) => {
     `);
     res.json({ users: result.rows });
   } catch (err) {
-    res.status(500).json({ error: (err as Error).message });
+    res.status(500).json({ error: serverError(err) });
   }
 });
 
@@ -43,7 +44,7 @@ router.get('/users/:id/vault', async (req, res) => {
     `, [userId]);
     res.json({ entries: result.rows });
   } catch (err) {
-    res.status(500).json({ error: (err as Error).message });
+    res.status(500).json({ error: serverError(err) });
   }
 });
 
@@ -72,18 +73,22 @@ router.patch('/users/:id/vault/:entryId', async (req, res) => {
     if (result.rowCount === 0) { res.status(404).json({ error: 'Entry not found' }); return; }
     res.json({ entry: result.rows[0] });
   } catch (err) {
-    res.status(500).json({ error: (err as Error).message });
+    res.status(500).json({ error: serverError(err) });
   }
 });
 
 router.delete('/users/:id', async (req, res) => {
   const userId = parseInt(req.params.id, 10);
   if (isNaN(userId)) { res.status(400).json({ error: 'Invalid user id' }); return; }
+  if (userId === req.user!.userId) {
+    res.status(400).json({ error: 'Cannot delete your own account' });
+    return;
+  }
   try {
     await pool.query(`DELETE FROM users WHERE id = $1`, [userId]);
     res.json({ message: 'User deleted' });
   } catch (err) {
-    res.status(500).json({ error: (err as Error).message });
+    res.status(500).json({ error: serverError(err) });
   }
 });
 

@@ -71,7 +71,7 @@ export function VaultCard({ entry, onUpdate, onDelete }: VaultCardProps) {
     <div className="flex gap-4 rounded-lg border border-border bg-card p-4">
       <div className="w-16 h-20 shrink-0 rounded overflow-hidden bg-muted">
         {entry.cover_url ? (
-          <img src={entry.cover_url} alt={entry.title} className="w-full h-full object-cover" />
+          <img src={entry.cover_url} alt={entry.title} className="w-full h-full object-cover" loading="lazy" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
             No img
