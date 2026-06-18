@@ -11,7 +11,7 @@
 | **Type** | Personal web app — game tracker |
 | **Stack** | React + Vite · Tailwind CSS · shadcn/ui · Node.js + Express · PostgreSQL · RAWG API |
 | **Estimated Duration** | ~3–4 weeks (relaxed pace) |
-| **Deployment** | Vercel (frontend) · Fly.io (backend) · Neon (DB) |
+| **Deployment** | Vercel (frontend) · Railway (backend) · Neon (DB) |
 
 ---
 
@@ -259,7 +259,7 @@ on vault data. Swapping to AI requires only adding `ANTHROPIC_API_KEY` to `.env`
 
 #### Your tasks
 - [ ] Deploy frontend to Vercel
-- [ ] Deploy backend to Fly.io
+- [ ] Deploy backend to Railway
 - [ ] Confirm Neon DB credentials for production
 - [ ] Final UX review & personal taste adjustments
 
