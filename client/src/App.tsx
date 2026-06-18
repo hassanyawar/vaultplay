@@ -8,8 +8,7 @@ import { DiscoverPage } from '@/pages/DiscoverPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { SettingsPage } from '@/pages/SettingsPage';
 import { AdminPage } from '@/pages/AdminPage';
-import { LoginPage } from '@/pages/LoginPage';
-import { RegisterPage } from '@/pages/RegisterPage';
+import { AuthPage } from '@/pages/AuthPage';
 
 type Tab = 'search' | 'vault' | 'discover' | 'dashboard' | 'settings' | 'admin';
 
@@ -43,8 +42,6 @@ const TAB_ICONS: Record<Tab, LucideIcon> = {
 function AppShell() {
   const { user, loading, logout } = useAuth();
   const [tab, setTab] = useState<Tab>('search');
-  const [authView, setAuthView] = useState<'login' | 'register'>('login');
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -54,9 +51,7 @@ function AppShell() {
   }
 
   if (!user) {
-    return authView === 'login'
-      ? <LoginPage onGoToRegister={() => setAuthView('register')} />
-      : <RegisterPage onGoToLogin={() => setAuthView('login')} />;
+    return <AuthPage />;
   }
 
   const tabs = ['search', 'vault', 'discover', 'dashboard', 'settings', ...(user.isAdmin ? ['admin' as Tab] : [])] as Tab[];
