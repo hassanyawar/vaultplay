@@ -9,6 +9,7 @@ function AuthField({ label, children }: { label: string; children: React.ReactNo
   return (
     <div>
       <label
+        className="auth-field-label"
         style={{
           display: 'block',
           fontFamily: "'IBM Plex Mono', monospace",
@@ -16,7 +17,6 @@ function AuthField({ label, children }: { label: string; children: React.ReactNo
           letterSpacing: '0.16em',
           textTransform: 'uppercase',
           color: 'var(--auth-muted)',
-          marginBottom: '8px',
         }}
       >
         {label}
@@ -303,7 +303,7 @@ export function AuthPage() {
           </p>
 
           {/* Form */}
-          <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3 sm:gap-4">
+          <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-2 sm:gap-4">
 
             <AuthField label="Email">
               <input

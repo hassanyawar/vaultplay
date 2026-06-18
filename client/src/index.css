@@ -356,8 +356,10 @@ code {
 
 /* Input field */
 .auth-input { padding: 14px 15px; }
+.auth-field-label { margin-bottom: 8px; }
 @media (max-width: 639px) {
-  .auth-input { padding: 11px 14px; }
+  .auth-input { padding: 10px 13px; }
+  .auth-field-label { margin-bottom: 5px; }
 }
 .auth-input::placeholder { color: var(--auth-faint); opacity: 1; }
 .auth-input:focus {
