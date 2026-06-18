@@ -4,16 +4,18 @@ import { SearchPage } from '@/pages/SearchPage';
 import { VaultPage } from '@/pages/VaultPage';
 import { DiscoverPage } from '@/pages/DiscoverPage';
 import { DashboardPage } from '@/pages/DashboardPage';
+import { SettingsPage } from '@/pages/SettingsPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
 
-type Tab = 'search' | 'vault' | 'discover' | 'dashboard';
+type Tab = 'search' | 'vault' | 'discover' | 'dashboard' | 'settings';
 
 const TAB_LABELS: Record<Tab, string> = {
   search: 'Search',
   vault: 'My Vault',
   discover: 'Discover',
   dashboard: 'Dashboard',
+  settings: 'Settings',
 };
 
 function AppShell() {
@@ -39,7 +41,7 @@ function AppShell() {
     <div>
       <nav className="border-b border-border bg-card">
         <div className="max-w-5xl mx-auto px-4 flex items-center gap-1 pt-3">
-          {(['search', 'vault', 'discover', 'dashboard'] as Tab[]).map((t) => (
+          {(['search', 'vault', 'discover', 'dashboard', 'settings'] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -69,6 +71,7 @@ function AppShell() {
       {tab === 'vault' && <VaultPage />}
       {tab === 'discover' && <DiscoverPage />}
       {tab === 'dashboard' && <DashboardPage />}
+      {tab === 'settings' && <SettingsPage />}
     </div>
   );
 }
