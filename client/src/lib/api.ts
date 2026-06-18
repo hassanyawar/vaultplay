@@ -1,5 +1,7 @@
 import type {
   AuthUser,
+  AdminUser,
+  AdminVaultEntry,
   GameSearchResult,
   SavedGame,
   VaultEntry,
@@ -20,11 +22,11 @@ function apiFetch(url: string, options?: RequestInit): Promise<Response> {
 
 // Auth
 
-export async function register(email: string, password: string): Promise<AuthUser> {
+export async function register(email: string, username: string, password: string): Promise<AuthUser> {
   const res = await apiFetch('/api/auth/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, username, password }),
   });
   if (!res.ok) {
     const { error } = (await res.json()) as { error: string };
@@ -73,6 +75,36 @@ export async function getMe(): Promise<AuthUser | null> {
   if (!res.ok) return null;
   const data = (await res.json()) as { user: AuthUser };
   return data.user;
+}
+
+// Admin
+
+export async function getAdminUsers(): Promise<AdminUser[]> {
+  const res = await apiFetch('/api/admin/users');
+  if (!res.ok) {
+    const { error } = (await res.json()) as { error: string };
+    throw new Error(error ?? 'Failed to load users');
+  }
+  const data = (await res.json()) as { users: AdminUser[] };
+  return data.users;
+}
+
+export async function getAdminUserVault(userId: number): Promise<AdminVaultEntry[]> {
+  const res = await apiFetch(`/api/admin/users/${userId}/vault`);
+  if (!res.ok) {
+    const { error } = (await res.json()) as { error: string };
+    throw new Error(error ?? 'Failed to load vault');
+  }
+  const data = (await res.json()) as { entries: AdminVaultEntry[] };
+  return data.entries;
+}
+
+export async function deleteAdminUser(userId: number): Promise<void> {
+  const res = await apiFetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
+  if (!res.ok) {
+    const { error } = (await res.json()) as { error: string };
+    throw new Error(error ?? 'Failed to delete user');
+  }
 }
 
 // Games

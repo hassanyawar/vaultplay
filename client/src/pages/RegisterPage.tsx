@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 export function RegisterPage({ onGoToLogin }: { onGoToLogin: () => void }) {
   const { register } = useAuth();
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +19,7 @@ export function RegisterPage({ onGoToLogin }: { onGoToLogin: () => void }) {
     }
     setLoading(true);
     try {
-      await register(email, password);
+      await register(email, username, password);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
     } finally {
@@ -50,6 +51,21 @@ export function RegisterPage({ onGoToLogin }: { onGoToLogin: () => void }) {
                 autoComplete="email"
                 className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 placeholder="you@example.com"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Username
+              </label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                autoComplete="username"
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                placeholder="letters, numbers, underscores"
               />
             </div>
 

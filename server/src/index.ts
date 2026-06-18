@@ -10,6 +10,7 @@ import gamesRouter from './routes/games';
 import vaultRouter from './routes/vault';
 import discoverRouter from './routes/discover';
 import statsRouter from './routes/stats';
+import adminRouter from './routes/admin';
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;
@@ -27,6 +28,7 @@ app.use('/api/games', gamesRouter);
 app.use('/api/vault', vaultRouter);
 app.use('/api/discover', discoverRouter);
 app.use('/api/stats', statsRouter);
+app.use('/api/admin', adminRouter);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

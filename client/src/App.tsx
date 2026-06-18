@@ -5,10 +5,11 @@ import { VaultPage } from '@/pages/VaultPage';
 import { DiscoverPage } from '@/pages/DiscoverPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { SettingsPage } from '@/pages/SettingsPage';
+import { AdminPage } from '@/pages/AdminPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
 
-type Tab = 'search' | 'vault' | 'discover' | 'dashboard' | 'settings';
+type Tab = 'search' | 'vault' | 'discover' | 'dashboard' | 'settings' | 'admin';
 
 const TAB_LABELS: Record<Tab, string> = {
   search: 'Search',
@@ -16,6 +17,7 @@ const TAB_LABELS: Record<Tab, string> = {
   discover: 'Discover',
   dashboard: 'Dashboard',
   settings: 'Settings',
+  admin: 'Admin',
 };
 
 function AppShell() {
@@ -41,7 +43,7 @@ function AppShell() {
     <div>
       <nav className="border-b border-border bg-card">
         <div className="max-w-5xl mx-auto px-4 flex items-center gap-1 pt-3">
-          {(['search', 'vault', 'discover', 'dashboard', 'settings'] as Tab[]).map((t) => (
+          {(['search', 'vault', 'discover', 'dashboard', 'settings', ...(user.isAdmin ? ['admin' as Tab] : [])] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -56,7 +58,7 @@ function AppShell() {
           ))}
 
           <div className="ml-auto flex items-center gap-3 pb-2">
-            <span className="text-xs text-muted-foreground">{user.email}</span>
+            <span className="text-xs text-muted-foreground">{user.username}</span>
             <button
               onClick={() => void logout()}
               className="text-xs text-muted-foreground hover:text-foreground transition-colors"
@@ -72,6 +74,7 @@ function AppShell() {
       {tab === 'discover' && <DiscoverPage />}
       {tab === 'dashboard' && <DashboardPage />}
       {tab === 'settings' && <SettingsPage />}
+      {tab === 'admin' && user.isAdmin && <AdminPage />}
     </div>
   );
 }

@@ -3,7 +3,9 @@ CREATE TYPE vault_status AS ENUM ('backlog', 'playing', 'completed');
 CREATE TABLE IF NOT EXISTS users (
   id            SERIAL PRIMARY KEY,
   email         TEXT NOT NULL UNIQUE,
+  username      TEXT NOT NULL UNIQUE,
   password_hash TEXT NOT NULL,
+  is_admin      BOOLEAN NOT NULL DEFAULT FALSE,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

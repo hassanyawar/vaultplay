@@ -40,7 +40,8 @@ export function SettingsPage() {
       <div className="max-w-sm mx-auto">
         <div className="rounded-xl border border-border bg-card px-6 py-7">
           <h2 className="text-base font-semibold text-foreground mb-1">Account</h2>
-          <p className="text-sm text-muted-foreground mb-6">{user?.email}</p>
+          <p className="text-sm text-foreground">{user?.username}</p>
+          <p className="text-xs text-muted-foreground mb-6">{user?.email}</p>
 
           <h3 className="text-sm font-semibold text-foreground mb-4">Change password</h3>
 

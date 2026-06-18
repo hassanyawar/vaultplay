@@ -1,6 +1,29 @@
 export interface AuthUser {
   userId: number;
   email: string;
+  username: string;
+  isAdmin: boolean;
+}
+
+export interface AdminUser {
+  id: number;
+  email: string;
+  username: string;
+  is_admin: boolean;
+  created_at: string;
+  vault_count: string;
+}
+
+export interface AdminVaultEntry {
+  id: number;
+  status: string;
+  rating: number | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  title: string;
+  cover_url: string | null;
+  platforms: string[];
 }
 
 export interface GameSearchResult {
