@@ -125,6 +125,7 @@ export function DiscoverPage() {
                           src={rec.coverUrl}
                           alt={rec.title}
                           className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                          loading="lazy"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
@@ -189,7 +190,7 @@ export function DiscoverPage() {
                   >
                     <div className="w-20 shrink-0 rounded-xl overflow-hidden bg-muted shadow-sm" style={{ height: '104px' }}>
                       {game.coverUrl ? (
-                        <img src={game.coverUrl} alt={game.title} className="w-full h-full object-cover" />
+                        <img src={game.coverUrl} alt={game.title} className="w-full h-full object-cover" loading="lazy" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
                           No img

@@ -153,7 +153,7 @@ function CurrentlyPlayingSection({ games }: { games: CurrentlyPlayingGame[] }) {
           >
             <div className="w-16 h-20 shrink-0 bg-muted overflow-hidden">
               {game.coverUrl
-                ? <img src={game.coverUrl} alt={game.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                ? <img src={game.coverUrl} alt={game.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                 : <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">No art</div>
               }
             </div>
@@ -181,7 +181,7 @@ function RecentlyAddedSection({ games }: { games: RecentlyAddedGame[] }) {
           <div key={game.vaultEntryId} className="group flex flex-col gap-1.5">
             <div className="aspect-[3/4] rounded-lg overflow-hidden bg-muted border border-border">
               {game.coverUrl
-                ? <img src={game.coverUrl} alt={game.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                ? <img src={game.coverUrl} alt={game.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                 : <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">No art</div>
               }
             </div>

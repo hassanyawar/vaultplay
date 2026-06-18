@@ -32,7 +32,7 @@ export function GameCard({ game }: GameCardProps) {
     <div className="flex flex-col rounded-lg border border-border bg-card overflow-hidden">
       <div className="aspect-[3/4] bg-muted">
         {game.coverUrl ? (
-          <img src={game.coverUrl} alt={game.title} className="w-full h-full object-cover" />
+          <img src={game.coverUrl} alt={game.title} className="w-full h-full object-cover" loading="lazy" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
             No image

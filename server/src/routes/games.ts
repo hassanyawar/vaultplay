@@ -3,6 +3,7 @@ import { pool } from '../db/client';
 import { searchGames } from '../services/rawg';
 import type { GameSearchResult } from '../types/rawg';
 import { requireAuth } from '../middleware/auth';
+import { serverError } from '../lib/errors';
 
 const router = Router();
 
@@ -69,7 +70,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
 
     res.status(201).json({ game });
   } catch (err) {
-    res.status(500).json({ error: (err as Error).message });
+    res.status(500).json({ error: serverError(err) });
   }
 });
 

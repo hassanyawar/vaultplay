@@ -126,6 +126,7 @@ export function AdminPage() {
                           src={entry.cover_url}
                           alt={entry.title}
                           className="w-10 h-12 object-cover rounded shrink-0"
+                          loading="lazy"
                         />
                       )}
                       <div className="min-w-0 flex-1">
