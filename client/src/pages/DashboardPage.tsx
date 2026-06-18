@@ -206,7 +206,7 @@ function RecentlyAddedSection({ games }: { games: RecentlyAddedGame[] }) {
   return (
     <div>
       <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-3">Most Recently Added</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
         {games.map((game) => (
           <div key={game.vaultEntryId} className="group flex flex-col gap-1.5">
             <div className="aspect-[3/4] rounded-lg overflow-hidden bg-muted border border-border">
