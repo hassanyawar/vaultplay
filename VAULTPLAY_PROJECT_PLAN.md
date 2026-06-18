@@ -256,22 +256,24 @@ on vault data. Swapping to AI requires only adding `ANTHROPIC_API_KEY` to `.env`
 ### M7 — Polish & Deploy
 **Goal:** VAULTPLAY is live, performant, and looks great.
 **Estimate:** 3–4 days
+**Status:** ✅ Complete
 
 #### Your tasks
-- [ ] Deploy frontend to Vercel
-- [ ] Deploy backend to Railway
-- [ ] Confirm Neon DB credentials for production
+- [x] Deploy frontend to Vercel
+- [x] Deploy backend to Railway
+- [x] Confirm Neon DB credentials for production
 - [ ] Final UX review & personal taste adjustments
+- [ ] Share with friends for early testing
 
 #### AI tasks
 - [x] Audit code for security issues — rate limiting, startup env checks, error message masking, admin self-delete guard
 - [x] Add `loading="lazy"` to all `<img>` tags (vault, search, dashboard, discover) — eliminates simultaneous image request flood on page load
-- [ ] Write deployment config files (fly.toml, Dockerfile, vercel.json)
-- [ ] Dark/light mode implementation
-- [ ] Responsive design polish
-- [ ] Pagination on vault list and search results — load 12–16 entries at a time, load more on demand
+- [x] Write deployment config files (Dockerfile, railway.json, vercel.json) — backend on Railway, frontend on Vercel with `/api/*` proxy to fix Safari ITP
+- [x] Dark/light mode — navy-slate palette, localStorage persistence, flash prevention via inline `<head>` script
+- [x] Responsive design — bottom nav bar on mobile, slim header, tighter padding and headings across all pages
+- [x] Pagination on vault list and search results — 16 entries at a time, load more on demand
 
-**Exit criteria:** VAULTPLAY is live at a public URL, images load lazily, and large vaults don't degrade on initial load.
+**Exit criteria:** ✅ VAULTPLAY is live at a public URL, images load lazily, and large vaults don't degrade on initial load.
 
 ---
 
