@@ -32,6 +32,8 @@ export async function getPopularGames(
     key: getApiKey(),
     ordering: '-rating',
     page_size: String(pageSize),
+    // PC=4, PS5=187, Xbox Series X/S=186, Nintendo Switch=7
+    platforms: '4,187,186,7',
   });
   const res = await fetch(`${RAWG_BASE_URL}/games?${params}`);
   if (!res.ok) throw new Error(`RAWG API error: ${res.status} ${res.statusText}`);

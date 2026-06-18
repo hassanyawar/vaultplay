@@ -7,9 +7,17 @@ import { serverError } from '../lib/errors';
 
 const router = Router();
 
+let popularCache: { results: GameSearchResult[]; fetchedAt: number } | null = null;
+const POPULAR_CACHE_TTL = 60 * 60 * 1000; // 1 hour
+
 router.get('/popular', requireAuth, async (_req: Request, res: Response) => {
+  if (popularCache && Date.now() - popularCache.fetchedAt < POPULAR_CACHE_TTL) {
+    res.json({ results: popularCache.results });
+    return;
+  }
   try {
     const { results } = await getPopularGames();
+    popularCache = { results, fetchedAt: Date.now() };
     res.json({ results });
   } catch (err) {
     res.status(502).json({ error: (err as Error).message });

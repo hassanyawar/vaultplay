@@ -92,7 +92,7 @@ export function SearchPage() {
 
         {isIdle && (
           <div>
-            <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-3">
+            <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-3 text-center">
               Popular Games
             </h2>
             {loadingPopular ? (

@@ -109,13 +109,21 @@ export async function deleteAdminUser(userId: number): Promise<void> {
 
 // Games
 
+let popularGamesCache: { results: GameSearchResult[]; fetchedAt: number } | null = null;
+const POPULAR_CACHE_TTL = 5 * 60 * 1000; // 5 minutes — covers repeated tab switches
+
 export async function getPopularGames(): Promise<{ results: GameSearchResult[] }> {
+  if (popularGamesCache && Date.now() - popularGamesCache.fetchedAt < POPULAR_CACHE_TTL) {
+    return { results: popularGamesCache.results };
+  }
   const res = await apiFetch('/api/games/popular');
   if (!res.ok) {
     const { error } = (await res.json()) as { error: string };
     throw new Error(error ?? 'Failed to load popular games');
   }
-  return res.json() as Promise<{ results: GameSearchResult[] }>;
+  const data = (await res.json()) as { results: GameSearchResult[] };
+  popularGamesCache = { results: data.results, fetchedAt: Date.now() };
+  return data;
 }
 
 export async function searchGames(
