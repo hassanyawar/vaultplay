@@ -220,6 +220,10 @@ code {
 
 .dark {
   /* Dark navy-slate base — not pure black, easy on eyes */
+  --text: #9ca3af;
+  --text-h: #e2e8f0;
+  --bg: #16171d;
+  --border: #2e303a;
   --background: oklch(0.17 0.013 265);
   --foreground: oklch(0.90 0.004 265);
   --card: oklch(0.21 0.013 265);

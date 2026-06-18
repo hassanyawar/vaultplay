@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export function RegisterPage({ onGoToLogin }: { onGoToLogin: () => void }) {
   const { register } = useAuth();
@@ -28,7 +29,8 @@ export function RegisterPage({ onGoToLogin }: { onGoToLogin: () => void }) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 relative">
+      <div className="absolute top-4 right-4"><ThemeToggle /></div>
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-foreground tracking-tight">VAULTPLAY</h1>
