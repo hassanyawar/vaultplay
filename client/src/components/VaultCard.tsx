@@ -81,7 +81,7 @@ export function VaultCard({ entry, onUpdate, onDelete }: VaultCardProps) {
 
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
+          <div className="min-w-0 text-left">
             <h3 className="font-semibold text-sm text-foreground leading-snug truncate">
               {entry.title}
             </h3>

@@ -77,7 +77,7 @@ cd server && npx jest src/path/to/file.test.ts
 ## Git workflow
 
 - **Remote is configured** at `git@github-personal:hassanyawar/vaultplay.git`. Push with `git push origin master --tags` to sync tags.
-- **Always create a feature branch for each milestone task.** Never commit milestone work directly to `develop` or `master`.
+- **Always create a feature branch before doing any work** — this applies to every feature, bug fix, polish task, or any other change, no matter how small. Never commit directly to `develop` or `master`.
   - Branch naming: `feature/<short-description>` (e.g. `feature/express-boilerplate`, `feature/db-schema`)
 - Merge feature branches into `develop` via `--no-ff` merge commits.
 - `master` receives merges from `develop` at milestone boundaries only.
