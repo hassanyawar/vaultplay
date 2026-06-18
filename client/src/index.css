@@ -277,11 +277,11 @@ code {
 
 /* Responsive card padding */
 .auth-card {
-  padding: 30px 28px 26px;
+  padding: 22px 28px 24px;
 }
 @media (max-width: 420px) {
   .auth-card {
-    padding: 24px 18px 20px;
+    padding: 18px 18px 18px;
   }
 }
 
@@ -355,11 +355,10 @@ code {
 .auth-dot { animation: auth-dot-pulse 2.4s ease-out infinite; }
 
 /* Input field */
-.auth-input { padding: 14px 15px; }
-.auth-field-label { margin-bottom: 8px; }
+.auth-field-label { margin-bottom: 4px; }
+.auth-input { padding: 11px 14px; }
 @media (max-width: 639px) {
   .auth-input { padding: 10px 13px; }
-  .auth-field-label { margin-bottom: 5px; }
 }
 .auth-input::placeholder { color: var(--auth-faint); opacity: 1; }
 .auth-input:focus {

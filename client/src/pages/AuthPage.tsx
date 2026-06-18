@@ -269,7 +269,7 @@ export function AuthPage() {
 
           {/* Status bar */}
           <div
-            className="flex items-center gap-2 mb-3 sm:mb-[22px]"
+            className="flex items-center gap-2 mb-1"
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
               fontSize: '10.5px',
@@ -298,12 +298,12 @@ export function AuthPage() {
           >
             {mode === 'signin' ? 'Welcome back' : 'New player'}
           </h1>
-          <p className="mb-3 sm:mb-6" style={{ color: 'var(--auth-muted)', fontSize: '13px' }}>
+          <p className="mb-3" style={{ color: 'var(--auth-muted)', fontSize: '13px' }}>
             {mode === 'signin' ? 'Pick up where you left off.' : 'Start building your collection.'}
           </p>
 
           {/* Form */}
-          <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-2 sm:gap-4">
+          <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-2 sm:gap-3">
 
             <AuthField label="Email">
               <input
