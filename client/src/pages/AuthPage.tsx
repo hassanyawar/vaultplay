@@ -286,6 +286,9 @@ export function AuthPage() {
             <span>vault secure</span>
           </div>
 
+          {/* Card background shimmer — remounts on mode switch */}
+          <div key={`flash-${mode}`} className="auth-card-flash" aria-hidden="true" />
+
           {/* Animated content — remounts on mode switch to replay direction animation */}
           <div key={mode} className={animDir === 'right' ? 'auth-enter-right' : 'auth-enter-left'}>
 

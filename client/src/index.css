@@ -380,6 +380,26 @@ code {
   transform: translateY(1px) scale(0.995);
 }
 
+/* Card background flash on mode switch */
+@keyframes auth-card-flash {
+  0%   { opacity: 0; }
+  30%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+.auth-card-flash {
+  position: absolute;
+  inset: 0;
+  border-radius: 17px;
+  background: linear-gradient(135deg,
+    rgba(139, 108, 255, 0.07) 0%,
+    rgba(167, 139, 255, 0.13) 50%,
+    rgba(255, 193, 94, 0.05) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+  animation: auth-card-flash 0.35s ease-out forwards;
+}
+
 /* Form mode transition */
 @keyframes auth-enter-right {
   from { opacity: 0; transform: translateX(14px); filter: blur(3px); }
@@ -395,5 +415,5 @@ code {
 @media (prefers-reduced-motion: reduce) {
   .auth-aurora-1, .auth-aurora-2, .auth-aurora-3, .auth-dot { animation: none; }
   .auth-submit, .auth-aurora-container { transition: none; }
-  .auth-enter-right, .auth-enter-left { animation: none; }
+  .auth-enter-right, .auth-enter-left, .auth-card-flash { animation: none; }
 }
