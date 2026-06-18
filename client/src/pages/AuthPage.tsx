@@ -105,7 +105,7 @@ export function AuthPage() {
 
   return (
     <div
-      className="auth-page relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="auth-page relative min-h-screen flex items-start sm:items-center justify-center"
       style={{ padding: '28px 18px', color: 'var(--auth-text)' }}
     >
       {/* Full-viewport void background */}
@@ -185,13 +185,15 @@ export function AuthPage() {
         }}
       >
         {theme === 'dark' ? (
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
-          </svg>
-        ) : (
+          /* In dark mode: show sun → click switches to light */
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="4.2" />
             <path d="M12 2v2.6M12 19.4V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.6M19.4 12H22M4.2 19.8 6 18M18 6l1.8-1.8" />
+          </svg>
+        ) : (
+          /* In light mode: show moon → click switches to dark */
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
           </svg>
         )}
       </button>
@@ -249,9 +251,8 @@ export function AuthPage() {
 
         {/* Auth card */}
         <section
-          className="relative rounded-[18px]"
+          className="auth-card relative rounded-[18px]"
           style={{
-            padding: '30px 28px 26px',
             background: 'var(--auth-panel)',
             border: '1px solid var(--auth-panel-edge)',
             backdropFilter: 'blur(14px)',

@@ -275,6 +275,16 @@ code {
   border-inline: none;
 }
 
+/* Responsive card padding */
+.auth-card {
+  padding: 30px 28px 26px;
+}
+@media (max-width: 420px) {
+  .auth-card {
+    padding: 24px 18px 20px;
+  }
+}
+
 /* Light-mode CSS vars */
 .auth-page {
   --auth-void: #EFEAF8;
