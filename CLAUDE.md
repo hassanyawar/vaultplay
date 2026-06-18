@@ -12,7 +12,7 @@ VAULTPLAY is a personal, non-commercial full-stack web app for tracking video ga
 
 ## Current state
 
-**M1 complete** — tagged `M1` on `master`. **M2 complete** — tagged `M2` on `master`. **M3 complete** — tagged `M3` on `master`. **M4 complete** — tagged `M4` on `master`. **M5 complete** — tagged `M5` on `master`. Dashboard with stat cards, progress bar, currently playing, recently added, completions-by-month chart, and genre breakdown chart. Ready for M6 (auth & multi-user). M6 — Polish & Deploy has been renumbered M7.
+**M1 complete** — tagged `M1` on `master`. **M2 complete** — tagged `M2` on `master`. **M3 complete** — tagged `M3` on `master`. **M4 complete** — tagged `M4` on `master`. **M5 complete** — tagged `M5` on `master`. **M6 complete** — JWT auth with httpOnly cookies, per-user vault scoping, change password, admin panel, username support. Ready for M7 (polish & deploy).
 
 ---
 
@@ -95,7 +95,7 @@ cd server && npx jest src/path/to/file.test.ts
 | M3 — Vault Manager | CRUD & filtering | Full CRUD on game list; filter by status, platform, rating |
 | M4 — Discovery Engine | AI features | Ask AI "what should I play next?" and get a meaningful answer |
 | M5 — Dashboard & Stats | Charts & stats | Dashboard shows real vault data visually |
-| M6 — Auth & Multi-User | Accounts & per-user vaults | Two separate accounts each see only their own vault |
+| M6 — Auth & Multi-User | Accounts & per-user vaults | Two separate accounts each see only their own vault ✅ |
 | M7 — Polish & Deploy | Ship it | VAULTPLAY is live at a public URL |
 
 A milestone is complete only when its exit criterion is demonstrably satisfied. Do not advance until it is.

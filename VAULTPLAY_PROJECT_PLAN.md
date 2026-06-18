@@ -208,9 +208,10 @@ on vault data. Swapping to AI requires only adding `ANTHROPIC_API_KEY` to `.env`
 ### M6 — Auth & Multi-User
 **Goal:** Multiple users can each have their own independent vault, with account management and an admin panel.
 **Estimate:** 4–6 days
+**Status:** ✅ Complete
 
 #### Architecture
-- `users` table stores accounts (id, email, password hash, is_admin flag)
+- `users` table stores accounts (id, email, username, password hash, is_admin flag)
 - `vault_entries` gains a `user_id` FK — all personal data is scoped per user
 - `games` table stays shared (RAWG metadata cache, no ownership)
 - JWT-based auth: `POST /api/auth/register` + `POST /api/auth/login` issue httpOnly cookie tokens
@@ -220,34 +221,35 @@ on vault data. Swapping to AI requires only adding `ANTHROPIC_API_KEY` to `.env`
 
 #### Your tasks
 - [x] Test register and login flows
-- [ ] Verify vault data is fully isolated between accounts
-- [ ] Test change password flow
-- [ ] Test admin panel
+- [x] Verify vault data is fully isolated between accounts
+- [x] Test change password flow
+- [x] Test admin panel
 - [ ] Share with friends for early testing
 
 #### AI tasks
 - [x] Add `users` table to schema; add `user_id` FK to `vault_entries`
 - [x] Migrate existing vault data to seed user; reassign to real account; delete seed user
-- [x] `POST /api/auth/register` — create account (hashed password via bcrypt)
+- [x] `POST /api/auth/register` — create account (hashed password via bcrypt), username required
 - [x] `POST /api/auth/login` — verify credentials, issue httpOnly JWT cookie
 - [x] `POST /api/auth/logout` — clear cookie
-- [x] `GET /api/auth/me` — return current user from token
+- [x] `GET /api/auth/me` — return current user from DB (always fresh)
 - [x] JWT auth middleware applied to all vault, games, stats, and discover routes
 - [x] Scope all vault + stats queries to `req.user.id`
-- [x] Login and register pages in frontend
+- [x] Login and register pages in frontend (register includes username field)
 - [x] httpOnly cookie token storage + AuthContext + session restore on mount
 - [x] Unauthenticated users redirected to login; logout button in nav
-- [ ] `PATCH /api/auth/password` — change password (requires current password + new password)
-- [ ] Change password UI in frontend
-- [ ] `is_admin` column on `users` table
-- [ ] `requireAdmin` middleware
-- [ ] `GET /api/admin/users` — list all users with vault counts
-- [ ] `GET /api/admin/users/:id/vault` — view any user's vault entries
-- [ ] `PATCH /api/admin/users/:id/vault/:entryId` — edit any vault entry
-- [ ] `DELETE /api/admin/users/:id` — delete a user and their data
-- [ ] Admin panel UI — user list, vault viewer, user management actions
+- [x] `PATCH /api/auth/password` — change password (requires current password + new password)
+- [x] Change password UI in Settings tab
+- [x] `username` column on `users` (unique, alphanumeric/underscore, 3–30 chars)
+- [x] `is_admin` column on `users` table
+- [x] `requireAdmin` middleware
+- [x] `GET /api/admin/users` — list all users with vault counts
+- [x] `GET /api/admin/users/:id/vault` — view any user's vault entries
+- [x] `PATCH /api/admin/users/:id/vault/:entryId` — edit any vault entry
+- [x] `DELETE /api/admin/users/:id` — delete a user and their data
+- [x] Admin panel UI — user list, vault viewer, delete user; tab only visible to admins
 
-**Exit criteria:** Two separate accounts each see only their own vault. Register, login, logout, and change password all work. Admin user can view and manage all accounts.
+**Exit criteria:** ✅ Two separate accounts each see only their own vault. Register, login, logout, and change password all work. Admin user can view and manage all accounts.
 
 ---
 
@@ -281,7 +283,6 @@ These are fully scoped ideas — they just didn't fit the current plan or have e
 | Feature | Description | Why deferred |
 |---|---|---|
 | **Forgot password** | Email a time-limited reset link to the user's address | Requires an email service. Resend (free tier) needs a verified custom domain to send to arbitrary addresses. Nodemailer + Gmail is an option for low volume. Defer until a domain is available or email infra is set up. |
-| **Dark / light mode toggle** | User-controlled theme switching persisted to localStorage | Low priority for personal use; can be added in a later polish pass |
 | **Public profile / shareable vault** | Read-only link to a user's completed/playing games | Requires visibility scoping and a public route; good social feature if app grows |
 | **Import from other services** | Bulk import from Steam, Backloggd, HowLongToBeat | Complex parsing per platform; high value if onboarding more users |
 | **Push notifications** | Remind user about stalled games or long backlogs | Requires a notification service (e.g. web push or email); nice-to-have |
