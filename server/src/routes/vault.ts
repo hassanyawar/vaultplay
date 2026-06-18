@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { pool } from '../db/client';
 import { requireAuth } from '../middleware/auth';
+import { serverError } from '../lib/errors';
 
 const router = Router();
 
@@ -56,7 +57,7 @@ router.get('/', async (req: Request, res: Response) => {
     );
     res.json({ entries: result.rows });
   } catch (err) {
-    res.status(500).json({ error: (err as Error).message });
+    res.status(500).json({ error: serverError(err) });
   }
 });
 
@@ -73,7 +74,7 @@ router.get('/platforms', async (req: Request, res: Response) => {
     );
     res.json({ platforms: result.rows.map((r: { platform: string }) => r.platform) });
   } catch (err) {
-    res.status(500).json({ error: (err as Error).message });
+    res.status(500).json({ error: serverError(err) });
   }
 });
 
@@ -152,7 +153,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
 
     res.json({ entry: result.rows[0] });
   } catch (err) {
-    res.status(500).json({ error: (err as Error).message });
+    res.status(500).json({ error: serverError(err) });
   }
 });
 
@@ -177,7 +178,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     res.status(204).send();
   } catch (err) {
-    res.status(500).json({ error: (err as Error).message });
+    res.status(500).json({ error: serverError(err) });
   }
 });
 

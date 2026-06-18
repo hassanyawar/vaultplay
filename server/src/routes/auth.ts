@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { pool } from '../db/client';
 import { requireAuth } from '../middleware/auth';
+import { serverError } from '../lib/errors';
 
 const router = Router();
 const SALT_ROUNDS = 12;
@@ -59,7 +60,7 @@ router.post('/register', async (req, res) => {
       res.status(409).json({ error: 'Email or username is already taken' });
       return;
     }
-    res.status(500).json({ error: (err as Error).message });
+    res.status(500).json({ error: serverError(err) });
   }
 });
 
@@ -96,7 +97,7 @@ router.post('/login', async (req, res) => {
     res.cookie('token', token, COOKIE_OPTIONS);
     res.json({ user: { userId: user.id, email: user.email, username: user.username, isAdmin: user.is_admin } });
   } catch (err) {
-    res.status(500).json({ error: (err as Error).message });
+    res.status(500).json({ error: serverError(err) });
   }
 });
 
@@ -115,7 +116,7 @@ router.get('/me', requireAuth, async (req, res) => {
     if (!user) { res.status(401).json({ error: 'User not found' }); return; }
     res.json({ user: { userId: user.id, email: user.email, username: user.username, isAdmin: user.is_admin } });
   } catch (err) {
-    res.status(500).json({ error: (err as Error).message });
+    res.status(500).json({ error: serverError(err) });
   }
 });
 
@@ -153,7 +154,7 @@ router.patch('/password', requireAuth, async (req, res) => {
     ]);
     res.json({ message: 'Password updated' });
   } catch (err) {
-    res.status(500).json({ error: (err as Error).message });
+    res.status(500).json({ error: serverError(err) });
   }
 });
 
