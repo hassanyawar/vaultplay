@@ -1,11 +1,20 @@
 import { Router, Request, Response } from 'express';
 import { pool } from '../db/client';
-import { searchGames } from '../services/rawg';
+import { searchGames, getPopularGames } from '../services/rawg';
 import type { GameSearchResult } from '../types/rawg';
 import { requireAuth } from '../middleware/auth';
 import { serverError } from '../lib/errors';
 
 const router = Router();
+
+router.get('/popular', requireAuth, async (_req: Request, res: Response) => {
+  try {
+    const { results } = await getPopularGames();
+    res.json({ results });
+  } catch (err) {
+    res.status(502).json({ error: (err as Error).message });
+  }
+});
 
 router.get('/search', requireAuth, async (req: Request, res: Response) => {
   const q = req.query.q as string | undefined;

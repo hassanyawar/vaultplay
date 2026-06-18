@@ -25,6 +25,20 @@ function transformGame(game: RawgSearchResponse['results'][number]): GameSearchR
   };
 }
 
+export async function getPopularGames(
+  pageSize = 20
+): Promise<{ results: GameSearchResult[] }> {
+  const params = new URLSearchParams({
+    key: getApiKey(),
+    ordering: '-rating',
+    page_size: String(pageSize),
+  });
+  const res = await fetch(`${RAWG_BASE_URL}/games?${params}`);
+  if (!res.ok) throw new Error(`RAWG API error: ${res.status} ${res.statusText}`);
+  const data = (await res.json()) as RawgSearchResponse;
+  return { results: data.results.map(transformGame) };
+}
+
 export async function searchGames(
   query: string,
   page = 1,

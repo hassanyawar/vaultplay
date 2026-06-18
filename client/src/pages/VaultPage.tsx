@@ -110,18 +110,28 @@ export function VaultPage() {
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-3 mb-6">
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="text-sm border border-input rounded-md px-3 py-1.5 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-          >
-            <option value="">All statuses</option>
-            <option value="backlog">Backlog</option>
-            <option value="playing">Playing</option>
-            <option value="completed">Completed</option>
-          </select>
+        <div className="flex flex-col gap-3 mb-6">
+          <div className="flex flex-wrap gap-1.5">
+            {(['', 'backlog', 'playing', 'completed'] as const).map((s) => {
+              const label = s === '' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1);
+              const active = filterStatus === s;
+              return (
+                <button
+                  key={s}
+                  onClick={() => setFilterStatus(s)}
+                  className={`text-xs font-medium rounded-full px-3 py-1.5 transition-colors ${
+                    active
+                      ? 'bg-foreground text-background'
+                      : 'border border-input text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
 
+          <div className="flex flex-wrap gap-3">
           <select
             value={filterPlatform}
             onChange={(e) => setFilterPlatform(e.target.value)}
@@ -159,6 +169,7 @@ export function VaultPage() {
               </option>
             ))}
           </select>
+          </div>
         </div>
 
         {status === 'loading' && (

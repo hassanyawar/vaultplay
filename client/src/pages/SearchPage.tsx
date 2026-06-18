@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { GameCard } from '@/components/GameCard';
-import { searchGames } from '@/lib/api';
+import { getPopularGames, searchGames } from '@/lib/api';
 import type { GameSearchResult } from '@/types/game';
 
 export function SearchPage() {
@@ -12,6 +12,16 @@ export function SearchPage() {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<'idle' | 'loading' | 'loading-more' | 'done' | 'error'>('idle');
   const [error, setError] = useState('');
+
+  const [popularGames, setPopularGames] = useState<GameSearchResult[]>([]);
+  const [loadingPopular, setLoadingPopular] = useState(true);
+
+  useEffect(() => {
+    getPopularGames()
+      .then(({ results }) => setPopularGames(results))
+      .catch(() => {})
+      .finally(() => setLoadingPopular(false));
+  }, []);
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -49,6 +59,8 @@ export function SearchPage() {
     }
   }
 
+  const isIdle = status === 'idle';
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-12">
@@ -76,6 +88,27 @@ export function SearchPage() {
 
         {status === 'done' && allResults.length === 0 && (
           <p className="text-center text-muted-foreground text-sm">No games found for "{currentQuery}".</p>
+        )}
+
+        {isIdle && (
+          <div>
+            <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-3">
+              Popular Games
+            </h2>
+            {loadingPopular ? (
+              <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+                {Array.from({ length: 15 }).map((_, i) => (
+                  <div key={i} className="aspect-[3/4] rounded-lg bg-muted animate-pulse" />
+                ))}
+              </div>
+            ) : popularGames.length > 0 ? (
+              <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+                {popularGames.map((game) => (
+                  <GameCard key={game.rawgId} game={game} />
+                ))}
+              </div>
+            ) : null}
+          </div>
         )}
 
         {allResults.length > 0 && (

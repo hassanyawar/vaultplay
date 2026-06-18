@@ -15,6 +15,36 @@ import type {
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+function resolveCSSVar(name: string): string {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function useChartColors() {
+  const [colors, setColors] = useState(() => ({
+    tick: resolveCSSVar('--muted-foreground'),
+    grid: resolveCSSVar('--border'),
+    cursor: document.documentElement.classList.contains('dark')
+      ? 'rgba(255,255,255,0.06)'
+      : 'rgba(0,0,0,0.06)',
+  }));
+
+  useEffect(() => {
+    const update = () =>
+      setColors({
+        tick: resolveCSSVar('--muted-foreground'),
+        grid: resolveCSSVar('--border'),
+        cursor: document.documentElement.classList.contains('dark')
+          ? 'rgba(255,255,255,0.06)'
+          : 'rgba(0,0,0,0.06)',
+      });
+    const obs = new MutationObserver(update);
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => obs.disconnect();
+  }, []);
+
+  return colors;
+}
+
 function formatLastActivity(isoDate: string | null): string {
   if (!isoDate) return 'No activity yet';
   const diff = Math.floor((Date.now() - new Date(isoDate).getTime()) / 86_400_000);
@@ -197,6 +227,7 @@ function RecentlyAddedSection({ games }: { games: RecentlyAddedGame[] }) {
 function CompletionsChart({ data }: { data: CompletionByMonth[] }) {
   const series = buildMonthSeries(data);
   const isEmpty = series.every(d => d.count === 0);
+  const { tick, grid, cursor } = useChartColors();
 
   return (
     <div>
@@ -212,10 +243,10 @@ function CompletionsChart({ data }: { data: CompletionByMonth[] }) {
         <div className="rounded-xl border border-border bg-card px-4 pt-5 pb-3">
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={series} barCategoryGap="30%">
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-              <XAxis dataKey="label" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} width={24} />
-              <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(0,0,0,0.04)' }} isAnimationActive={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke={grid} vertical={false} />
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: tick }} axisLine={false} tickLine={false} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: tick }} axisLine={false} tickLine={false} width={24} />
+              <Tooltip content={<ChartTooltip />} cursor={{ fill: cursor }} isAnimationActive={false} />
               <Bar
                 dataKey="count"
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -234,6 +265,7 @@ function CompletionsChart({ data }: { data: CompletionByMonth[] }) {
 
 function GenreBreakdownChart({ data }: { data: GenreBreakdown[] }) {
   if (data.length === 0) return null;
+  const { tick, grid, cursor } = useChartColors();
 
   const PURPLE_SHADES = [
     '#7c3aed', '#8b5cf6', '#a78bfa', '#c4b5fd',
@@ -249,10 +281,10 @@ function GenreBreakdownChart({ data }: { data: GenreBreakdown[] }) {
       <div className="rounded-xl border border-border bg-card px-4 pt-5 pb-3">
         <ResponsiveContainer width="100%" height={data.length * 36 + 20}>
           <BarChart data={data} layout="vertical" barCategoryGap="25%">
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
-            <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-            <YAxis type="category" dataKey="genre" width={80} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-            <Tooltip content={<GenreTooltip />} cursor={{ fill: 'rgba(0,0,0,0.04)' }} isAnimationActive={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke={grid} horizontal={false} />
+            <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11, fill: tick }} axisLine={false} tickLine={false} />
+            <YAxis type="category" dataKey="genre" width={80} tick={{ fontSize: 10, fill: tick }} axisLine={false} tickLine={false} />
+            <Tooltip content={<GenreTooltip />} cursor={{ fill: cursor }} isAnimationActive={false} />
             <Bar
               dataKey="count"
               // eslint-disable-next-line @typescript-eslint/no-explicit-any

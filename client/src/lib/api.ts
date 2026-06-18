@@ -109,6 +109,15 @@ export async function deleteAdminUser(userId: number): Promise<void> {
 
 // Games
 
+export async function getPopularGames(): Promise<{ results: GameSearchResult[] }> {
+  const res = await apiFetch('/api/games/popular');
+  if (!res.ok) {
+    const { error } = (await res.json()) as { error: string };
+    throw new Error(error ?? 'Failed to load popular games');
+  }
+  return res.json() as Promise<{ results: GameSearchResult[] }>;
+}
+
 export async function searchGames(
   query: string,
   page = 1
