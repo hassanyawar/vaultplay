@@ -76,7 +76,7 @@ cd server && npx jest src/path/to/file.test.ts
 
 ## Git workflow
 
-- **No git remote is currently configured.** Before pushing or creating remote PRs, verify a remote exists: `git remote -v`. Only push if a remote is present.
+- **Remote is configured** at `git@github-personal:hassanyawar/vaultplay.git`. Push with `git push origin master --tags` to sync tags.
 - **Always create a feature branch before doing any work** — this applies to every feature, bug fix, polish task, or any other change, no matter how small. Never commit directly to `develop` or `master`.
   - Branch naming: `feature/<short-description>` (e.g. `feature/express-boilerplate`, `feature/db-schema`)
 - Merge feature branches into `develop` via `--no-ff` merge commits.
