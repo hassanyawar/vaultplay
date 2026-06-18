@@ -380,7 +380,20 @@ code {
   transform: translateY(1px) scale(0.995);
 }
 
+/* Form mode transition */
+@keyframes auth-enter-right {
+  from { opacity: 0; transform: translateX(14px); filter: blur(3px); }
+  to   { opacity: 1; transform: translateX(0);    filter: blur(0);   }
+}
+@keyframes auth-enter-left {
+  from { opacity: 0; transform: translateX(-14px); filter: blur(3px); }
+  to   { opacity: 1; transform: translateX(0);     filter: blur(0);   }
+}
+.auth-enter-right { animation: auth-enter-right 0.2s ease-out; }
+.auth-enter-left  { animation: auth-enter-left  0.2s ease-out; }
+
 @media (prefers-reduced-motion: reduce) {
   .auth-aurora-1, .auth-aurora-2, .auth-aurora-3, .auth-dot { animation: none; }
   .auth-submit, .auth-aurora-container { transition: none; }
+  .auth-enter-right, .auth-enter-left { animation: none; }
 }

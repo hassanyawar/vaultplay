@@ -56,6 +56,7 @@ export function AuthPage() {
   const { theme, toggle } = useTheme();
 
   const [mode, setMode] = useState<Mode>('signin');
+  const [animDir, setAnimDir] = useState<'right' | 'left'>('right');
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -73,6 +74,7 @@ export function AuthPage() {
   }, []);
 
   function switchMode(next: Mode) {
+    setAnimDir(next === 'signup' ? 'right' : 'left');
     setMode(next);
     setError(null);
     setPassword('');
@@ -284,6 +286,9 @@ export function AuthPage() {
             <span>vault secure</span>
           </div>
 
+          {/* Animated content — remounts on mode switch to replay direction animation */}
+          <div key={mode} className={animDir === 'right' ? 'auth-enter-right' : 'auth-enter-left'}>
+
           {/* Heading */}
           <h1
             style={{
@@ -423,6 +428,8 @@ export function AuthPage() {
               </>
             )}
           </p>
+
+          </div>{/* end animated content */}
         </section>
       </main>
     </div>
