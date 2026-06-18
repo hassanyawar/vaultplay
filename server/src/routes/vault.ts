@@ -7,9 +7,40 @@ const router = Router();
 
 router.use(requireAuth);
 
+const PAGE_LIMIT = 16;
+
+router.get('/counts', async (req: Request, res: Response) => {
+  const userId = req.user!.userId;
+  try {
+    const result = await pool.query(
+      `SELECT
+         COUNT(*) AS all,
+         COUNT(*) FILTER (WHERE status = 'backlog') AS backlog,
+         COUNT(*) FILTER (WHERE status = 'playing') AS playing,
+         COUNT(*) FILTER (WHERE status = 'completed') AS completed
+       FROM vault_entries
+       WHERE user_id = $1`,
+      [userId]
+    );
+    const row = result.rows[0];
+    res.json({
+      counts: {
+        all: parseInt(row.all as string, 10),
+        backlog: parseInt(row.backlog as string, 10),
+        playing: parseInt(row.playing as string, 10),
+        completed: parseInt(row.completed as string, 10),
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ error: serverError(err) });
+  }
+});
+
 router.get('/', async (req: Request, res: Response) => {
   const userId = req.user!.userId;
   const { status, platform, rating, sort } = req.query as Record<string, string | undefined>;
+  const page = Math.max(1, parseInt((req.query.page as string) ?? '1', 10) || 1);
+  const offset = (page - 1) * PAGE_LIMIT;
 
   const conditions: string[] = ['ve.user_id = $1'];
   const params: unknown[] = [userId];
@@ -42,20 +73,27 @@ router.get('/', async (req: Request, res: Response) => {
   };
   const orderBy = allowedSorts[sort ?? ''] ?? 've.created_at DESC';
 
+  params.push(PAGE_LIMIT);
+  params.push(offset);
+
   try {
     const result = await pool.query(
       `SELECT
          ve.id, ve.status, ve.rating, ve.notes, ve.review,
          ve.created_at, ve.updated_at,
          g.id AS game_id, g.rawg_id, g.title, g.cover_url,
-         g.platforms, g.genres, g.release_year
+         g.platforms, g.genres, g.release_year,
+         COUNT(*) OVER() AS total_count
        FROM vault_entries ve
        JOIN games g ON g.id = ve.game_id
        WHERE ${conditions.join(' AND ')}
-       ORDER BY ${orderBy}`,
+       ORDER BY ${orderBy}
+       LIMIT $${params.length - 1} OFFSET $${params.length}`,
       params
     );
-    res.json({ entries: result.rows });
+    const total = result.rows.length > 0 ? parseInt(result.rows[0].total_count as string, 10) : 0;
+    const entries = result.rows.map(({ total_count: _, ...rest }) => rest);
+    res.json({ entries, total });
   } catch (err) {
     res.status(500).json({ error: serverError(err) });
   }

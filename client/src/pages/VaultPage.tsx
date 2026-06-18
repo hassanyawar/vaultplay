@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { VaultCard } from '@/components/VaultCard';
-import { getVault, getVaultPlatforms } from '@/lib/api';
+import { getVault, getVaultCounts, getVaultPlatforms } from '@/lib/api';
 import type { VaultEntry } from '@/types/game';
 
 const SORT_OPTIONS = [
@@ -13,7 +14,10 @@ const SORT_OPTIONS = [
 ];
 
 export function VaultPage() {
-  const [entries, setEntries] = useState<VaultEntry[]>([]);
+  const [allEntries, setAllEntries] = useState<VaultEntry[]>([]);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [status, setStatus] = useState<'loading' | 'done' | 'error'>('loading');
   const [error, setError] = useState('');
 
@@ -22,57 +26,78 @@ export function VaultPage() {
   const [filterRating, setFilterRating] = useState('');
   const [sort, setSort] = useState('added_desc');
   const [platforms, setPlatforms] = useState<string[]>([]);
+  const [counts, setCounts] = useState({ all: 0, backlog: 0, playing: 0, completed: 0 });
 
   useEffect(() => {
-    getVaultPlatforms()
-      .then(setPlatforms)
-      .catch(() => {});
+    getVaultPlatforms().then(setPlatforms).catch(() => {});
+    getVaultCounts().then(setCounts).catch(() => {});
   }, []);
 
+  // Re-fetch from page 1 whenever filters or sort change
   useEffect(() => {
     let cancelled = false;
+    setStatus('loading');
+    setAllEntries([]);
+    setPage(1);
+    setTotal(0);
 
-    async function load() {
-      setStatus('loading');
-      try {
-        const data = await getVault({
-          status: filterStatus || undefined,
-          platform: filterPlatform || undefined,
-          rating: filterRating ? parseInt(filterRating, 10) : undefined,
-          sort,
-        });
-        if (!cancelled) {
-          setEntries(data);
-          setStatus('done');
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError((err as Error).message);
-          setStatus('error');
-        }
-      }
-    }
+    getVault({
+      status: filterStatus || undefined,
+      platform: filterPlatform || undefined,
+      rating: filterRating ? parseInt(filterRating, 10) : undefined,
+      sort,
+      page: 1,
+    })
+      .then(({ entries, total: t }) => {
+        if (cancelled) return;
+        setAllEntries(entries);
+        setTotal(t);
+        setStatus('done');
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        setError((err as Error).message);
+        setStatus('error');
+      });
 
-    void load();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [filterStatus, filterPlatform, filterRating, sort]);
 
+  async function loadMore() {
+    const nextPage = page + 1;
+    setLoadingMore(true);
+    try {
+      const { entries: newEntries, total: t } = await getVault({
+        status: filterStatus || undefined,
+        platform: filterPlatform || undefined,
+        rating: filterRating ? parseInt(filterRating, 10) : undefined,
+        sort,
+        page: nextPage,
+      });
+      setAllEntries((prev) => [...prev, ...newEntries]);
+      setTotal(t);
+      setPage(nextPage);
+    } catch {
+      // keep current entries visible; user can retry
+    } finally {
+      setLoadingMore(false);
+    }
+  }
+
   function handleUpdate(id: number, updated: Partial<VaultEntry>) {
-    setEntries((prev) => prev.map((e) => (e.id === id ? { ...e, ...updated } : e)));
+    setAllEntries((prev) => prev.map((e) => (e.id === id ? { ...e, ...updated } : e)));
+    if (updated.status !== undefined) {
+      getVaultCounts().then(setCounts).catch(() => {});
+    }
   }
 
   function handleDelete(id: number) {
-    setEntries((prev) => prev.filter((e) => e.id !== id));
+    setAllEntries((prev) => prev.filter((e) => e.id !== id));
+    setTotal((prev) => Math.max(0, prev - 1));
+    getVaultCounts().then(setCounts).catch(() => {});
   }
 
-  const counts = {
-    all: entries.length,
-    backlog: entries.filter((e) => e.status === 'backlog').length,
-    playing: entries.filter((e) => e.status === 'playing').length,
-    completed: entries.filter((e) => e.status === 'completed').length,
-  };
+  const hasMore = allEntries.length < total;
 
   return (
     <div className="min-h-screen bg-background">
@@ -144,7 +169,7 @@ export function VaultPage() {
           <p className="text-center text-destructive text-sm py-12">{error}</p>
         )}
 
-        {status === 'done' && entries.length === 0 && (
+        {status === 'done' && allEntries.length === 0 && (
           <p className="text-center text-muted-foreground text-sm py-12">
             {filterStatus || filterPlatform || filterRating
               ? 'No games match the selected filters.'
@@ -152,17 +177,33 @@ export function VaultPage() {
           </p>
         )}
 
-        {status === 'done' && entries.length > 0 && (
-          <div className="flex flex-col gap-3">
-            {entries.map((entry) => (
-              <VaultCard
-                key={entry.id}
-                entry={entry}
-                onUpdate={handleUpdate}
-                onDelete={handleDelete}
-              />
-            ))}
-          </div>
+        {status === 'done' && allEntries.length > 0 && (
+          <>
+            <div className="flex flex-col gap-3">
+              {allEntries.map((entry) => (
+                <VaultCard
+                  key={entry.id}
+                  entry={entry}
+                  onUpdate={handleUpdate}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </div>
+
+            {hasMore && (
+              <div className="mt-6 text-center">
+                <Button variant="outline" onClick={() => void loadMore()} disabled={loadingMore}>
+                  {loadingMore ? 'Loading…' : `Load more (${allEntries.length} of ${total})`}
+                </Button>
+              </div>
+            )}
+
+            {!hasMore && total > 16 && (
+              <p className="mt-6 text-center text-xs text-muted-foreground">
+                All {total} games loaded
+              </p>
+            )}
+          </>
         )}
       </div>
     </div>

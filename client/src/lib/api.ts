@@ -109,14 +109,16 @@ export async function deleteAdminUser(userId: number): Promise<void> {
 
 // Games
 
-export async function searchGames(query: string): Promise<GameSearchResult[]> {
-  const res = await apiFetch(`/api/games/search?q=${encodeURIComponent(query)}`);
+export async function searchGames(
+  query: string,
+  page = 1
+): Promise<{ results: GameSearchResult[]; hasMore: boolean }> {
+  const res = await apiFetch(`/api/games/search?q=${encodeURIComponent(query)}&page=${page}`);
   if (!res.ok) {
     const { error } = (await res.json()) as { error: string };
     throw new Error(error ?? 'Search failed');
   }
-  const data = (await res.json()) as { results: GameSearchResult[] };
-  return data.results;
+  return res.json() as Promise<{ results: GameSearchResult[]; hasMore: boolean }>;
 }
 
 export async function saveGame(
@@ -136,17 +138,29 @@ export async function saveGame(
 
 // Vault
 
+export async function getVaultCounts(): Promise<{ all: number; backlog: number; playing: number; completed: number }> {
+  const res = await apiFetch('/api/vault/counts');
+  if (!res.ok) {
+    const { error } = (await res.json()) as { error: string };
+    throw new Error(error ?? 'Failed to load vault counts');
+  }
+  const data = (await res.json()) as { counts: { all: number; backlog: number; playing: number; completed: number } };
+  return data.counts;
+}
+
 export async function getVault(params?: {
   status?: string;
   platform?: string;
   rating?: number;
   sort?: string;
-}): Promise<VaultEntry[]> {
+  page?: number;
+}): Promise<{ entries: VaultEntry[]; total: number }> {
   const qs = new URLSearchParams();
   if (params?.status) qs.set('status', params.status);
   if (params?.platform) qs.set('platform', params.platform);
   if (params?.rating != null) qs.set('rating', String(params.rating));
   if (params?.sort) qs.set('sort', params.sort);
+  if (params?.page != null) qs.set('page', String(params.page));
 
   const url = `/api/vault${qs.toString() ? `?${qs.toString()}` : ''}`;
   const res = await apiFetch(url);
@@ -154,8 +168,7 @@ export async function getVault(params?: {
     const { error } = (await res.json()) as { error: string };
     throw new Error(error ?? 'Failed to load vault');
   }
-  const data = (await res.json()) as { entries: VaultEntry[] };
-  return data.entries;
+  return res.json() as Promise<{ entries: VaultEntry[]; total: number }>;
 }
 
 export async function updateVaultEntry(id: number, update: VaultUpdatePayload): Promise<VaultEntry> {
