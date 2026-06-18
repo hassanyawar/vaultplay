@@ -40,33 +40,49 @@ function AppShell() {
       : <RegisterPage onGoToLogin={() => setAuthView('login')} />;
   }
 
+  const tabs = ['search', 'vault', 'discover', 'dashboard', 'settings', ...(user.isAdmin ? ['admin' as Tab] : [])] as Tab[];
+
+  const userControls = (
+    <>
+      <span className="text-xs text-muted-foreground">{user.username}</span>
+      <ThemeToggle />
+      <button
+        onClick={() => void logout()}
+        className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+      >
+        Sign out
+      </button>
+    </>
+  );
+
   return (
     <div>
       <nav className="border-b border-border bg-card">
-        <div className="max-w-5xl mx-auto px-4 flex items-center gap-1 pt-3">
-          {(['search', 'vault', 'discover', 'dashboard', 'settings', ...(user.isAdmin ? ['admin' as Tab] : [])] as Tab[]).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors ${
-                tab === t
-                  ? 'bg-background text-foreground border border-b-background border-border -mb-px'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {TAB_LABELS[t]}
-            </button>
-          ))}
-
-          <div className="ml-auto flex items-center gap-3 pb-2">
-            <span className="text-xs text-muted-foreground">{user.username}</span>
-            <ThemeToggle />
-            <button
-              onClick={() => void logout()}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Sign out
-            </button>
+        <div className="max-w-5xl mx-auto px-4">
+          {/* Mobile: user bar sits above the tab row */}
+          <div className="flex items-center justify-between py-2 border-b border-border md:hidden">
+            <span className="text-xs font-semibold text-foreground tracking-widest">VAULTPLAY</span>
+            <div className="flex items-center gap-3">{userControls}</div>
+          </div>
+          {/* Tab row — scrollable on mobile, single-line with user controls on desktop */}
+          <div className="flex items-end overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+            <div className="flex items-center gap-1 pt-3 min-w-max">
+              {tabs.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setTab(t)}
+                  className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors whitespace-nowrap ${
+                    tab === t
+                      ? 'bg-background text-foreground border border-b-background border-border -mb-px'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {TAB_LABELS[t]}
+                </button>
+              ))}
+            </div>
+            {/* Desktop-only user controls */}
+            <div className="ml-auto hidden md:flex items-center gap-3 pb-2 pl-4 shrink-0">{userControls}</div>
           </div>
         </div>
       </nav>
