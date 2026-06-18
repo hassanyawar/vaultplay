@@ -16,10 +16,8 @@ import type {
   GenreBreakdown,
 } from '@/types/game';
 
-const API_BASE = import.meta.env.VITE_API_URL ?? '';
-
 function apiFetch(url: string, options?: RequestInit): Promise<Response> {
-  return fetch(`${API_BASE}${url}`, { ...options, credentials: 'include' });
+  return fetch(url, { ...options, credentials: 'include' });
 }
 
 // Auth
