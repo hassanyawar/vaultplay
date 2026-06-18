@@ -31,7 +31,6 @@ const baseInputStyle: React.CSSProperties = {
   background: 'var(--auth-input-bg)',
   border: '1px solid var(--auth-input-edge)',
   borderRadius: '11px',
-  padding: '14px 15px',
   color: 'var(--auth-text)',
   fontSize: '15px',
   fontFamily: "'Inter', system-ui, sans-serif",
@@ -202,8 +201,8 @@ export function AuthPage() {
       <main className="relative w-full max-w-[430px]" style={{ zIndex: 2 }}>
 
         {/* Brand */}
-        <div className="text-center mb-[30px]">
-          <div className="flex justify-center items-center gap-[10px] mb-[18px]">
+        <div className="text-center mb-3 sm:mb-[30px]">
+          <div className="flex justify-center items-center gap-[10px] mb-2 sm:mb-[18px]">
             <svg width="26" height="26" viewBox="0 0 24 24">
               <defs>
                 <linearGradient id="vp-bolt-grad" x1="0" y1="0" x2="1" y2="1">
@@ -237,6 +236,7 @@ export function AuthPage() {
             </span>
           </div>
           <p
+            className="hidden sm:block"
             style={{
               marginTop: '14px',
               color: 'var(--auth-muted)',
@@ -269,7 +269,7 @@ export function AuthPage() {
 
           {/* Status bar */}
           <div
-            className="flex items-center gap-2 mb-[22px]"
+            className="flex items-center gap-2 mb-3 sm:mb-[22px]"
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
               fontSize: '10.5px',
@@ -283,7 +283,6 @@ export function AuthPage() {
               style={{ width: '7px', height: '7px', background: 'var(--auth-ok)' }}
             />
             <span>vault secure</span>
-            <span className="ml-auto hidden sm:block">build&nbsp;v2.6</span>
           </div>
 
           {/* Heading */}
@@ -299,12 +298,12 @@ export function AuthPage() {
           >
             {mode === 'signin' ? 'Welcome back' : 'New player'}
           </h1>
-          <p className="mb-6" style={{ color: 'var(--auth-muted)', fontSize: '13px' }}>
+          <p className="mb-3 sm:mb-6" style={{ color: 'var(--auth-muted)', fontSize: '13px' }}>
             {mode === 'signin' ? 'Pick up where you left off.' : 'Start building your collection.'}
           </p>
 
           {/* Form */}
-          <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-4">
+          <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-3 sm:gap-4">
 
             <AuthField label="Email">
               <input
@@ -375,10 +374,9 @@ export function AuthPage() {
             <button
               type="submit"
               disabled={loading}
-              className="auth-submit w-full rounded-xl disabled:opacity-50"
+              className="auth-submit w-full rounded-xl disabled:opacity-50 mt-2 sm:mt-[10px]"
               style={{
-                marginTop: '10px',
-                padding: '15px',
+                padding: '13px 15px',
                 fontFamily: "'Chakra Petch', sans-serif",
                 fontWeight: 600,
                 fontSize: '15px',
@@ -400,7 +398,7 @@ export function AuthPage() {
           </form>
 
           {/* Mode switcher */}
-          <p className="text-center mt-[22px]" style={{ color: 'var(--auth-muted)', fontSize: '13.5px' }}>
+          <p className="text-center mt-3 sm:mt-[22px]" style={{ color: 'var(--auth-muted)', fontSize: '13.5px' }}>
             {mode === 'signin' ? (
               <>
                 No account yet?{' '}
