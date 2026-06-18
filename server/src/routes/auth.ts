@@ -8,10 +8,11 @@ import { serverError } from '../lib/errors';
 const router = Router();
 const SALT_ROUNDS = 12;
 const USERNAME_RE = /^[a-zA-Z0-9_]{3,30}$/;
+const IS_PROD = process.env.NODE_ENV === 'production';
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax' as const,
+  secure: IS_PROD,
+  sameSite: (IS_PROD ? 'none' : 'lax') as 'none' | 'lax',
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
@@ -102,7 +103,7 @@ router.post('/login', async (req, res) => {
 });
 
 router.post('/logout', (_req, res) => {
-  res.clearCookie('token', { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
+  res.clearCookie('token', { httpOnly: true, sameSite: IS_PROD ? 'none' : 'lax', secure: IS_PROD });
   res.json({ message: 'Logged out' });
 });
 
