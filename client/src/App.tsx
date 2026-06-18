@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Archive, Compass, LayoutDashboard, Settings2, ShieldCheck, type LucideIcon } from 'lucide-react';
+import { Search, Archive, Compass, BarChart2, Settings2, ShieldCheck, type LucideIcon } from 'lucide-react';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { SearchPage } from '@/pages/SearchPage';
@@ -26,7 +26,7 @@ const BOTTOM_NAV_LABELS: Record<Tab, string> = {
   search: 'Search',
   vault: 'Vault',
   discover: 'Discover',
-  dashboard: 'Stats',
+  dashboard: 'Dashboard',
   settings: 'Settings',
   admin: 'Admin',
 };
@@ -35,7 +35,7 @@ const TAB_ICONS: Record<Tab, LucideIcon> = {
   search: Search,
   vault: Archive,
   discover: Compass,
-  dashboard: LayoutDashboard,
+  dashboard: BarChart2,
   settings: Settings2,
   admin: ShieldCheck,
 };
