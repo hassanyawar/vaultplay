@@ -1,6 +1,217 @@
 import { useEffect, useRef, useState } from 'react';
-import { getNextToPlay, getStalledGames, getGenreAffinity } from '@/lib/api';
-import type { Recommendation, StalledGame, GenreAffinity } from '@/types/game';
+import { Plus } from 'lucide-react';
+import { getNextToPlay, getStalledGames, getGenreAffinity, saveGame } from '@/lib/api';
+import type { Recommendation, StalledGame, GenreAffinity, GameSearchResult } from '@/types/game';
+
+// ── Radar chart ──────────────────────────────────────────────────────────────
+
+interface RadarProps {
+  genres: GenreAffinity[];
+}
+
+function GenreRadar({ genres }: RadarProps) {
+  const [active, setActive] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => requestAnimationFrame(() => setActive(true)));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  const cx = 200, cy = 188, R = 128;
+  const n = genres.length;
+  const ang = (i: number) => -Math.PI / 2 + (i * 2 * Math.PI) / n;
+  const pt = (i: number, r: number): [number, number] => [
+    cx + r * Math.cos(ang(i)),
+    cy + r * Math.sin(ang(i)),
+  ];
+
+  // Concentric rings
+  const rings = [1, 2, 3, 4, 5].map((lv) => {
+    const r = (R * lv) / 5;
+    const pts = genres.map((_, i) => pt(i, r).map((v) => v.toFixed(1)).join(',')).join(' ');
+    return <polygon key={lv} className="disc-radar-ring" points={pts} />;
+  });
+
+  // Spokes
+  const spokes = genres.map((_, i) => {
+    const [ox, oy] = pt(i, R);
+    return <line key={i} className="disc-radar-spoke" x1={cx} y1={cy} x2={ox.toFixed(1)} y2={oy.toFixed(1)} />;
+  });
+
+  // Labels + score values
+  const labels = genres.map((g, i) => {
+    const [lx, ly] = pt(i, R + 22);
+    const [vx, vy] = pt(i, R + 36);
+    const c = Math.cos(ang(i));
+    const anchor = Math.abs(c) < 0.25 ? 'middle' : c > 0 ? 'start' : 'end';
+    return (
+      <g key={i}>
+        <text className="disc-radar-label" x={lx.toFixed(1)} y={ly.toFixed(1)} textAnchor={anchor} dominantBaseline="middle">
+          {g.genre}
+        </text>
+        <text className="disc-radar-val" x={vx.toFixed(1)} y={vy.toFixed(1)} textAnchor={anchor} dominantBaseline="middle">
+          {g.averageRating.toFixed(1)}
+        </text>
+      </g>
+    );
+  });
+
+  // Data polygon
+  const dataPts = genres.map((g, i) => pt(i, R * g.averageRating / 10).map((v) => v.toFixed(1)).join(',')).join(' ');
+
+  // Dots at each vertex
+  const dots = genres.map((g, i) => {
+    const [x, y] = pt(i, R * g.averageRating / 10);
+    return <circle key={i} className="disc-radar-dot" cx={x.toFixed(1)} cy={y.toFixed(1)} r="4" />;
+  });
+
+  const groupStyle: React.CSSProperties = {
+    transformBox: 'fill-box',
+    transformOrigin: 'center',
+    transform: active ? 'scale(1)' : 'scale(0.04)',
+    transition: 'transform 0.9s cubic-bezier(0.22, 0.9, 0.32, 1)',
+  };
+
+  return (
+    <div className="disc-radar-wrap">
+      <svg
+        className="disc-radar-svg"
+        viewBox="0 0 400 380"
+        role="img"
+        aria-label="Genre affinity radar"
+      >
+        <defs>
+          <linearGradient id="discRadarFill" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#8B6CFF" stopOpacity="0.48" />
+            <stop offset="1" stopColor="#FFC15E" stopOpacity="0.38" />
+          </linearGradient>
+        </defs>
+        {rings}
+        {spokes}
+        {labels}
+        <g style={groupStyle}>
+          <polygon className="disc-radar-poly" points={dataPts} />
+          {dots}
+        </g>
+      </svg>
+
+      {/* Ranked legend */}
+      <div className="disc-radar-legend">
+        {genres.map((g, i) => (
+          <div key={g.genre} className="disc-leg">
+            <span className="disc-leg-rank">{i + 1}</span>
+            <span className="disc-leg-name">{g.genre}</span>
+            <span className="disc-leg-score">{g.averageRating.toFixed(1)}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function coverInitials(title: string): string {
+  const words = title.trim().split(/\s+/);
+  if (words.length === 1) return title.slice(0, 2).toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
+}
+
+function idleLabel(days: number): string {
+  if (days === 0) return 'Last played today';
+  if (days === 1) return 'Last played yesterday';
+  if (days < 7) return `Last played ${days} days ago`;
+  if (days < 30) return `Last played ${Math.round(days / 7)} week${Math.round(days / 7) !== 1 ? 's' : ''} ago`;
+  const months = Math.round(days / 30);
+  return `Last played ${months} month${months !== 1 ? 's' : ''} ago`;
+}
+
+// ── Rec card ─────────────────────────────────────────────────────────────────
+
+const GRAD_PALETTES = [
+  ['#FFC15E', '#B8401A'],
+  ['#46E0A8', '#1E5A6B'],
+  ['#E89A2B', '#6B3A12'],
+  ['#C45CFF', '#5A1E6B'],
+  ['#FF5C72', '#3A1E6B'],
+  ['#6C8BFF', '#2B2F7A'],
+];
+
+interface RecCardProps {
+  rec: Recommendation;
+  rank: number;
+  visible: boolean;
+  delay: number;
+}
+
+function RecCard({ rec, rank, visible, delay }: RecCardProps) {
+  const [added, setAdded] = useState(false);
+  const palette = GRAD_PALETTES[rank % GRAD_PALETTES.length];
+
+  async function handleAdd(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (added) return;
+    try {
+      await saveGame(rec as GameSearchResult);
+      setAdded(true);
+    } catch {
+      // silently ignore
+    }
+  }
+
+  const isTop = rank < 3;
+
+  return (
+    <article
+      className="disc-rec"
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0) scale(1)' : 'translateY(18px) scale(0.97)',
+        transition: `opacity 0.45s ease ${delay}ms, transform 0.45s ease ${delay}ms`,
+      }}
+    >
+      <div
+        className="disc-rec-cover"
+        style={!rec.coverUrl ? { background: `linear-gradient(150deg, ${palette[0]}, ${palette[1]})` } : undefined}
+      >
+        {rec.coverUrl ? (
+          <img src={rec.coverUrl} alt={rec.title} loading="lazy" />
+        ) : (
+          <div className="disc-rec-cover-fallback">{coverInitials(rec.title)}</div>
+        )}
+
+        <span className={`disc-rec-rank ${isTop ? 'disc-rec-rank-top' : ''}`}>#{rank + 1}</span>
+
+        <button
+          className="disc-rec-add"
+          onClick={(e) => void handleAdd(e)}
+          aria-label={`Add ${rec.title} to vault`}
+          title={added ? 'Added!' : `Add ${rec.title} to vault`}
+        >
+          <Plus size={16} strokeWidth={2.8} />
+        </button>
+
+        <span className="disc-rec-corner disc-corner-tl" aria-hidden />
+        <span className="disc-rec-corner disc-corner-tr" aria-hidden />
+        <span className="disc-rec-corner disc-corner-bl" aria-hidden />
+        <span className="disc-rec-corner disc-corner-br" aria-hidden />
+      </div>
+
+      <div className="disc-rec-body">
+        <h3 className="disc-rec-title">{rec.title}</h3>
+        {rec.genres.length > 0 && (
+          <div className="disc-rec-tags">
+            {rec.genres.slice(0, 2).map((g) => (
+              <span key={g} className="disc-rec-tag">{g}</span>
+            ))}
+          </div>
+        )}
+        {rec.reason && <p className="disc-rec-reason">{rec.reason}</p>}
+      </div>
+    </article>
+  );
+}
+
+// ── Page ─────────────────────────────────────────────────────────────────────
 
 export function DiscoverPage() {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
@@ -8,32 +219,32 @@ export function DiscoverPage() {
   const [affinity, setAffinity] = useState<GenreAffinity[]>([]);
   const [status, setStatus] = useState<'loading' | 'done' | 'error'>('loading');
   const [error, setError] = useState('');
-
   const [recsVisible, setRecsVisible] = useState(false);
   const [stalledVisible, setStalledVisible] = useState(false);
+  const isMounted = useRef(true);
 
-  // Genre affinity animation state
-  const [affinityVisible, setAffinityVisible] = useState(false);
-  const [barsAnimated, setBarsAnimated] = useState(false);
-  const [displayedRatings, setDisplayedRatings] = useState<number[]>([]);
-  const rafRef = useRef<number | null>(null);
+  useEffect(() => {
+    isMounted.current = true;
+    return () => { isMounted.current = false; };
+  }, []);
 
   useEffect(() => {
     async function load() {
-      setStatus('loading');
       try {
         const [recs, stalledGames, genreAffinity] = await Promise.all([
           getNextToPlay(),
           getStalledGames(),
           getGenreAffinity(),
         ]);
+        if (!isMounted.current) return;
         setRecommendations(recs);
         setStalled(stalledGames);
         setAffinity(genreAffinity);
         setStatus('done');
-        setTimeout(() => setRecsVisible(true), 50);
-        setTimeout(() => setStalledVisible(true), 150);
+        setTimeout(() => { if (isMounted.current) setRecsVisible(true); }, 60);
+        setTimeout(() => { if (isMounted.current) setStalledVisible(true); }, 180);
       } catch (err) {
+        if (!isMounted.current) return;
         setError((err as Error).message);
         setStatus('error');
       }
@@ -41,233 +252,97 @@ export function DiscoverPage() {
     void load();
   }, []);
 
-  useEffect(() => {
-    if (affinity.length === 0) return;
-
-    const fadeTimer = setTimeout(() => setAffinityVisible(true), 50);
-    const barTimer = setTimeout(() => setBarsAnimated(true), 200);
-
-    const animTimer = setTimeout(() => {
-      const duration = 900;
-      const startTime = performance.now();
-      const targets = affinity.map((a) => a.averageRating);
-
-      const tick = (now: number) => {
-        const progress = Math.min((now - startTime) / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        setDisplayedRatings(targets.map((t) => t * eased));
-        if (progress < 1) {
-          rafRef.current = requestAnimationFrame(tick);
-        }
-      };
-      rafRef.current = requestAnimationFrame(tick);
-    }, 200);
-
-    return () => {
-      clearTimeout(fadeTimer);
-      clearTimeout(barTimer);
-      clearTimeout(animTimer);
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-    };
-  }, [affinity]);
-
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground text-sm">Loading discoveries…</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="disc-empty">// loading discoveries…</p>
       </div>
     );
   }
 
   if (status === 'error') {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-destructive text-sm">{error}</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="disc-empty" style={{ color: 'var(--destructive)' }}>{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-3 sm:px-4 py-6 sm:py-12 flex flex-col gap-12 sm:gap-24">
+    <div className="min-h-screen">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-12">
 
-        <section>
-          <h2 className="text-2xl font-bold text-foreground mb-1">What to play next</h2>
-          <p className="text-muted-foreground text-sm mb-8">
-            Based on your ratings and genres you enjoy.
-          </p>
+        {/* What to play next */}
+        <section style={{ paddingTop: 54 }}>
+          <h2 className="disc-s-title">What to play <span className="vp-gradient-text">next</span></h2>
+          <p className="disc-s-sub">Based on your ratings and genres you enjoy.</p>
+
           {recommendations.length === 0 ? (
-            <p className="text-muted-foreground text-sm">
-              Rate some completed games to get personalised suggestions.
-            </p>
+            <p className="disc-empty">// rate some completed games to get personalised suggestions</p>
           ) : (
-            <div className="grid grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 mt-8">
-              {recommendations.map((rec, i) => {
-                const rankColor =
-                  i === 0 ? 'bg-amber-400 text-white' :
-                  i === 1 ? 'bg-zinc-400 text-white' :
-                  i === 2 ? 'bg-orange-400 text-white' :
-                  'bg-muted text-muted-foreground';
-                return (
-                  <div
-                    key={rec.gameId}
-                    className="flex flex-col rounded-2xl border border-border bg-card overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
-                    style={{
-                      opacity: recsVisible ? 1 : 0,
-                      transform: recsVisible ? 'translateY(0) scale(1)' : 'translateY(16px) scale(0.97)',
-                      transitionDuration: '500ms',
-                      transitionDelay: `${i * 80}ms`,
-                    }}
-                  >
-                    <div className="relative aspect-[3/4] bg-muted overflow-hidden group">
-                      {rec.coverUrl ? (
-                        <img
-                          src={rec.coverUrl}
-                          alt={rec.title}
-                          className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
-                          No image
-                        </div>
-                      )}
-                      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-300 ease-in-out bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
-                      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
-                      <span className={`absolute top-2 left-2 text-xs font-bold px-2 py-0.5 rounded-full drop-shadow-md ${rankColor}`}>
-                        #{i + 1}
-                      </span>
-                    </div>
-                    <div className="flex flex-col gap-1 p-2 sm:p-3">
-                      <h3 className="font-semibold text-xs sm:text-sm text-foreground leading-snug line-clamp-2">
-                        {rec.title}
-                      </h3>
-                      <div className="hidden sm:flex flex-wrap gap-1">
-                        {rec.genres.slice(0, 2).map((g) => (
-                          <span key={g} className="text-xs bg-muted text-muted-foreground rounded-full px-2 py-0.5">
-                            {g}
-                          </span>
-                        ))}
-                      </div>
-                      <p className="hidden sm:block text-xs text-muted-foreground italic border-l-2 border-border pl-2 mt-0.5">
-                        {rec.reason}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="disc-rec-grid">
+              {recommendations.map((rec, i) => (
+                <RecCard
+                  key={rec.gameId}
+                  rec={rec}
+                  rank={i}
+                  visible={recsVisible}
+                  delay={i * 70}
+                />
+              ))}
             </div>
           )}
         </section>
 
+        {/* Left on the shelf */}
         {stalled.length > 0 && (
-          <section>
-            <h2 className="text-2xl font-bold text-foreground mb-1">Left on the shelf</h2>
-            <p className="text-muted-foreground text-sm mb-8">
-              Games you started but haven't touched in a while.
-            </p>
-            <div className="flex flex-col gap-3 mt-8">
-              {stalled.map((game, i) => {
-                const urgency =
-                  game.daysSinceUpdate <= 7
-                    ? { label: 'Recently played', accent: 'border-l-green-400', badge: 'bg-green-100 text-green-700', idleText: 'text-green-600' }
-                    : game.daysSinceUpdate <= 30
-                      ? { label: 'Getting dusty', accent: 'border-l-amber-400', badge: 'bg-amber-100 text-amber-700', idleText: 'text-amber-600' }
-                      : { label: 'Long abandoned', accent: 'border-l-red-400', badge: 'bg-red-100 text-red-700', idleText: 'text-red-500' };
-                const idleLabel = game.daysSinceUpdate === 0
-                  ? 'Last played today'
-                  : `Last played ${game.daysSinceUpdate} day${game.daysSinceUpdate !== 1 ? 's' : ''} ago`;
-                return (
+          <section style={{ marginTop: 64 }}>
+            <h2 className="disc-s-title">Left on the <span className="vp-gradient-text">shelf</span></h2>
+            <p className="disc-s-sub">Games you started but haven't touched in a while.</p>
+
+            <div className="disc-shelf-list">
+              {stalled.map((game, i) => (
+                <article
+                  key={game.vaultEntryId}
+                  className="disc-shelf"
+                  style={{
+                    opacity: stalledVisible ? 1 : 0,
+                    transform: stalledVisible ? 'translateY(0)' : 'translateY(14px)',
+                    transition: `opacity 0.45s ease ${i * 70}ms, transform 0.45s ease ${i * 70}ms`,
+                  }}
+                >
                   <div
-                    key={game.vaultEntryId}
-                    className={`flex gap-5 rounded-2xl border-l-4 ${urgency.accent} border border-border bg-card p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300`}
-                    style={{
-                      opacity: stalledVisible ? 1 : 0,
-                      transform: stalledVisible ? 'translateY(0)' : 'translateY(12px)',
-                      transitionDuration: '500ms',
-                      transitionDelay: `${i * 80}ms`,
-                    }}
+                    className="disc-shelf-thumb"
+                    style={!game.coverUrl ? { background: 'linear-gradient(150deg, var(--vp-violet), #2B2F7A)' } : undefined}
                   >
-                    <div className="w-20 shrink-0 rounded-xl overflow-hidden bg-muted shadow-sm" style={{ height: '104px' }}>
-                      {game.coverUrl ? (
-                        <img src={game.coverUrl} alt={game.title} className="w-full h-full object-cover" loading="lazy" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
-                          No img
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0 flex flex-col justify-center gap-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <h3 className="font-semibold text-base text-foreground leading-snug">{game.title}</h3>
-                          <p className={`text-xs font-medium mt-1 ${urgency.idleText}`}>{idleLabel}</p>
-                        </div>
-                        <span className={`text-xs font-medium px-2.5 py-1 rounded-full shrink-0 ${urgency.badge}`}>
-                          {urgency.label}
-                        </span>
-                      </div>
-                    </div>
+                    {game.coverUrl ? (
+                      <img src={game.coverUrl} alt={game.title} loading="lazy" />
+                    ) : (
+                      <div className="disc-shelf-thumb-fallback">{coverInitials(game.title)}</div>
+                    )}
                   </div>
-                );
-              })}
+
+                  <div className="disc-shelf-body">
+                    <div className="disc-shelf-title">{game.title}</div>
+                    <div className="disc-shelf-last">{idleLabel(game.daysSinceUpdate)}</div>
+                  </div>
+
+                  <span className="disc-shelf-badge">Resume</span>
+                </article>
+              ))}
             </div>
           </section>
         )}
 
-        <section
-          className="transition-all duration-700"
-          style={{
-            opacity: affinityVisible ? 1 : 0,
-            transform: affinityVisible ? 'translateY(0)' : 'translateY(16px)',
-          }}
-        >
-          <h2 className="text-2xl font-bold text-foreground mb-1">Genre affinity</h2>
-          <p className="text-muted-foreground text-sm mb-6">
-            Genres ranked by your average rating.
-          </p>
+        {/* Genre affinity */}
+        <section style={{ marginTop: 64 }}>
+          <h2 className="disc-s-title">Genre <span className="vp-gradient-text">affinity</span></h2>
+          <p className="disc-s-sub">Genres ranked by your average rating.</p>
+
           {affinity.length === 0 ? (
-            <p className="text-muted-foreground text-sm">
-              Rate some games to see your genre preferences.
-            </p>
+            <p className="disc-empty">// rate some games to see your genre preferences</p>
           ) : (
-            <div className="rounded-lg border border-border bg-card divide-y divide-border">
-              {affinity.map((a, i) => {
-                const pct = (a.averageRating / 10) * 100;
-                const barColor =
-                  a.averageRating >= 8
-                    ? 'bg-green-500'
-                    : a.averageRating >= 6
-                      ? 'bg-amber-500'
-                      : 'bg-red-400';
-                const displayed = displayedRatings[i] ?? 0;
-                return (
-                  <div key={a.genre} className="flex items-center gap-4 px-4 py-3">
-                    <span className="text-xs text-muted-foreground w-4 text-right shrink-0">
-                      {i + 1}
-                    </span>
-                    <span className="w-24 text-sm font-medium text-foreground shrink-0">
-                      {a.genre}
-                    </span>
-                    <div className="flex-1 bg-muted rounded-full h-1.5">
-                      <div
-                        className={`${barColor} h-1.5 rounded-full`}
-                        style={{
-                          width: `${barsAnimated ? pct : 0}%`,
-                          transition: 'width 900ms cubic-bezier(0.16, 1, 0.3, 1)',
-                        }}
-                      />
-                    </div>
-                    <span className="text-sm font-bold text-foreground w-14 text-right shrink-0tabular-nums">
-                      {displayed.toFixed(1)}<span className="text-xs font-normal text-muted-foreground"> /10</span>
-                    </span>
-                    <span className="text-xs text-muted-foreground w-20 text-right shrink-0">
-                      {a.totalRated}/{a.totalInVault} rated
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+            <GenreRadar genres={affinity} />
           )}
         </section>
 
