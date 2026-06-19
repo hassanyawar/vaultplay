@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Trash2, StickyNote } from 'lucide-react';
 import { updateVaultEntry, deleteVaultEntry } from '@/lib/api';
 import type { VaultEntry, VaultStatus } from '@/types/game';
 
@@ -9,17 +9,11 @@ interface VaultCardProps {
   onDelete: (id: number) => void;
 }
 
-const statusLabel: Record<VaultStatus, string> = {
-  backlog: 'Backlog',
-  playing: 'Playing',
-  completed: 'Completed',
-};
-
-const statusStyle: Record<VaultStatus, string> = {
-  backlog: 'bg-muted text-muted-foreground',
-  playing: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
-  completed: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
-};
+function thumbInitials(title: string): string {
+  const words = title.trim().split(/\s+/);
+  if (words.length === 1) return title.slice(0, 2).toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
+}
 
 export function VaultCard({ entry, onUpdate, onDelete }: VaultCardProps) {
   const [notesOpen, setNotesOpen] = useState(false);
@@ -27,22 +21,24 @@ export function VaultCard({ entry, onUpdate, onDelete }: VaultCardProps) {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  async function handleStatusChange(status: VaultStatus) {
-    onUpdate(entry.id, { status });
+  async function handleStatusChange(newStatus: VaultStatus) {
+    const prev = entry.status;
+    onUpdate(entry.id, { status: newStatus });
     try {
-      await updateVaultEntry(entry.id, { status });
+      await updateVaultEntry(entry.id, { status: newStatus });
     } catch {
-      onUpdate(entry.id, { status: entry.status });
+      onUpdate(entry.id, { status: prev });
     }
   }
 
   async function handleRatingChange(raw: string) {
     const rating = raw === '' ? null : parseInt(raw, 10);
+    const prev = entry.rating;
     onUpdate(entry.id, { rating });
     try {
       await updateVaultEntry(entry.id, { rating });
     } catch {
-      onUpdate(entry.id, { rating: entry.rating });
+      onUpdate(entry.id, { rating: prev });
     }
   }
 
@@ -67,103 +63,118 @@ export function VaultCard({ entry, onUpdate, onDelete }: VaultCardProps) {
     }
   }
 
+  const badgeClass = `vault-badge vault-badge-${entry.status}`;
+
   return (
-    <div className="flex gap-4 rounded-lg border border-border bg-card p-4">
-      <div className="w-16 h-20 shrink-0 rounded overflow-hidden bg-muted">
+    <div className="vault-row">
+      {/* Gold corner brackets */}
+      <span className="vault-row-corner vault-corner-tl" aria-hidden />
+      <span className="vault-row-corner vault-corner-tr" aria-hidden />
+      <span className="vault-row-corner vault-corner-bl" aria-hidden />
+      <span className="vault-row-corner vault-corner-br" aria-hidden />
+
+      {/* Thumbnail */}
+      <div className="vault-thumb">
         {entry.cover_url ? (
-          <img src={entry.cover_url} alt={entry.title} className="w-full h-full object-cover" loading="lazy" />
+          <img src={entry.cover_url} alt={entry.title} loading="lazy" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
-            No img
-          </div>
+          <div className="vault-thumb-fallback">{thumbInitials(entry.title)}</div>
         )}
       </div>
 
-      <div className="flex-1 min-w-0">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0 text-left">
-            <h3 className="font-semibold text-sm text-foreground leading-snug truncate">
-              {entry.title}
-            </h3>
-            {entry.release_year && (
-              <p className="text-xs text-muted-foreground mt-0.5">{entry.release_year}</p>
-            )}
+      {/* Content */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        {/* Title row */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+          <div style={{ minWidth: 0 }}>
+            <h3 className="vault-row-title">{entry.title}</h3>
+            <p className="vault-row-year">{entry.release_year ?? '—'}</p>
           </div>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="text-muted-foreground hover:text-destructive shrink-0 h-7 px-2"
-            onClick={handleDelete}
+
+          {/* Remove button */}
+          <button
+            className="vault-remove-btn"
+            onClick={() => void handleDelete()}
             disabled={deleting}
+            aria-label={`Remove ${entry.title} from vault`}
+            title="Remove from vault"
           >
-            {deleting ? '…' : '✕'}
-          </Button>
+            {deleting ? '…' : <Trash2 size={14} />}
+          </button>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 mt-3">
-          <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusStyle[entry.status]}`}>
-            {statusLabel[entry.status]}
-          </span>
+        {/* Controls row */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginTop: 12 }}>
+          {/* Status badge (read-only label) */}
+          <span className={badgeClass}>{entry.status}</span>
 
-          <select
-            value={entry.status}
-            onChange={(e) => handleStatusChange(e.target.value as VaultStatus)}
-            className="text-xs border border-input rounded px-2 py-0.5 bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-          >
-            <option value="backlog">Backlog</option>
-            <option value="playing">Playing</option>
-            <option value="completed">Completed</option>
-          </select>
-
-          <select
-            value={entry.rating ?? ''}
-            onChange={(e) => handleRatingChange(e.target.value)}
-            className="text-xs border border-input rounded px-2 py-0.5 bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-          >
-            <option value="">No rating</option>
-            {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-              <option key={n} value={n}>
-                {n} / 10
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="mt-3">
-          {notesOpen ? (
-            <div className="flex flex-col gap-2">
-              <textarea
-                value={notesDraft}
-                onChange={(e) => setNotesDraft(e.target.value)}
-                placeholder="Add notes…"
-                rows={3}
-                className="w-full text-xs border border-input rounded px-3 py-2 bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring resize-none"
-              />
-              <div className="flex gap-2">
-                <Button size="sm" onClick={handleNotesSave} disabled={saving}>
-                  {saving ? 'Saving…' : 'Save'}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => {
-                    setNotesDraft(entry.notes ?? '');
-                    setNotesOpen(false);
-                  }}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <button
-              onClick={() => setNotesOpen(true)}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          {/* Status select */}
+          <div className="vault-select-wrap">
+            <select
+              value={entry.status}
+              onChange={(e) => void handleStatusChange(e.target.value as VaultStatus)}
+              aria-label="Change status"
             >
-              {entry.notes ? entry.notes : '+ Add notes'}
-            </button>
-          )}
+              <option value="backlog">Backlog</option>
+              <option value="playing">Playing</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+
+          {/* Rating select */}
+          <div className="vault-select-wrap">
+            <select
+              value={entry.rating ?? ''}
+              onChange={(e) => void handleRatingChange(e.target.value)}
+              aria-label="Set rating"
+            >
+              <option value="">— rate —</option>
+              {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                <option key={n} value={n}>{n} / 10</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Notes toggle */}
+          <button
+            className="vault-notes-btn"
+            onClick={() => setNotesOpen((o) => !o)}
+            aria-label={notesOpen ? 'Close notes' : 'Open notes'}
+          >
+            <StickyNote size={13} />
+            {entry.notes && !notesOpen ? 'notes' : notesOpen ? 'close' : 'add note'}
+          </button>
         </div>
+
+        {/* Notes area */}
+        {notesOpen && (
+          <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <textarea
+              className="vault-notes-area"
+              value={notesDraft}
+              onChange={(e) => setNotesDraft(e.target.value)}
+              placeholder="// jot down thoughts, tips, or progress…"
+              rows={3}
+            />
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                onClick={() => void handleNotesSave()}
+                disabled={saving}
+                className="vault-toolbtn vault-toolbtn-active"
+                style={{ padding: '6px 16px', fontSize: 12 }}
+              >
+                {saving ? 'Saving…' : 'Save'}
+              </button>
+              <button
+                onClick={() => { setNotesDraft(entry.notes ?? ''); setNotesOpen(false); }}
+                className="vault-toolbtn"
+                style={{ padding: '6px 14px', fontSize: 12 }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
