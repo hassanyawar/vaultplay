@@ -443,6 +443,9 @@ code {
   --vp-toggle-bg: rgba(255, 255, 255, 0.6);
   --vp-toggle-edge: rgba(124, 92, 255, 0.3);
   --vp-bar-bg: rgba(255, 255, 255, 0.9);
+  --vp-warn: #E0426A;
+  --vp-card-shadow: 0 22px 50px -28px rgba(75, 55, 160, 0.4);
+  --vp-track: rgba(124, 92, 255, 0.14);
 }
 .dark {
   --vp-void: #0A0912;
@@ -468,6 +471,9 @@ code {
   --vp-toggle-bg: rgba(255, 255, 255, 0.05);
   --vp-toggle-edge: rgba(139, 108, 255, 0.25);
   --vp-bar-bg: rgba(10, 9, 18, 0.86);
+  --vp-warn: #FF6B8A;
+  --vp-card-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.9);
+  --vp-track: rgba(139, 108, 255, 0.16);
 }
 
 /* App mode: remove root border and set void background */
@@ -1461,4 +1467,194 @@ body.app-mode #root { border-inline: none; }
   .dash-hrow, .dash-haxis { grid-template-columns: 66px 1fr 30px; gap: 10px; }
   .dash-hname { font-size: 12.5px; }
   .dash-added-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
+}
+
+/* ─── Settings ───────────────────────────────────────────────────────────── */
+.sett-eyebrow {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--vp-faint); margin-bottom: 14px;
+}
+.sett-title {
+  font-family: "Chakra Petch", sans-serif;
+  font-weight: 700; font-size: clamp(38px, 6vw, 60px);
+  letter-spacing: 0.01em; line-height: 1; color: var(--foreground);
+}
+.sett-col {
+  max-width: 600px; margin-top: 32px;
+  display: flex; flex-direction: column; gap: 22px;
+}
+
+/* Glassmorphism card */
+.sett-card {
+  position: relative;
+  background: var(--vp-panel);
+  border: 1px solid var(--vp-panel-edge);
+  border-radius: 18px; padding: 28px;
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--vp-card-shadow), inset 0 1px 0 var(--vp-panel-inner-top);
+}
+
+/* Gold corner brackets — always visible on settings cards */
+.sett-corner {
+  position: absolute; width: 16px; height: 16px; pointer-events: none;
+}
+.sett-c-tl { top: 9px; left: 9px; border-top: 2px solid var(--vp-gold); border-left: 2px solid var(--vp-gold); border-top-left-radius: 5px; }
+.sett-c-tr { top: 9px; right: 9px; border-top: 2px solid var(--vp-gold); border-right: 2px solid var(--vp-gold); border-top-right-radius: 5px; }
+.sett-c-bl { bottom: 9px; left: 9px; border-bottom: 2px solid var(--vp-gold); border-left: 2px solid var(--vp-gold); border-bottom-left-radius: 5px; }
+.sett-c-br { bottom: 9px; right: 9px; border-bottom: 2px solid var(--vp-gold); border-right: 2px solid var(--vp-gold); border-bottom-right-radius: 5px; }
+
+.sett-card-title {
+  font-family: "Chakra Petch", sans-serif;
+  font-weight: 600; font-size: 21px; letter-spacing: 0.01em; color: var(--foreground);
+}
+.sett-card-note {
+  margin-top: 6px; font-size: 13.5px; color: var(--vp-muted);
+}
+
+/* Profile row */
+.sett-profile {
+  display: flex; align-items: center; gap: 14px; margin-top: 18px;
+}
+.sett-avatar {
+  width: 52px; height: 52px; border-radius: 13px; flex: 0 0 auto;
+  display: grid; place-items: center;
+  background: linear-gradient(135deg, var(--vp-violet), var(--vp-gold));
+  color: #0A0912;
+  font-family: "Chakra Petch", sans-serif; font-weight: 700; font-size: 22px;
+}
+.sett-profile-name {
+  font-weight: 600; font-size: 16px; color: var(--foreground);
+}
+.sett-profile-email {
+  margin-top: 2px;
+  font-family: "IBM Plex Mono", monospace; font-size: 12.5px; color: var(--vp-muted);
+}
+.sett-divider {
+  height: 1px; background: var(--vp-nav-line); margin: 24px 0 20px;
+}
+.sett-sub {
+  font-family: "Chakra Petch", sans-serif;
+  font-weight: 600; font-size: 15px; letter-spacing: 0.02em;
+  margin-bottom: 18px; color: var(--foreground);
+}
+
+/* Form fields */
+.sett-field { margin-bottom: 16px; }
+.sett-field-label {
+  display: block;
+  font-family: "IBM Plex Mono", monospace; font-size: 11px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--vp-muted); margin-bottom: 8px;
+}
+.sett-ifield { position: relative; }
+.sett-input {
+  width: 100%;
+  background: var(--vp-input-bg);
+  border: 1px solid var(--vp-input-edge);
+  border-radius: 11px;
+  padding: 13px 46px 13px 15px;
+  color: var(--foreground); font-size: 15px;
+  transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+}
+.sett-input::placeholder { color: var(--vp-faint); }
+.sett-input:focus {
+  outline: none;
+  background: var(--vp-input-bg-focus);
+  border-color: var(--vp-violet);
+  box-shadow: 0 0 0 3px rgba(139, 108, 255, 0.18), 0 0 22px -6px rgba(139, 108, 255, 0.5);
+}
+
+/* Eye toggle */
+.sett-eye {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  width: 32px; height: 32px; border: none; background: none;
+  cursor: pointer; color: var(--vp-faint);
+  display: grid; place-items: center; border-radius: 8px;
+  transition: color 0.15s;
+}
+.sett-eye:hover { color: var(--vp-muted); }
+
+/* Strength meter */
+.sett-meter {
+  margin-top: 10px; height: 6px; border-radius: 999px;
+  background: var(--vp-track); overflow: hidden;
+}
+.sett-meter-bar {
+  display: block; height: 100%; border-radius: 999px;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+.sett-meter-label {
+  margin-top: 7px;
+  font-family: "IBM Plex Mono", monospace; font-size: 11px;
+  letter-spacing: 0.06em; min-height: 14px;
+}
+
+/* Match indicator */
+.sett-match {
+  margin-top: 8px;
+  font-family: "IBM Plex Mono", monospace; font-size: 11.5px;
+  letter-spacing: 0.03em; min-height: 15px;
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* Feedback banners */
+.sett-error {
+  font-family: "IBM Plex Mono", monospace; font-size: 12px;
+  color: var(--vp-warn); margin-bottom: 10px;
+}
+.sett-success {
+  font-family: "IBM Plex Mono", monospace; font-size: 12px;
+  color: var(--vp-ok); margin-bottom: 10px;
+}
+
+/* Submit button */
+.sett-submit {
+  width: 100%; margin-top: 8px; cursor: pointer;
+  border: none; border-radius: 12px; padding: 15px;
+  font-family: "Chakra Petch", sans-serif; font-weight: 600;
+  font-size: 15px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: #0A0912;
+  background: linear-gradient(120deg, var(--vp-violet-bright), var(--vp-violet) 55%, var(--vp-gold));
+  background-size: 160% 100%; background-position: 0 0;
+  box-shadow: 0 12px 30px -10px rgba(139, 108, 255, 0.7);
+  transition: background-position 0.4s ease, transform 0.08s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+.sett-submit:hover:not(:disabled) {
+  background-position: 100% 0;
+  box-shadow: 0 16px 38px -10px rgba(232, 154, 43, 0.6);
+}
+.sett-submit:active:not(:disabled) { transform: translateY(1px) scale(0.995); }
+.sett-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Appearance tile grid */
+.sett-theme-opts {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 12px; margin-top: 18px;
+}
+.sett-topt {
+  cursor: pointer; display: flex; flex-direction: column;
+  align-items: center; gap: 9px; padding: 18px 10px;
+  border-radius: 13px;
+  background: var(--vp-input-bg);
+  border: 1px solid var(--vp-input-edge);
+  color: var(--vp-muted);
+  font-family: "Chakra Petch", sans-serif; font-size: 13.5px; font-weight: 500;
+  transition: color 0.16s, border-color 0.16s, background 0.16s, box-shadow 0.16s;
+}
+.sett-topt:hover { color: var(--foreground); border-color: var(--vp-violet); }
+.sett-topt-active {
+  color: var(--foreground);
+  border-color: var(--vp-violet);
+  background: color-mix(in srgb, var(--vp-violet) 14%, transparent);
+  box-shadow: 0 0 0 1px var(--vp-violet), 0 8px 22px -12px rgba(139, 108, 255, 0.7);
+}
+
+@media (max-width: 640px) {
+  .sett-card { padding: 22px; }
+  .sett-title { font-size: clamp(32px, 8vw, 48px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sett-input, .sett-meter-bar, .sett-topt, .sett-submit { transition: none; }
 }
