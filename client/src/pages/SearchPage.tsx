@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Search } from 'lucide-react';
 import { GameCard } from '@/components/GameCard';
 import { getPopularGames, searchGames } from '@/lib/api';
 import type { GameSearchResult } from '@/types/game';
@@ -62,43 +62,63 @@ export function SearchPage() {
   const isIdle = status === 'idle';
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-12">
-        <div className="mb-6 sm:mb-10 text-center">
-          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground mb-2">VAULTPLAY</h1>
-          <p className="text-muted-foreground">Search for a game and add it to your vault.</p>
-        </div>
+    <div className="min-h-screen">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-10">
 
-        <form onSubmit={(e) => void handleSearch(e)} className="flex gap-2 mb-6 sm:mb-10">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search games… e.g. Hades, Celeste, Elden Ring"
-            className="flex-1 rounded-md border border-input bg-background px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-          <Button type="submit" disabled={status === 'loading'}>
+        {/* Hero */}
+        <header className="search-hero">
+          <h1>
+            <span style={{ color: 'var(--foreground)' }}>VAULT</span>
+            <span className="vp-gradient-text">PLAY</span>
+          </h1>
+          <p>// search for a game and add it to your vault</p>
+        </header>
+
+        {/* Search bar */}
+        <form onSubmit={(e) => void handleSearch(e)} className="search-row">
+          <div className="search-input-wrap">
+            <Search strokeWidth={1.8} />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search games… e.g. Hades, Celeste, Elden Ring"
+              aria-label="Search games"
+              className="search-input"
+            />
+          </div>
+          <button type="submit" disabled={status === 'loading'} className="search-btn">
             {status === 'loading' ? 'Searching…' : 'Search'}
-          </Button>
+          </button>
         </form>
 
+        {/* Error */}
         {status === 'error' && (
-          <p className="text-center text-destructive text-sm mb-6">{error}</p>
+          <p className="text-center text-destructive text-sm mt-6">{error}</p>
         )}
 
+        {/* No results */}
         {status === 'done' && allResults.length === 0 && (
-          <p className="text-center text-muted-foreground text-sm">No games found for "{currentQuery}".</p>
+          <p
+            className="text-center text-sm mt-10"
+            style={{ fontFamily: '"IBM Plex Mono", monospace', color: 'var(--vp-muted)' }}
+          >
+            No results for "{currentQuery}"
+          </p>
         )}
 
+        {/* Popular games (idle state) */}
         {isIdle && (
           <div>
-            <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-3 text-center">
-              Popular Games
-            </h2>
+            <div className="search-sec-head">
+              <span className="ln" />
+              <h2>Popular Games</h2>
+              <span className="ln ln-r" />
+            </div>
             {loadingPopular ? (
               <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
                 {Array.from({ length: 15 }).map((_, i) => (
-                  <div key={i} className="aspect-[3/4] rounded-lg bg-muted animate-pulse" />
+                  <div key={i} className="aspect-[3/4] rounded-[14px] animate-pulse" style={{ background: 'rgba(139,108,255,0.1)' }} />
                 ))}
               </div>
             ) : popularGames.length > 0 ? (
@@ -111,8 +131,14 @@ export function SearchPage() {
           </div>
         )}
 
+        {/* Search results */}
         {allResults.length > 0 && (
           <>
+            <div className="search-sec-head">
+              <span className="ln" />
+              <h2>Results for "{currentQuery}"</h2>
+              <span className="ln ln-r" />
+            </div>
             <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
               {allResults.map((game) => (
                 <GameCard key={game.rawgId} game={game} />
@@ -120,14 +146,15 @@ export function SearchPage() {
             </div>
 
             {hasMore && (
-              <div className="mt-6 text-center">
-                <Button
-                  variant="outline"
+              <div className="mt-8 text-center">
+                <button
                   onClick={() => void loadMore()}
                   disabled={status === 'loading-more'}
+                  className="search-btn"
+                  style={{ padding: '12px 32px', borderRadius: '10px' }}
                 >
-                  {status === 'loading-more' ? 'Loading…' : 'Load more results'}
-                </Button>
+                  {status === 'loading-more' ? 'Loading…' : 'Load more'}
+                </button>
               </div>
             )}
           </>

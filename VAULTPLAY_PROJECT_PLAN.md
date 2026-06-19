@@ -272,6 +272,13 @@ on vault data. Swapping to AI requires only adding `ANTHROPIC_API_KEY` to `.env`
 - [x] Dark/light mode — navy-slate palette, localStorage persistence, flash prevention via inline `<head>` script
 - [x] Responsive design — bottom nav bar on mobile, slim header, tighter padding and headings across all pages
 - [x] Pagination on vault list and search results — 16 entries at a time, load more on demand
+- [x] Fix bottom nav label inconsistency (mobile "Stats" → "Dashboard") and swap icon to `BarChart2`
+- [x] Shrink dashboard recently-added cards to match Search/Discover grid density (`grid-cols-3 sm:grid-cols-4 lg:grid-cols-5`)
+- [x] Auth page visual overhaul — aurora animated background, glassmorphism card, corner brackets, status bar, Chakra Petch/IBM Plex Mono fonts, violet→gold gradient CTA; merge `LoginPage` + `RegisterPage` into a single `AuthPage` component
+- [x] Password show/hide toggle on all password fields (login, register, confirm password)
+- [x] Search page visual overhaul — aurora atmosphere in `AppShell`, VP design tokens (`--vp-*`) in `index.css`, hero section, cover-first `GameCard` with hover lift/glow/gold corner brackets, redesigned desktop nav + mobile bottom nav with gradient pill indicator, `ThemeToggle` bordered box
+- [x] Vault page visual overhaul — glassmorphism `.vault-row` cards with gold corner brackets, color-coded stat header, filter chips, collapsible sort/filter panels, always-visible inline notes preview (click to edit), status badge + custom-chevron selects, `Trash2` remove button
+- [x] Discover page visual overhaul — glassmorphism rec cards with distinct rank badges (#1 gold, #2 violet, #3 bronze), stagger fade-in, shelf rows with gold left border and "PLAYING" status label, genre affinity rebuilt as animated SVG radar (web graph) with coverage bar legend
 
 **Exit criteria:** ✅ VAULTPLAY is live at a public URL, images load lazily, and large vaults don't degrade on initial load.
 

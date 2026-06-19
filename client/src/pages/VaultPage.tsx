@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { ArrowUpDown, SlidersHorizontal } from 'lucide-react';
 import { VaultCard } from '@/components/VaultCard';
 import { getVault, getVaultCounts, getVaultPlatforms } from '@/lib/api';
 import type { VaultEntry } from '@/types/game';
@@ -15,30 +15,12 @@ const SORT_OPTIONS = [
 
 const RATINGS = ['', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
 
-function Pill({
-  active,
-  onClick,
-  children,
-  className = '',
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`text-xs font-medium rounded-full px-3 py-1.5 transition-colors whitespace-nowrap ${
-        active
-          ? 'bg-foreground text-background'
-          : 'border border-input text-muted-foreground hover:text-foreground'
-      } ${className}`}
-    >
-      {children}
-    </button>
-  );
-}
+const STATUS_FILTERS = [
+  { value: '', label: 'All' },
+  { value: 'backlog', label: 'Backlog' },
+  { value: 'playing', label: 'Playing' },
+  { value: 'completed', label: 'Completed' },
+] as const;
 
 export function VaultPage() {
   const [allEntries, setAllEntries] = useState<VaultEntry[]>([]);
@@ -68,33 +50,35 @@ export function VaultPage() {
     getVaultCounts().then(setCounts).catch(() => {});
   }, []);
 
-  // Re-fetch from page 1 whenever filters or sort change
   useEffect(() => {
     let cancelled = false;
-    setStatus('loading');
-    setAllEntries([]);
-    setPage(1);
-    setTotal(0);
 
-    getVault({
-      status: filterStatus || undefined,
-      platform: filterPlatform || undefined,
-      rating: filterRating ? parseInt(filterRating, 10) : undefined,
-      sort,
-      page: 1,
-    })
-      .then(({ entries, total: t }) => {
+    async function load() {
+      setStatus('loading');
+      setAllEntries([]);
+      setPage(1);
+      setTotal(0);
+
+      try {
+        const { entries, total: t } = await getVault({
+          status: filterStatus || undefined,
+          platform: filterPlatform || undefined,
+          rating: filterRating ? parseInt(filterRating, 10) : undefined,
+          sort,
+          page: 1,
+        });
         if (cancelled) return;
         setAllEntries(entries);
         setTotal(t);
         setStatus('done');
-      })
-      .catch((err: unknown) => {
+      } catch (err: unknown) {
         if (cancelled) return;
         setError((err as Error).message);
         setStatus('error');
-      });
+      }
+    }
 
+    void load();
     return () => { cancelled = true; };
   }, [filterStatus, filterPlatform, filterRating, sort]);
 
@@ -113,7 +97,7 @@ export function VaultPage() {
       setTotal(t);
       setPage(nextPage);
     } catch {
-      // keep current entries visible; user can retry
+      // keep current entries; user can retry
     } finally {
       setLoadingMore(false);
     }
@@ -135,120 +119,142 @@ export function VaultPage() {
   const hasMore = allEntries.length < total;
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-3 sm:px-4 py-6 sm:py-12">
-        <div className="mb-5 sm:mb-8">
-          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground mb-1">My Vault</h1>
-          <p className="text-muted-foreground text-sm">
-            {counts.all} game{counts.all !== 1 ? 's' : ''} · {counts.playing} playing ·{' '}
-            {counts.completed} completed · {counts.backlog} backlog
-          </p>
-        </div>
+    <div className="min-h-screen">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 pb-10">
 
-        <div className="flex flex-col gap-2.5 mb-6">
-          {/* Control bar: status pills + Sort + Filters buttons */}
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex flex-wrap gap-1.5">
-              {(['', 'backlog', 'playing', 'completed'] as const).map((s) => (
-                <Pill key={s} active={filterStatus === s} onClick={() => setFilterStatus(s)}>
-                  {s === '' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)}
-                </Pill>
+        {/* Page header */}
+        <header style={{ padding: '54px 0 4px' }}>
+          <p className="vault-eyebrow">// your collection</p>
+          <h1 className="vault-title">
+            My <span className="vp-gradient-text">Vault</span>
+          </h1>
+          <p className="vault-stats">
+            <span className="vault-stats-total">{counts.all} game{counts.all !== 1 ? 's' : ''}</span>
+            <span className="vault-stats-sep">·</span>
+            <span className="vault-stats-playing">{counts.playing} playing</span>
+            <span className="vault-stats-sep">·</span>
+            <span className="vault-stats-completed">{counts.completed} completed</span>
+            <span className="vault-stats-sep">·</span>
+            <span className="vault-stats-backlog">{counts.backlog} backlog</span>
+          </p>
+        </header>
+
+        {/* Controls */}
+        <div style={{ marginTop: 38, marginBottom: 22 }} className="flex flex-col gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Status chips */}
+            <div className="flex gap-2 flex-wrap">
+              {STATUS_FILTERS.map((s) => (
+                <button
+                  key={s.value}
+                  onClick={() => setFilterStatus(s.value)}
+                  className={`vault-chip ${filterStatus === s.value ? 'vault-chip-active' : ''}`}
+                  aria-pressed={filterStatus === s.value}
+                >
+                  {s.label}
+                </button>
               ))}
             </div>
-            <div className="flex items-center gap-1.5 shrink-0">
+
+            {/* Tool buttons */}
+            <div className="flex gap-2.5 ml-auto">
               <button
                 onClick={() => togglePanel('sort')}
-                className={`text-xs font-medium rounded-full px-3 py-1.5 transition-colors ${
-                  openPanel === 'sort'
-                    ? 'bg-foreground text-background'
-                    : 'border border-input text-muted-foreground hover:text-foreground'
-                }`}
+                className={`vault-toolbtn ${openPanel === 'sort' ? 'vault-toolbtn-active' : ''}`}
               >
-                {currentSortLabel} ↕
+                {currentSortLabel}
+                <ArrowUpDown size={14} />
               </button>
               <button
                 onClick={() => togglePanel('filters')}
-                className={`text-xs font-medium rounded-full px-3 py-1.5 transition-colors ${
-                  openPanel === 'filters' || activeFilterCount > 0
-                    ? 'bg-foreground text-background'
-                    : 'border border-input text-muted-foreground hover:text-foreground'
-                }`}
+                className={`vault-toolbtn ${openPanel === 'filters' || activeFilterCount > 0 ? 'vault-toolbtn-active' : ''}`}
               >
+                <SlidersHorizontal size={14} />
                 {activeFilterCount > 0 ? `Filters · ${activeFilterCount}` : 'Filters'}
               </button>
             </div>
           </div>
 
-          {/* Sort inline panel */}
+          {/* Sort panel */}
           {openPanel === 'sort' && (
-            <div className="rounded-xl border border-border bg-card px-4 py-3">
-              <div className="flex flex-wrap gap-1.5">
+            <div className="vault-panel">
+              <p className="vault-panel-label">Sort by</p>
+              <div className="flex flex-wrap gap-2">
                 {SORT_OPTIONS.map((o) => (
-                  <Pill key={o.value} active={sort === o.value} onClick={() => { setSort(o.value); localStorage.setItem('vault-sort', o.value); }}>
+                  <button
+                    key={o.value}
+                    onClick={() => { setSort(o.value); localStorage.setItem('vault-sort', o.value); }}
+                    className={`vault-chip ${sort === o.value ? 'vault-chip-active' : ''}`}
+                  >
                     {o.label}
-                  </Pill>
+                  </button>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Filters inline panel — platform + rating only */}
+          {/* Filters panel */}
           {openPanel === 'filters' && (
-            <div className="rounded-xl border border-border bg-card px-4 py-4 flex flex-col gap-4">
+            <div className="vault-panel flex flex-col gap-4">
               {platforms.length > 0 && (
                 <div>
-                  <p className="text-xs text-muted-foreground mb-2">Platform</p>
-                  <div className="flex gap-1.5 overflow-x-auto pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                    <Pill active={filterPlatform === ''} onClick={() => setFilterPlatform('')} className="shrink-0">All</Pill>
+                  <p className="vault-panel-label">Platform</p>
+                  <div className="flex gap-2 overflow-x-auto pb-0.5" style={{ scrollbarWidth: 'none' }}>
+                    <button
+                      onClick={() => setFilterPlatform('')}
+                      className={`vault-chip shrink-0 ${filterPlatform === '' ? 'vault-chip-active' : ''}`}
+                    >
+                      All
+                    </button>
                     {platforms.map((p) => (
-                      <Pill key={p} active={filterPlatform === p} onClick={() => setFilterPlatform(p)} className="shrink-0">{p}</Pill>
+                      <button
+                        key={p}
+                        onClick={() => setFilterPlatform(p)}
+                        className={`vault-chip shrink-0 ${filterPlatform === p ? 'vault-chip-active' : ''}`}
+                      >
+                        {p}
+                      </button>
                     ))}
                   </div>
                 </div>
               )}
               <div>
-                <p className="text-xs text-muted-foreground mb-2">Rating</p>
-                <div className="flex flex-wrap gap-1.5">
+                <p className="vault-panel-label">Rating</p>
+                <div className="flex flex-wrap gap-2">
                   {RATINGS.map((r) => (
-                    <Pill key={r} active={filterRating === r} onClick={() => setFilterRating(r)}>
+                    <button
+                      key={r}
+                      onClick={() => setFilterRating(r)}
+                      className={`vault-chip ${filterRating === r ? 'vault-chip-active' : ''}`}
+                    >
                       {r === '' ? 'Any' : r}
-                    </Pill>
+                    </button>
                   ))}
                 </div>
               </div>
             </div>
           )}
 
-          {/* Active filter chips — visible regardless of panel state */}
+          {/* Active filter tags */}
           {(filterPlatform || filterRating) && (
             <div className="flex flex-wrap items-center gap-2">
               {filterPlatform && (
-                <span className="inline-flex items-center gap-1 text-xs bg-muted text-foreground rounded-full px-2.5 py-1">
+                <span className="vault-filter-tag">
                   {filterPlatform}
-                  <button
-                    onClick={() => setFilterPlatform('')}
-                    className="text-muted-foreground hover:text-foreground leading-none"
-                    aria-label="Remove platform filter"
-                  >
-                    ×
-                  </button>
+                  <button onClick={() => setFilterPlatform('')} aria-label="Remove platform filter">×</button>
                 </span>
               )}
               {filterRating && (
-                <span className="inline-flex items-center gap-1 text-xs bg-muted text-foreground rounded-full px-2.5 py-1">
+                <span className="vault-filter-tag">
                   Rating {filterRating}
-                  <button
-                    onClick={() => setFilterRating('')}
-                    className="text-muted-foreground hover:text-foreground leading-none"
-                    aria-label="Remove rating filter"
-                  >
-                    ×
-                  </button>
+                  <button onClick={() => setFilterRating('')} aria-label="Remove rating filter">×</button>
                 </span>
               )}
               <button
                 onClick={() => { setFilterPlatform(''); setFilterRating(''); }}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                style={{ fontSize: 12, color: 'var(--vp-muted)', background: 'none', border: 'none', cursor: 'pointer' }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--foreground)')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--vp-muted)')}
               >
                 Clear all
               </button>
@@ -256,25 +262,25 @@ export function VaultPage() {
           )}
         </div>
 
+        {/* States */}
         {status === 'loading' && (
-          <p className="text-center text-muted-foreground text-sm py-12">Loading vault…</p>
+          <p className="vault-empty">// loading vault…</p>
         )}
-
         {status === 'error' && (
-          <p className="text-center text-destructive text-sm py-12">{error}</p>
+          <p className="vault-empty" style={{ color: 'var(--destructive)' }}>{error}</p>
         )}
-
         {status === 'done' && allEntries.length === 0 && (
-          <p className="text-center text-muted-foreground text-sm py-12">
+          <p className="vault-empty">
             {filterStatus || filterPlatform || filterRating
-              ? 'No games match the selected filters.'
-              : 'Your vault is empty. Search for games to add them.'}
+              ? '// no titles match this filter'
+              : '// your vault is empty — search for games to add them'}
           </p>
         )}
 
+        {/* Vault list */}
         {status === 'done' && allEntries.length > 0 && (
           <>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-4">
               {allEntries.map((entry) => (
                 <VaultCard
                   key={entry.id}
@@ -286,16 +292,21 @@ export function VaultPage() {
             </div>
 
             {hasMore && (
-              <div className="mt-6 text-center">
-                <Button variant="outline" onClick={() => void loadMore()} disabled={loadingMore}>
+              <div className="mt-8 text-center">
+                <button
+                  onClick={() => void loadMore()}
+                  disabled={loadingMore}
+                  className="search-btn"
+                  style={{ padding: '12px 32px', borderRadius: '10px' }}
+                >
                   {loadingMore ? 'Loading…' : `Load more (${allEntries.length} of ${total})`}
-                </Button>
+                </button>
               </div>
             )}
 
             {!hasMore && total > 16 && (
-              <p className="mt-6 text-center text-xs text-muted-foreground">
-                All {total} games loaded
+              <p className="mt-6 text-center" style={{ fontSize: 12, fontFamily: '"IBM Plex Mono", monospace', color: 'var(--vp-faint)' }}>
+                // all {total} games loaded
               </p>
             )}
           </>
