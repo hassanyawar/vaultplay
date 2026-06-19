@@ -276,6 +276,8 @@ on vault data. Swapping to AI requires only adding `ANTHROPIC_API_KEY` to `.env`
 - [x] Shrink dashboard recently-added cards to match Search/Discover grid density (`grid-cols-3 sm:grid-cols-4 lg:grid-cols-5`)
 - [x] Auth page visual overhaul — aurora animated background, glassmorphism card, corner brackets, status bar, Chakra Petch/IBM Plex Mono fonts, violet→gold gradient CTA; merge `LoginPage` + `RegisterPage` into a single `AuthPage` component
 - [x] Password show/hide toggle on all password fields (login, register, confirm password)
+- [x] Search page visual overhaul — aurora atmosphere in `AppShell`, VP design tokens (`--vp-*`) in `index.css`, hero section, cover-first `GameCard` with hover lift/glow/gold corner brackets, redesigned desktop nav + mobile bottom nav with gradient pill indicator, `ThemeToggle` bordered box
+- [x] Vault page visual overhaul — glassmorphism `.vault-row` cards with gold corner brackets, color-coded stat header, filter chips, collapsible sort/filter panels, always-visible inline notes preview (click to edit), status badge + custom-chevron selects, `Trash2` remove button
 
 **Exit criteria:** ✅ VAULTPLAY is live at a public URL, images load lazily, and large vaults don't degrade on initial load.
 
