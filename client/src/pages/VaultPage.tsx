@@ -52,30 +52,33 @@ export function VaultPage() {
 
   useEffect(() => {
     let cancelled = false;
-    setStatus('loading');
-    setAllEntries([]);
-    setPage(1);
-    setTotal(0);
 
-    getVault({
-      status: filterStatus || undefined,
-      platform: filterPlatform || undefined,
-      rating: filterRating ? parseInt(filterRating, 10) : undefined,
-      sort,
-      page: 1,
-    })
-      .then(({ entries, total: t }) => {
+    async function load() {
+      setStatus('loading');
+      setAllEntries([]);
+      setPage(1);
+      setTotal(0);
+
+      try {
+        const { entries, total: t } = await getVault({
+          status: filterStatus || undefined,
+          platform: filterPlatform || undefined,
+          rating: filterRating ? parseInt(filterRating, 10) : undefined,
+          sort,
+          page: 1,
+        });
         if (cancelled) return;
         setAllEntries(entries);
         setTotal(t);
         setStatus('done');
-      })
-      .catch((err: unknown) => {
+      } catch (err: unknown) {
         if (cancelled) return;
         setError((err as Error).message);
         setStatus('error');
-      });
+      }
+    }
 
+    void load();
     return () => { cancelled = true; };
   }, [filterStatus, filterPlatform, filterRating, sort]);
 
