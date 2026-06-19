@@ -1152,10 +1152,10 @@ body.app-mode #root { border-inline: none; }
 }
 .disc-shelf-badge {
   flex: 0 0 auto; font-family: "IBM Plex Mono", monospace; font-size: 11px;
-  letter-spacing: 0.1em; text-transform: uppercase; padding: 7px 14px;
-  border-radius: 999px; color: var(--vp-gold);
-  background: color-mix(in srgb, var(--vp-gold) 14%, transparent);
-  border: 1px solid color-mix(in srgb, var(--vp-gold) 38%, transparent);
+  letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 11px;
+  border-radius: 7px; color: var(--vp-gold);
+  background: color-mix(in srgb, var(--vp-gold) 13%, transparent);
+  border: none;
 }
 
 /* ---- Genre Affinity — Taste Radar ---- */

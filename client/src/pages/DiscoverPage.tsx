@@ -310,7 +310,7 @@ export function DiscoverPage() {
                     <div className="disc-shelf-last">{idleLabel(game.daysSinceUpdate)}</div>
                   </div>
 
-                  <span className="disc-shelf-badge">Resume</span>
+                  <span className="disc-shelf-badge">Playing</span>
                 </article>
               ))}
             </div>
