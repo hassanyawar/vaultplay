@@ -1209,7 +1209,7 @@ body.app-mode #root { border-inline: none; }
   font-family: "IBM Plex Mono", monospace; font-size: 10px;
   color: var(--vp-faint); width: 12px; text-align: right; flex-shrink: 0;
 }
-.disc-leg-name { font-size: 12px; flex-shrink: 0; }
+.disc-leg-name { font-size: 12px; flex-shrink: 0; width: 72px; }
 .disc-leg-bar-wrap {
   flex: 1; height: 5px; border-radius: 999px;
   background: var(--vp-track, rgba(139,108,255,0.14));
