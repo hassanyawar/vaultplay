@@ -1483,7 +1483,7 @@ body.app-mode #root { border-inline: none; }
 .sett-col {
   margin-top: 30px;
   display: grid;
-  grid-template-columns: 300px minmax(0, 460px);
+  grid-template-columns: 300px 1fr;
   gap: 22px;
   align-items: start;
 }
