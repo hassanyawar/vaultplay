@@ -1,9 +1,7 @@
 import { useState } from 'react';
-import { Eye, EyeOff, Check, X, Monitor, Moon, Sun } from 'lucide-react';
+import { Eye, EyeOff, Check, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/hooks/useTheme';
 import { changePassword } from '@/lib/api';
-import type { ThemeMode } from '@/hooks/useTheme';
 
 function getInitials(username?: string): string {
   if (!username) return '?';
@@ -27,15 +25,8 @@ function strengthInfo(s: number): { pct: number; color: string; label: string } 
   return { pct: 100, color: 'var(--vp-ok)', label: 'Strong' };
 }
 
-const THEME_OPTS: { value: ThemeMode; label: string; icon: React.ReactNode }[] = [
-  { value: 'dark',   label: 'Dark',   icon: <Moon    size={22} strokeWidth={2} /> },
-  { value: 'light',  label: 'Light',  icon: <Sun     size={22} strokeWidth={2} /> },
-  { value: 'system', label: 'System', icon: <Monitor size={22} strokeWidth={2} /> },
-];
-
 export function SettingsPage() {
   const { user } = useAuth();
-  const { mode, setMode } = useTheme();
 
   const [current, setCurrent] = useState('');
   const [next, setNext] = useState('');
@@ -78,67 +69,37 @@ export function SettingsPage() {
 
   return (
     <div className="min-h-screen">
-      <div style={{ maxWidth: 900 }} className="mx-auto px-4 sm:px-6 pb-10">
+      <div className="sett-wrap">
 
-        {/* Page header */}
         <header style={{ padding: '40px 0 4px' }}>
           <p className="sett-eyebrow">// account &amp; preferences</p>
           <h1 className="sett-title">Settings</h1>
         </header>
 
-        {/* 2-column grid */}
         <div className="sett-col">
 
-          {/* ── Left rail ── */}
-          <div className="sett-rail">
-
-            {/* Account identity card */}
-            <section className="sett-card">
-              <span className="sett-corner sett-c-tl" />
-              <span className="sett-corner sett-c-tr" />
-              <span className="sett-corner sett-c-bl" />
-              <span className="sett-corner sett-c-br" />
-
-              <h2 className="sett-card-title">Account</h2>
-
-              <div className="sett-profile">
-                <div className="sett-avatar">{getInitials(user?.username)}</div>
-                <div>
-                  <div className="sett-profile-name">{user?.username}</div>
-                  <div className="sett-profile-email">{user?.email}</div>
-                </div>
+          {/* Account identity */}
+          <section className="sett-card">
+            <span className="sett-corner sett-c-tl" />
+            <span className="sett-corner sett-c-tr" />
+            <span className="sett-corner sett-c-bl" />
+            <span className="sett-corner sett-c-br" />
+            <h2 className="sett-card-title">Account</h2>
+            <div className="sett-profile">
+              <div className="sett-avatar">{getInitials(user?.username)}</div>
+              <div>
+                <div className="sett-profile-name">{user?.username}</div>
+                <div className="sett-profile-email">{user?.email}</div>
               </div>
-            </section>
+            </div>
+          </section>
 
-            {/* Appearance card */}
-            <section className="sett-card">
-              <h2 className="sett-card-title">Appearance</h2>
-              <p className="sett-card-note">Choose how VAULTPLAY looks. System follows your device.</p>
-              <div className="sett-theme-opts">
-                {THEME_OPTS.map(({ value, label: optLabel, icon }) => (
-                  <button
-                    key={value}
-                    type="button"
-                    className={`sett-topt${mode === value ? ' sett-topt-active' : ''}`}
-                    onClick={() => setMode(value)}
-                    aria-pressed={mode === value}
-                  >
-                    {icon}
-                    {optLabel}
-                  </button>
-                ))}
-              </div>
-            </section>
-
-          </div>
-
-          {/* ── Right: Change password card ── */}
+          {/* Change password */}
           <section className="sett-card sett-card-pw">
             <h2 className="sett-card-title">Change password</h2>
 
             <form onSubmit={handleSubmit} noValidate>
 
-              {/* Current password */}
               <div className="sett-field">
                 <label className="sett-field-label" htmlFor="sett-cur">Current password</label>
                 <div className="sett-ifield">
@@ -163,7 +124,6 @@ export function SettingsPage() {
                 </div>
               </div>
 
-              {/* New password */}
               <div className="sett-field">
                 <label className="sett-field-label" htmlFor="sett-new">New password</label>
                 <div className="sett-ifield">
@@ -187,19 +147,13 @@ export function SettingsPage() {
                   </button>
                 </div>
                 <div className="sett-meter">
-                  <span
-                    className="sett-meter-bar"
-                    style={{ width: `${pct}%`, background: color }}
-                  />
+                  <span className="sett-meter-bar" style={{ width: `${pct}%`, background: color }} />
                 </div>
                 {label && (
-                  <div className="sett-meter-label" style={{ color }}>
-                    Strength: {label}
-                  </div>
+                  <div className="sett-meter-label" style={{ color }}>Strength: {label}</div>
                 )}
               </div>
 
-              {/* Confirm password */}
               <div className="sett-field">
                 <label className="sett-field-label" htmlFor="sett-conf">Confirm new password</label>
                 <div className="sett-ifield">
@@ -224,14 +178,12 @@ export function SettingsPage() {
                 </div>
                 {passwordsMatch && (
                   <div className="sett-match" style={{ color: 'var(--vp-ok)' }}>
-                    <Check size={13} strokeWidth={2.4} />
-                    Passwords match
+                    <Check size={13} strokeWidth={2.4} />Passwords match
                   </div>
                 )}
                 {passwordsMismatch && (
                   <div className="sett-match" style={{ color: 'var(--vp-warn)' }}>
-                    <X size={13} strokeWidth={2.4} />
-                    Passwords don't match
+                    <X size={13} strokeWidth={2.4} />Passwords don't match
                   </div>
                 )}
               </div>
@@ -242,6 +194,7 @@ export function SettingsPage() {
               <button type="submit" disabled={loading} className="sett-submit">
                 {loading ? 'Updating…' : 'Update password'}
               </button>
+
             </form>
           </section>
 
