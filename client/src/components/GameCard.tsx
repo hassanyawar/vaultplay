@@ -90,7 +90,7 @@ export function GameCard({ game }: GameCardProps) {
       {/* Info */}
       <div className="game-info">
         <h3>{game.title}</h3>
-        {game.releaseYear && <p className="game-info-year">{game.releaseYear}</p>}
+        <p className="game-info-year">{game.releaseYear ?? '—'}</p>
 
         {game.platforms.length > 0 && (
           <div className="hidden sm:flex flex-wrap gap-1 mt-1.5">

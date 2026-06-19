@@ -667,14 +667,17 @@ body.app-mode #root { border-inline: none; }
   flex-shrink: 0;
 }
 .game-add-btn svg { width: 15px; height: 15px; stroke-width: 2.8; flex-shrink: 0; }
-/* Desktop: hide by default, reveal on hover */
+/* Desktop: hide by default, reveal on hover; persist when action taken */
 @media (min-width: 640px) {
   .game-add-btn { opacity: 0; transform: scale(0.82) translateY(2px); }
   .game-tile:hover .game-add-btn { opacity: 1; transform: scale(1) translateY(0); }
+  .game-add-btn-saved,
+  .game-add-btn-exists,
+  .game-add-btn-error { opacity: 1 !important; transform: scale(1) translateY(0) !important; }
 }
-/* State variants */
-.game-add-btn-saved { background: linear-gradient(135deg, #16B981, #0d9268) !important; }
-.game-add-btn-exists { background: none !important; border: 1px solid var(--vp-violet) !important; color: var(--vp-violet) !important; }
+/* State variants — saved and exists both use the same green fill */
+.game-add-btn-saved,
+.game-add-btn-exists { background: linear-gradient(135deg, #16B981, #0d9268) !important; color: #fff !important; }
 .game-add-btn-error { background: rgba(239, 68, 68, 0.85) !important; color: #fff !important; }
 
 /* Info section below cover */
