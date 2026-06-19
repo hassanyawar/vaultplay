@@ -1194,29 +1194,28 @@ body.app-mode #root { border-inline: none; }
 
 /* Ranked legend beside radar */
 .disc-radar-legend {
-  flex: 1 1 160px; min-width: 150px;
-  display: flex; flex-direction: column; gap: 8px;
+  flex: 1 1 140px; min-width: 130px;
+  display: flex; flex-direction: column; gap: 5px;
 }
 .disc-radar-legend-head {
-  font-family: "IBM Plex Mono", monospace; font-size: 11px;
+  font-family: "IBM Plex Mono", monospace; font-size: 10px;
   letter-spacing: 0.06em; color: var(--vp-faint);
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
 .disc-leg {
-  display: flex; align-items: center; gap: 10px; font-size: 13px;
+  display: flex; align-items: center; gap: 7px; font-size: 12px;
 }
 .disc-leg-rank {
-  font-family: "IBM Plex Mono", monospace; color: var(--vp-faint);
-  width: 16px; text-align: right; flex-shrink: 0;
+  font-family: "IBM Plex Mono", monospace; font-size: 10px;
+  color: var(--vp-faint); width: 12px; text-align: right; flex-shrink: 0;
 }
-.disc-leg-name { flex: 1; }
+.disc-leg-name { flex: 1; font-size: 12px; }
 .disc-leg-coverage {
-  font-family: "Chakra Petch", sans-serif; font-weight: 600; font-size: 14px;
-  color: var(--vp-gold);
+  font-family: "IBM Plex Mono", monospace; font-size: 11px;
+  font-weight: 500; color: var(--vp-gold); white-space: nowrap;
 }
 .disc-leg-total {
-  font-family: "IBM Plex Mono", monospace; font-weight: 400; font-size: 11px;
-  color: var(--vp-faint);
+  font-size: 11px; color: var(--vp-faint);
 }
 
 /* Empty states */
