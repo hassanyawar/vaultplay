@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trash2, StickyNote } from 'lucide-react';
+import { Trash2, Pencil } from 'lucide-react';
 import { updateVaultEntry, deleteVaultEntry } from '@/lib/api';
 import type { VaultEntry, VaultStatus } from '@/types/game';
 
@@ -135,18 +135,37 @@ export function VaultCard({ entry, onUpdate, onDelete }: VaultCardProps) {
             </select>
           </div>
 
-          {/* Notes toggle */}
-          <button
-            className="vault-notes-btn"
-            onClick={() => setNotesOpen((o) => !o)}
-            aria-label={notesOpen ? 'Close notes' : 'Open notes'}
-          >
-            <StickyNote size={13} />
-            {entry.notes && !notesOpen ? 'notes' : notesOpen ? 'close' : 'add note'}
-          </button>
+          {/* Notes add button — only shown when no notes and editor is closed */}
+          {!entry.notes && !notesOpen && (
+            <button
+              className="vault-notes-btn"
+              onClick={() => setNotesOpen(true)}
+              aria-label="Add note"
+            >
+              + add note
+            </button>
+          )}
         </div>
 
-        {/* Notes area */}
+        {/* Inline note preview — always visible when notes exist */}
+        {entry.notes && !notesOpen && (
+          <div
+            className="vault-notes-preview"
+            onClick={() => setNotesOpen(true)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === 'Enter' && setNotesOpen(true)}
+            aria-label="Edit note"
+            title="Click to edit"
+          >
+            <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+              <span>{entry.notes}</span>
+              <Pencil size={11} style={{ flexShrink: 0, marginTop: 2, opacity: 0.5 }} />
+            </span>
+          </div>
+        )}
+
+        {/* Notes editor */}
         {notesOpen && (
           <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
             <textarea
@@ -155,6 +174,7 @@ export function VaultCard({ entry, onUpdate, onDelete }: VaultCardProps) {
               onChange={(e) => setNotesDraft(e.target.value)}
               placeholder="// jot down thoughts, tips, or progress…"
               rows={3}
+              autoFocus
             />
             <div style={{ display: 'flex', gap: 8 }}>
               <button

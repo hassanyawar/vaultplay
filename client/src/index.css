@@ -941,11 +941,33 @@ body.app-mode #root { border-inline: none; }
 /* Notes */
 .vault-notes-btn {
   background: none; border: none; cursor: pointer;
-  color: var(--vp-violet); font: inherit; font-size: 13.5px; font-weight: 500;
+  color: var(--vp-muted); font: inherit; font-size: 12px;
+  font-family: "IBM Plex Mono", monospace; letter-spacing: 0.03em;
   padding: 0; display: inline-flex; align-items: center; gap: 5px;
   transition: color 0.15s;
 }
 .vault-notes-btn:hover { color: var(--vp-violet-bright); }
+
+/* Inline note preview — always visible when notes exist */
+.vault-notes-preview {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--vp-input-bg);
+  border: 1px solid var(--vp-input-edge);
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--vp-muted);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.vault-notes-preview:hover {
+  border-color: var(--vp-violet);
+  color: var(--foreground);
+}
+
 .vault-notes-area {
   width: 100%; min-height: 70px; resize: vertical;
   font-family: "Inter", system-ui, sans-serif; font-size: 13.5px;
