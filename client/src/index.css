@@ -1197,6 +1197,11 @@ body.app-mode #root { border-inline: none; }
   flex: 1 1 160px; min-width: 150px;
   display: flex; flex-direction: column; gap: 8px;
 }
+.disc-radar-legend-head {
+  font-family: "IBM Plex Mono", monospace; font-size: 11px;
+  letter-spacing: 0.06em; color: var(--vp-faint);
+  margin-bottom: 2px;
+}
 .disc-leg {
   display: flex; align-items: center; gap: 10px; font-size: 13px;
 }
@@ -1205,10 +1210,14 @@ body.app-mode #root { border-inline: none; }
   width: 16px; text-align: right; flex-shrink: 0;
 }
 .disc-leg-name { flex: 1; }
-.disc-leg-score {
+.disc-leg-coverage {
   font-family: "Chakra Petch", sans-serif; font-weight: 600; font-size: 14px;
+  color: var(--vp-gold);
 }
-.disc-leg:first-child .disc-leg-score { color: var(--vp-gold); }
+.disc-leg-total {
+  font-family: "IBM Plex Mono", monospace; font-weight: 400; font-size: 11px;
+  color: var(--vp-faint);
+}
 
 /* Empty states */
 .disc-empty {

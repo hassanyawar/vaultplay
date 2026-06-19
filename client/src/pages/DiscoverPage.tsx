@@ -15,7 +15,9 @@ function GenreRadar({ genres }: RadarProps) {
     return () => cancelAnimationFrame(id);
   }, []);
 
-  const cx = 200, cy = 188, R = 128;
+  const cx = 200, cy = 195, R = 115;
+  const scoreR = (score: number) => R * score / 10;
+
   const n = genres.length;
   const ang = (i: number) => -Math.PI / 2 + (i * 2 * Math.PI) / n;
   const pt = (i: number, r: number): [number, number] => [
@@ -23,7 +25,7 @@ function GenreRadar({ genres }: RadarProps) {
     cy + r * Math.sin(ang(i)),
   ];
 
-  // Concentric rings
+  // 5 rings at 20% intervals (scores 2, 4, 6, 8, 10)
   const rings = [1, 2, 3, 4, 5].map((lv) => {
     const r = (R * lv) / 5;
     const pts = genres.map((_, i) => pt(i, r).map((v) => v.toFixed(1)).join(',')).join(' ');
@@ -36,30 +38,31 @@ function GenreRadar({ genres }: RadarProps) {
     return <line key={i} className="disc-radar-spoke" x1={cx} y1={cy} x2={ox.toFixed(1)} y2={oy.toFixed(1)} />;
   });
 
-  // Labels + score values
+  // Labels: genre name at R+20, score stacked vertically (above for upper
+  // half, below for lower half) — keeps them apart regardless of spoke angle.
   const labels = genres.map((g, i) => {
-    const [lx, ly] = pt(i, R + 22);
-    const [vx, vy] = pt(i, R + 36);
-    const c = Math.cos(ang(i));
+    const angle = ang(i);
+    const [lx, ly] = pt(i, R + 20);
+    const c = Math.cos(angle);
+    const s = Math.sin(angle);
     const anchor = Math.abs(c) < 0.25 ? 'middle' : c > 0 ? 'start' : 'end';
+    const scoreDy = s < -0.05 ? -16 : 16; // upper half → score above; lower → below
     return (
       <g key={i}>
         <text className="disc-radar-label" x={lx.toFixed(1)} y={ly.toFixed(1)} textAnchor={anchor} dominantBaseline="middle">
           {g.genre}
         </text>
-        <text className="disc-radar-val" x={vx.toFixed(1)} y={vy.toFixed(1)} textAnchor={anchor} dominantBaseline="middle">
+        <text className="disc-radar-val" x={lx.toFixed(1)} y={(ly + scoreDy).toFixed(1)} textAnchor={anchor} dominantBaseline="middle">
           {g.averageRating.toFixed(1)}
         </text>
       </g>
     );
   });
 
-  // Data polygon
-  const dataPts = genres.map((g, i) => pt(i, R * g.averageRating / 10).map((v) => v.toFixed(1)).join(',')).join(' ');
-
-  // Dots at each vertex
+  // Data polygon + dots
+  const dataPts = genres.map((g, i) => pt(i, scoreR(g.averageRating)).map((v) => v.toFixed(1)).join(',')).join(' ');
   const dots = genres.map((g, i) => {
-    const [x, y] = pt(i, R * g.averageRating / 10);
+    const [x, y] = pt(i, scoreR(g.averageRating));
     return <circle key={i} className="disc-radar-dot" cx={x.toFixed(1)} cy={y.toFixed(1)} r="4" />;
   });
 
@@ -74,7 +77,7 @@ function GenreRadar({ genres }: RadarProps) {
     <div className="disc-radar-wrap">
       <svg
         className="disc-radar-svg"
-        viewBox="0 0 400 380"
+        viewBox="0 0 400 400"
         role="img"
         aria-label="Genre affinity radar"
       >
@@ -93,13 +96,17 @@ function GenreRadar({ genres }: RadarProps) {
         </g>
       </svg>
 
-      {/* Ranked legend */}
+      {/* Coverage legend — shows rated/total, not scores (those are on the chart) */}
       <div className="disc-radar-legend">
+        <p className="disc-radar-legend-head">// games rated</p>
         {genres.map((g, i) => (
           <div key={g.genre} className="disc-leg">
             <span className="disc-leg-rank">{i + 1}</span>
             <span className="disc-leg-name">{g.genre}</span>
-            <span className="disc-leg-score">{g.averageRating.toFixed(1)}</span>
+            <span className="disc-leg-coverage">
+              {g.totalRated}
+              <span className="disc-leg-total"> / {g.totalInVault}</span>
+            </span>
           </div>
         ))}
       </div>
