@@ -434,6 +434,8 @@ code {
   --vp-input-bg-focus: #fff;
   --vp-input-edge: rgba(124, 92, 255, 0.22);
   --vp-vignette: radial-gradient(ellipse 95% 70% at 50% 30%, transparent 55%, rgba(176, 164, 222, 0.5) 100%);
+  --vp-toggle-bg: rgba(255, 255, 255, 0.6);
+  --vp-toggle-edge: rgba(124, 92, 255, 0.3);
   --vp-bar-bg: rgba(255, 255, 255, 0.9);
 }
 .dark {
@@ -451,6 +453,8 @@ code {
   --vp-input-bg-focus: rgba(12, 10, 24, 0.9);
   --vp-input-edge: rgba(139, 108, 255, 0.18);
   --vp-vignette: radial-gradient(ellipse 90% 70% at 50% 30%, transparent 50%, rgba(5, 4, 12, 0.85) 100%);
+  --vp-toggle-bg: rgba(255, 255, 255, 0.05);
+  --vp-toggle-edge: rgba(139, 108, 255, 0.25);
   --vp-bar-bg: rgba(10, 9, 18, 0.86);
 }
 
@@ -536,6 +540,20 @@ body.app-mode #root { border-inline: none; }
   background: linear-gradient(135deg, var(--vp-violet), var(--vp-gold));
   color: #0A0912; font-weight: 700; font-size: 11px;
   font-family: "Chakra Petch", sans-serif;
+}
+
+/* ─── Theme toggle button ───────────────────────────────────────────────── */
+.vp-theme-toggle {
+  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+  display: grid; place-items: center; cursor: pointer;
+  background: var(--vp-toggle-bg);
+  border: 1px solid var(--vp-toggle-edge);
+  color: var(--foreground);
+  transition: transform 0.15s, border-color 0.15s, background 0.35s;
+}
+.vp-theme-toggle:hover {
+  transform: translateY(-1px);
+  border-color: var(--vp-violet);
 }
 
 /* ─── Mobile bottom nav ─────────────────────────────────────────────────── */
