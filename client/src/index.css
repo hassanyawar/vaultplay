@@ -417,3 +417,348 @@ code {
   .auth-submit, .auth-aurora-container { transition: none; }
   .auth-enter-right, .auth-enter-left, .auth-card-flash { animation: none; }
 }
+
+/* ─── App-wide design system tokens ─────────────────────────────────────── */
+:root {
+  --vp-void: #EFEAF8;
+  --vp-violet: #6D45F0;
+  --vp-violet-bright: #7C5CFF;
+  --vp-gold: #E89A2B;
+  --vp-muted: #635E80;
+  --vp-faint: #9A95B5;
+  --vp-aurora-op: 0.32;
+  --vp-grid-line: rgba(124, 92, 255, 0.10);
+  --vp-nav-line: rgba(124, 92, 255, 0.2);
+  --vp-tile-edge: rgba(124, 92, 255, 0.2);
+  --vp-input-bg: rgba(255, 255, 255, 0.78);
+  --vp-input-bg-focus: #fff;
+  --vp-input-edge: rgba(124, 92, 255, 0.22);
+  --vp-vignette: radial-gradient(ellipse 95% 70% at 50% 30%, transparent 55%, rgba(176, 164, 222, 0.5) 100%);
+  --vp-toggle-bg: rgba(255, 255, 255, 0.6);
+  --vp-toggle-edge: rgba(124, 92, 255, 0.3);
+  --vp-bar-bg: rgba(255, 255, 255, 0.9);
+}
+.dark {
+  --vp-void: #0A0912;
+  --vp-violet: #8B6CFF;
+  --vp-violet-bright: #A78BFF;
+  --vp-gold: #FFC15E;
+  --vp-muted: #8E89AE;
+  --vp-faint: #5C5878;
+  --vp-aurora-op: 0.55;
+  --vp-grid-line: rgba(139, 108, 255, 0.07);
+  --vp-nav-line: rgba(139, 108, 255, 0.16);
+  --vp-tile-edge: rgba(139, 108, 255, 0.18);
+  --vp-input-bg: rgba(8, 7, 16, 0.7);
+  --vp-input-bg-focus: rgba(12, 10, 24, 0.9);
+  --vp-input-edge: rgba(139, 108, 255, 0.18);
+  --vp-vignette: radial-gradient(ellipse 90% 70% at 50% 30%, transparent 50%, rgba(5, 4, 12, 0.85) 100%);
+  --vp-toggle-bg: rgba(255, 255, 255, 0.05);
+  --vp-toggle-edge: rgba(139, 108, 255, 0.25);
+  --vp-bar-bg: rgba(10, 9, 18, 0.86);
+}
+
+/* App mode: remove root border and set void background */
+body.app-mode { background: var(--vp-void); }
+body.app-mode #root { border-inline: none; }
+
+/* Gradient text utility */
+.vp-gradient-text {
+  background: linear-gradient(120deg, var(--vp-violet-bright), var(--vp-gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ─── Atmosphere layers (fixed, z-0) ─────────────────────────────────────── */
+.vp-aurora {
+  position: fixed; inset: -30%; z-index: 0;
+  filter: blur(95px); opacity: var(--vp-aurora-op);
+  pointer-events: none; transition: opacity 0.35s ease;
+}
+.vp-aurora span { position: absolute; border-radius: 50%; mix-blend-mode: screen; }
+.vp-aurora-1 {
+  width: 42vw; height: 42vw; left: -6%; top: -12%;
+  background: radial-gradient(circle, #5A3FD6, transparent 62%);
+  animation: auth-aurora-1 22s ease-in-out infinite;
+}
+.vp-aurora-2 {
+  width: 38vw; height: 38vw; right: -8%; top: 8%;
+  background: radial-gradient(circle, #E89A2B, transparent 60%);
+  opacity: 0.4; animation: auth-aurora-2 27s ease-in-out infinite;
+}
+.vp-aurora-3 {
+  width: 30vw; height: 30vw; left: 46%; top: 30%;
+  background: radial-gradient(circle, #8B6CFF, transparent 64%);
+  animation: auth-aurora-3 19s ease-in-out infinite;
+}
+.vp-grid-floor {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(var(--vp-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--vp-grid-line) 1px, transparent 1px);
+  background-size: 46px 46px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 55% at 50% 24%, #000 30%, transparent 80%);
+  mask-image: radial-gradient(ellipse 80% 55% at 50% 24%, #000 30%, transparent 80%);
+}
+.vp-vignette {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: var(--vp-vignette); transition: background 0.35s ease;
+}
+
+/* ─── Navigation ─────────────────────────────────────────────────────────── */
+.vp-nav {
+  border-bottom: 1px solid var(--vp-nav-line) !important;
+  background: color-mix(in srgb, var(--background) 85%, transparent) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.vp-nav-tab {
+  font-family: "Chakra Petch", sans-serif;
+  font-weight: 500; font-size: 13px; letter-spacing: 0.06em;
+  color: var(--vp-muted); padding: 0 12px;
+  height: 100%;
+  position: relative; white-space: nowrap;
+  background: none; border: none; cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  display: flex; align-items: center;
+}
+.vp-nav-tab:hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--vp-violet) 10%, transparent);
+}
+.vp-nav-tab-active { color: var(--foreground); }
+.vp-nav-tab-active::after {
+  content: '';
+  position: absolute; left: 12px; right: 12px; bottom: 0;
+  height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--vp-violet), var(--vp-gold));
+}
+.vp-user-avatar {
+  width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0;
+  display: grid; place-items: center;
+  background: linear-gradient(135deg, var(--vp-violet), var(--vp-gold));
+  color: #0A0912; font-weight: 700; font-size: 11px;
+  font-family: "Chakra Petch", sans-serif;
+}
+
+/* ─── Theme toggle button ───────────────────────────────────────────────── */
+.vp-theme-toggle {
+  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+  display: grid; place-items: center; cursor: pointer;
+  background: var(--vp-toggle-bg);
+  border: 1px solid var(--vp-toggle-edge);
+  color: var(--foreground);
+  transition: transform 0.15s, border-color 0.15s, background 0.35s;
+}
+.vp-theme-toggle:hover {
+  transform: translateY(-1px);
+  border-color: var(--vp-violet);
+}
+
+/* ─── Mobile bottom nav ─────────────────────────────────────────────────── */
+/* Hidden by default; shown only below md (768px) via explicit media query   */
+/* to avoid Tailwind md:hidden specificity conflicts with display:flex above  */
+.vp-bottom-nav { display: none; }
+@media (max-width: 767px) {
+.vp-bottom-nav {
+  display: flex;
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+  border-top: 1px solid var(--vp-nav-line);
+  background: var(--vp-bar-bg);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
+  box-shadow: 0 -10px 30px -18px rgba(0, 0, 0, 0.7);
+}
+}
+.vp-bnav-item {
+  flex: 1 1 0; min-width: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 6px 2px; position: relative;
+  background: none; border: none; cursor: pointer;
+  color: var(--vp-muted);
+  font-family: "Chakra Petch", sans-serif; font-weight: 500;
+  font-size: 9.5px; letter-spacing: 0.03em;
+  transition: color 0.15s;
+}
+.vp-bnav-item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.vp-bnav-item:hover { color: var(--foreground); }
+.vp-bnav-item-active { color: var(--foreground); }
+.vp-bnav-item-active::before {
+  content: '';
+  position: absolute; top: 0;
+  width: 24px; height: 2.5px; border-radius: 3px;
+  background: linear-gradient(90deg, var(--vp-violet), var(--vp-gold));
+}
+@media (max-width: 380px) { .vp-bnav-item { font-size: 8.5px; } }
+
+/* ─── Search page hero ───────────────────────────────────────────────────── */
+.search-hero { text-align: center; padding: 56px 0 16px; }
+.search-hero h1 {
+  font-family: "Chakra Petch", sans-serif; font-weight: 700;
+  font-size: clamp(44px, 8vw, 84px);
+  letter-spacing: 0.12em; line-height: 0.92; margin: 0;
+  display: flex; justify-content: center; align-items: baseline;
+}
+.search-hero p {
+  margin-top: 18px; color: var(--vp-muted);
+  font-family: "IBM Plex Mono", monospace; font-size: 13.5px; letter-spacing: 0.03em;
+}
+@media (max-width: 640px) {
+  .search-hero { padding: 36px 0 10px; }
+  .search-hero h1 { font-size: clamp(38px, 10vw, 54px); }
+  .search-hero p { font-size: 12px; margin-top: 12px; }
+}
+
+/* ─── Search bar ─────────────────────────────────────────────────────────── */
+.search-row { display: flex; gap: 12px; max-width: 760px; margin: 32px auto 0; }
+.search-input-wrap { position: relative; flex: 1; }
+.search-input-wrap svg {
+  position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+  width: 18px; height: 18px; color: var(--vp-faint); pointer-events: none;
+}
+.search-input {
+  width: 100%; background: var(--vp-input-bg);
+  border: 1px solid var(--vp-input-edge); border-radius: 13px;
+  padding: 15px 18px 15px 48px;
+  color: var(--foreground); font-size: 15px; font-family: inherit;
+  transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+}
+.search-input::placeholder { color: var(--vp-faint); opacity: 1; }
+.search-input:focus {
+  outline: none; background: var(--vp-input-bg-focus);
+  border-color: var(--vp-violet);
+  box-shadow: 0 0 0 3px rgba(139, 108, 255, 0.18), 0 0 26px -6px rgba(139, 108, 255, 0.5);
+}
+.search-btn {
+  border: none; cursor: pointer; border-radius: 13px; padding: 0 28px;
+  color: #0A0912; font-family: "Chakra Petch", sans-serif;
+  font-weight: 600; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase;
+  background: linear-gradient(120deg, var(--vp-violet-bright), var(--vp-violet) 55%, var(--vp-gold));
+  background-size: 160% 100%; background-position: 0 0;
+  transition: background-position 0.4s, transform 0.08s, box-shadow 0.2s;
+  box-shadow: 0 12px 30px -12px rgba(139, 108, 255, 0.7);
+  white-space: nowrap;
+}
+.search-btn:hover:not(:disabled) { background-position: 100% 0; box-shadow: 0 16px 36px -12px rgba(232, 154, 43, 0.6); }
+.search-btn:active:not(:disabled) { transform: translateY(1px); }
+.search-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+@media (max-width: 640px) {
+  .search-row { flex-direction: column; }
+  .search-btn { padding: 14px; }
+}
+
+/* ─── Section heading with decorative lines ──────────────────────────────── */
+.search-sec-head {
+  display: flex; align-items: center; gap: 14px;
+  margin: 52px 0 22px; justify-content: center;
+}
+.search-sec-head .ln {
+  height: 1px; flex: 1; max-width: 220px;
+  background: linear-gradient(90deg, transparent, var(--vp-nav-line));
+}
+.search-sec-head .ln-r { background: linear-gradient(90deg, var(--vp-nav-line), transparent); }
+.search-sec-head h2 {
+  font-family: "Chakra Petch", sans-serif; font-weight: 600;
+  font-size: 12.5px; letter-spacing: 0.26em; text-transform: uppercase;
+  color: var(--vp-muted); margin: 0;
+}
+
+/* ─── Game tile ──────────────────────────────────────────────────────────── */
+.game-tile { cursor: default; }
+.game-cover {
+  position: relative; aspect-ratio: 3/4; border-radius: 14px; overflow: hidden;
+  border: 1px solid var(--vp-tile-edge);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+.game-tile:hover .game-cover {
+  transform: translateY(-6px);
+  border-color: var(--vp-violet);
+  box-shadow: 0 26px 50px -22px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--vp-violet);
+}
+.game-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.game-cover-fallback {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(150deg, #3A2B8C, #1A1245);
+  font-family: "Chakra Petch", sans-serif; font-weight: 700;
+  font-size: clamp(22px, 4vw, 40px); letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Genre tag overlay (bottom-left of cover) */
+.game-genre-tag {
+  position: absolute; left: 9px; bottom: 9px;
+  font-family: "IBM Plex Mono", monospace; font-size: 9.5px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.88);
+  background: rgba(8, 7, 16, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 3px 8px; border-radius: 6px;
+  backdrop-filter: blur(4px); pointer-events: none;
+  max-width: calc(100% - 52px); /* don't overlap the add button */
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* Gold corner bracket decorations (hover-reveal) */
+.game-cover-corner {
+  position: absolute; width: 13px; height: 13px;
+  opacity: 0; transition: opacity 0.2s; pointer-events: none;
+}
+.game-tile:hover .game-cover-corner { opacity: 0.9; }
+.corner-tl { top: 8px; left: 8px; border-top: 2px solid var(--vp-gold); border-left: 2px solid var(--vp-gold); border-top-left-radius: 4px; }
+.corner-tr { top: 8px; right: 8px; border-top: 2px solid var(--vp-gold); border-right: 2px solid var(--vp-gold); border-top-right-radius: 4px; }
+.corner-bl { bottom: 8px; left: 8px; border-bottom: 2px solid var(--vp-gold); border-left: 2px solid var(--vp-gold); border-bottom-left-radius: 4px; }
+.corner-br { bottom: 8px; right: 8px; border-bottom: 2px solid var(--vp-gold); border-right: 2px solid var(--vp-gold); border-bottom-right-radius: 4px; }
+
+/* Add-to-vault button (cover overlay, bottom-right) */
+.game-add-btn {
+  position: absolute; bottom: 9px; right: 9px;
+  width: 30px; height: 30px; border-radius: 9px; border: none; cursor: pointer;
+  display: grid; place-items: center;
+  background: linear-gradient(135deg, var(--vp-violet), var(--vp-gold));
+  color: #0A0912;
+  box-shadow: 0 6px 18px -6px rgba(0, 0, 0, 0.7);
+  transition: opacity 0.2s, transform 0.2s;
+  flex-shrink: 0;
+}
+.game-add-btn svg { width: 15px; height: 15px; stroke-width: 2.8; flex-shrink: 0; }
+/* Desktop: hide by default, reveal on hover; persist when action taken */
+@media (min-width: 640px) {
+  .game-add-btn { opacity: 0; transform: scale(0.82) translateY(2px); }
+  .game-tile:hover .game-add-btn { opacity: 1; transform: scale(1) translateY(0); }
+  .game-add-btn-saved,
+  .game-add-btn-exists,
+  .game-add-btn-error { opacity: 1 !important; transform: scale(1) translateY(0) !important; }
+}
+/* State variants — saved and exists both use the same green fill */
+.game-add-btn-saved,
+.game-add-btn-exists { background: linear-gradient(135deg, #16B981, #0d9268) !important; color: #fff !important; }
+.game-add-btn-error { background: rgba(239, 68, 68, 0.85) !important; color: #fff !important; }
+
+/* Info section below cover */
+.game-info { padding-top: 9px; }
+.game-info h3 {
+  font-weight: 600; font-size: 13px; line-height: 1.35;
+  color: var(--foreground); margin: 0;
+  display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
+.game-info-year {
+  margin-top: 3px;
+  font-family: "IBM Plex Mono", monospace; font-size: 11px;
+  color: var(--vp-faint); letter-spacing: 0.05em;
+}
+.game-platform-tag {
+  font-size: 10px; padding: 2px 6px; border-radius: 5px;
+  background: rgba(139, 108, 255, 0.1);
+  color: var(--vp-muted);
+  border: 1px solid rgba(139, 108, 255, 0.15);
+  font-family: "IBM Plex Mono", monospace; letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vp-aurora-1, .vp-aurora-2, .vp-aurora-3 { animation: none; }
+  .game-cover, .game-add-btn, .search-btn { transition: none; }
+}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Archive, Compass, BarChart2, Settings2, ShieldCheck, type LucideIcon } from 'lucide-react';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -39,9 +39,46 @@ const TAB_ICONS: Record<Tab, LucideIcon> = {
   admin: ShieldCheck,
 };
 
+function BrandMini({ size = 'md' }: { size?: 'sm' | 'md' }) {
+  const iconSize = size === 'sm' ? 17 : 20;
+  const fontSize = size === 'sm' ? 12 : 14;
+  return (
+    <div className="flex items-center gap-2 shrink-0">
+      <svg viewBox="0 0 24 24" style={{ width: iconSize, height: iconSize, flexShrink: 0 }}>
+        <defs>
+          <linearGradient id="vp-brand-grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#A78BFF" />
+            <stop offset="1" stopColor="#FFC15E" />
+          </linearGradient>
+        </defs>
+        <path d="M13 2 4 14h6l-1 8 9-12h-6z" fill="url(#vp-brand-grad)" />
+      </svg>
+      <span
+        style={{
+          fontFamily: '"Chakra Petch", sans-serif',
+          fontWeight: 700,
+          letterSpacing: '0.12em',
+          fontSize,
+          lineHeight: 1,
+        }}
+      >
+        <span style={{ color: 'var(--foreground)' }}>VAULT</span>
+        <span className="vp-gradient-text">PLAY</span>
+      </span>
+    </div>
+  );
+}
+
 function AppShell() {
   const { user, loading, logout } = useAuth();
   const [tab, setTab] = useState<Tab>('search');
+
+  useEffect(() => {
+    if (!user) return;
+    document.body.classList.add('app-mode');
+    return () => document.body.classList.remove('app-mode');
+  }, [user]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -58,11 +95,19 @@ function AppShell() {
 
   const userControls = (
     <>
-      <span className="text-xs text-muted-foreground">{user.username}</span>
+      <div className="flex items-center gap-2">
+        <div className="vp-user-avatar">{user.username[0].toUpperCase()}</div>
+        <span className="text-xs text-muted-foreground hidden md:inline" style={{ color: 'var(--vp-muted)' }}>
+          {user.username}
+        </span>
+      </div>
       <ThemeToggle />
       <button
         onClick={() => void logout()}
-        className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+        className="text-xs transition-colors"
+        style={{ color: 'var(--vp-muted)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--foreground)')}
+        onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--vp-muted)')}
       >
         Sign out
       </button>
@@ -70,66 +115,79 @@ function AppShell() {
   );
 
   return (
-    <div className="pb-16 md:pb-0">
-      {/* Mobile: slim header — brand + user controls */}
-      <header className="sticky top-0 z-40 border-b border-border bg-card md:hidden">
+    <div className="md:pb-0">
+      {/* Fixed atmosphere layers */}
+      <div className="vp-aurora">
+        <span className="vp-aurora-1" />
+        <span className="vp-aurora-2" />
+        <span className="vp-aurora-3" />
+      </div>
+      <div className="vp-grid-floor" />
+      <div className="vp-vignette" />
+
+      {/* Mobile: slim header */}
+      <header className="sticky top-0 z-40 md:hidden vp-nav">
         <div className="flex items-center justify-between px-4 py-2.5">
-          <span className="text-xs font-bold tracking-widest text-foreground">VAULTPLAY</span>
+          <BrandMini size="sm" />
           <div className="flex items-center gap-3">{userControls}</div>
         </div>
       </header>
 
-      {/* Desktop: tab bar + user controls */}
-      <nav className="border-b border-border bg-card hidden md:block sticky top-0 z-40">
-        <div className="max-w-5xl mx-auto px-4">
-          <div className="flex items-end">
-            <div className="flex items-center gap-1 pt-3">
+      {/* Desktop: full nav */}
+      <nav className="hidden md:block sticky top-0 z-40 vp-nav" style={{ height: 52 }}>
+        <div className="max-w-5xl mx-auto px-4 h-full">
+          <div className="flex items-stretch h-full">
+            {/* Brand */}
+            <div className="flex items-center pr-4 mr-2">
+              <BrandMini />
+            </div>
+
+            {/* Tabs */}
+            <div className="flex items-stretch gap-0.5 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
               {tabs.map((t) => (
                 <button
                   key={t}
                   onClick={() => setTab(t)}
-                  className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors whitespace-nowrap ${
-                    tab === t
-                      ? 'bg-background text-foreground border border-b-background border-border -mb-px'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
+                  className={`vp-nav-tab ${tab === t ? 'vp-nav-tab-active' : ''}`}
                 >
                   {TAB_LABELS[t]}
                 </button>
               ))}
             </div>
-            <div className="ml-auto flex items-center gap-3 pb-2 pl-4 shrink-0">{userControls}</div>
+
+            {/* User controls */}
+            <div className="ml-auto flex items-center gap-3 pl-4 shrink-0">{userControls}</div>
           </div>
         </div>
       </nav>
 
-      {tab === 'search' && <SearchPage />}
-      {tab === 'vault' && <VaultPage />}
-      {tab === 'discover' && <DiscoverPage />}
-      {tab === 'dashboard' && <DashboardPage />}
-      {tab === 'settings' && <SettingsPage />}
-      {tab === 'admin' && user.isAdmin && <AdminPage />}
+      {/* Page content — above atmosphere layers; bottom padding clears the fixed mobile nav */}
+      <div className="relative z-[2] pb-[calc(72px+env(safe-area-inset-bottom))] md:pb-0">
+        {tab === 'search' && <SearchPage />}
+        {tab === 'vault' && <VaultPage />}
+        {tab === 'discover' && <DiscoverPage />}
+        {tab === 'dashboard' && <DashboardPage />}
+        {tab === 'settings' && <SettingsPage />}
+        {tab === 'admin' && user.isAdmin && <AdminPage />}
+      </div>
 
-      {/* Mobile: bottom navigation bar */}
-      <nav className="fixed bottom-0 left-0 right-0 border-t border-border bg-card md:hidden z-50">
-        <div className="flex items-center justify-around px-2 py-2">
-          {tabs.map((t) => {
-            const Icon = TAB_ICONS[t];
-            const active = tab === t;
-            return (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                className={`flex flex-col items-center gap-0.5 px-3 py-1 min-w-0 transition-colors ${
-                  active ? 'text-foreground' : 'text-muted-foreground'
-                }`}
-              >
-                <Icon size={20} strokeWidth={active ? 2.5 : 1.75} />
-                <span className="text-[10px] font-medium leading-none">{BOTTOM_NAV_LABELS[t]}</span>
-              </button>
-            );
-          })}
-        </div>
+      {/* Mobile: bottom navigation */}
+      <nav className="vp-bottom-nav">
+        {tabs.map((t) => {
+          const Icon = TAB_ICONS[t];
+          const active = tab === t;
+          return (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`vp-bnav-item ${active ? 'vp-bnav-item-active' : ''}`}
+              aria-current={active ? 'page' : undefined}
+            >
+              <Icon size={22} strokeWidth={active ? 2.5 : 1.75} />
+              <span>{BOTTOM_NAV_LABELS[t]}</span>
+            </button>
+          );
+        })}
       </nav>
     </div>
   );
