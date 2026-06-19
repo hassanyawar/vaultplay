@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
