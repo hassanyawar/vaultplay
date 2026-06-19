@@ -805,11 +805,11 @@ body.app-mode #root { border-inline: none; }
 }
 .vault-chip:hover { color: var(--foreground); border-color: var(--vp-violet); }
 .vault-chip-active {
-  color: #0A0912; border-color: transparent; font-weight: 600;
+  color: #ffffff; border-color: transparent; font-weight: 600;
   background: linear-gradient(120deg, var(--vp-violet-bright), var(--vp-violet) 60%, var(--vp-gold));
   box-shadow: 0 8px 22px -10px rgba(139, 108, 255, 0.7);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
 }
-.dark .vault-chip-active { color: #0A0912; }
 
 /* Tool buttons (Sort / Filters) */
 .vault-toolbtn {
