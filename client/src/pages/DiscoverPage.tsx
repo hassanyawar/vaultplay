@@ -99,16 +99,22 @@ function GenreRadar({ genres }: RadarProps) {
       {/* Coverage legend — shows rated/total, not scores (those are on the chart) */}
       <div className="disc-radar-legend">
         <p className="disc-radar-legend-head">// games rated</p>
-        {genres.map((g, i) => (
-          <div key={g.genre} className="disc-leg">
-            <span className="disc-leg-rank">{i + 1}</span>
-            <span className="disc-leg-name">{g.genre}</span>
-            <span className="disc-leg-coverage">
-              {g.totalRated}
-              <span className="disc-leg-total"> / {g.totalInVault}</span>
-            </span>
-          </div>
-        ))}
+        {genres.map((g, i) => {
+          const pct = g.totalInVault > 0 ? (g.totalRated / g.totalInVault) * 100 : 0;
+          return (
+            <div key={g.genre} className="disc-leg">
+              <span className="disc-leg-rank">{i + 1}</span>
+              <span className="disc-leg-name">{g.genre}</span>
+              <div className="disc-leg-bar-wrap">
+                <div className="disc-leg-bar-fill" style={{ width: active ? `${pct}%` : '0%' }} />
+              </div>
+              <span className="disc-leg-coverage">
+                {g.totalRated}
+                <span className="disc-leg-total"> / {g.totalInVault}</span>
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
