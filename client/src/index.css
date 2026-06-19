@@ -803,8 +803,9 @@ body.app-mode #root { border-inline: none; }
   background: transparent; border: 1px solid var(--vp-input-edge);
   transition: all 0.16s; white-space: nowrap;
 }
-.vault-chip:hover { color: var(--vp-violet-bright); border-color: var(--vp-violet); }
-.vault-chip-active {
+.vault-chip:not(.vault-chip-active):hover { color: var(--foreground); border-color: var(--vp-violet); }
+.vault-chip-active,
+.vault-chip-active:hover {
   color: #ffffff; border-color: transparent; font-weight: 600;
   background: linear-gradient(120deg, var(--vp-violet-bright), var(--vp-violet) 60%, var(--vp-gold));
   box-shadow: 0 8px 22px -10px rgba(139, 108, 255, 0.7);
