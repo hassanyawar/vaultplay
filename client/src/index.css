@@ -434,6 +434,7 @@ code {
   --vp-input-bg-focus: #fff;
   --vp-input-edge: rgba(124, 92, 255, 0.22);
   --vp-vignette: radial-gradient(ellipse 95% 70% at 50% 30%, transparent 55%, rgba(176, 164, 222, 0.5) 100%);
+  --vp-bar-bg: rgba(255, 255, 255, 0.9);
 }
 .dark {
   --vp-void: #0A0912;
@@ -450,6 +451,7 @@ code {
   --vp-input-bg-focus: rgba(12, 10, 24, 0.9);
   --vp-input-edge: rgba(139, 108, 255, 0.18);
   --vp-vignette: radial-gradient(ellipse 90% 70% at 50% 30%, transparent 50%, rgba(5, 4, 12, 0.85) 100%);
+  --vp-bar-bg: rgba(10, 9, 18, 0.86);
 }
 
 /* App mode: remove root border and set void background */
@@ -535,6 +537,42 @@ body.app-mode #root { border-inline: none; }
   color: #0A0912; font-weight: 700; font-size: 11px;
   font-family: "Chakra Petch", sans-serif;
 }
+
+/* ─── Mobile bottom nav ─────────────────────────────────────────────────── */
+/* Hidden by default; shown only below md (768px) via explicit media query   */
+/* to avoid Tailwind md:hidden specificity conflicts with display:flex above  */
+.vp-bottom-nav { display: none; }
+@media (max-width: 767px) {
+.vp-bottom-nav {
+  display: flex;
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+  border-top: 1px solid var(--vp-nav-line);
+  background: var(--vp-bar-bg);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
+  box-shadow: 0 -10px 30px -18px rgba(0, 0, 0, 0.7);
+}
+}
+.vp-bnav-item {
+  flex: 1 1 0; min-width: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 6px 2px; position: relative;
+  background: none; border: none; cursor: pointer;
+  color: var(--vp-muted);
+  font-family: "Chakra Petch", sans-serif; font-weight: 500;
+  font-size: 9.5px; letter-spacing: 0.03em;
+  transition: color 0.15s;
+}
+.vp-bnav-item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.vp-bnav-item:hover { color: var(--foreground); }
+.vp-bnav-item-active { color: var(--foreground); }
+.vp-bnav-item-active::before {
+  content: '';
+  position: absolute; top: 0;
+  width: 24px; height: 2.5px; border-radius: 3px;
+  background: linear-gradient(90deg, var(--vp-violet), var(--vp-gold));
+}
+@media (max-width: 380px) { .vp-bnav-item { font-size: 8.5px; } }
 
 /* ─── Search page hero ───────────────────────────────────────────────────── */
 .search-hero { text-align: center; padding: 56px 0 16px; }

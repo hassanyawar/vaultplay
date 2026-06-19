@@ -115,7 +115,7 @@ function AppShell() {
   );
 
   return (
-    <div className="pb-16 md:pb-0">
+    <div className="md:pb-0">
       {/* Fixed atmosphere layers */}
       <div className="vp-aurora">
         <span className="vp-aurora-1" />
@@ -161,8 +161,8 @@ function AppShell() {
         </div>
       </nav>
 
-      {/* Page content — above atmosphere layers */}
-      <div className="relative z-[2]">
+      {/* Page content — above atmosphere layers; bottom padding clears the fixed mobile nav */}
+      <div className="relative z-[2] pb-[calc(72px+env(safe-area-inset-bottom))] md:pb-0">
         {tab === 'search' && <SearchPage />}
         {tab === 'vault' && <VaultPage />}
         {tab === 'discover' && <DiscoverPage />}
@@ -172,25 +172,22 @@ function AppShell() {
       </div>
 
       {/* Mobile: bottom navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 md:hidden z-50 vp-nav" style={{ borderTop: '1px solid var(--vp-nav-line)', borderBottom: 'none' }}>
-        <div className="flex items-center justify-around px-2 py-2">
-          {tabs.map((t) => {
-            const Icon = TAB_ICONS[t];
-            const active = tab === t;
-            return (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                className={`flex flex-col items-center gap-0.5 px-3 py-1 min-w-0 transition-colors ${
-                  active ? 'text-foreground' : 'text-muted-foreground'
-                }`}
-              >
-                <Icon size={20} strokeWidth={active ? 2.5 : 1.75} />
-                <span className="text-[10px] font-medium leading-none">{BOTTOM_NAV_LABELS[t]}</span>
-              </button>
-            );
-          })}
-        </div>
+      <nav className="vp-bottom-nav">
+        {tabs.map((t) => {
+          const Icon = TAB_ICONS[t];
+          const active = tab === t;
+          return (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`vp-bnav-item ${active ? 'vp-bnav-item-active' : ''}`}
+              aria-current={active ? 'page' : undefined}
+            >
+              <Icon size={22} strokeWidth={active ? 2.5 : 1.75} />
+              <span>{BOTTOM_NAV_LABELS[t]}</span>
+            </button>
+          );
+        })}
       </nav>
     </div>
   );
