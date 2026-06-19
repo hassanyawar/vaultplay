@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Plus } from 'lucide-react';
-import { getNextToPlay, getStalledGames, getGenreAffinity, saveGame } from '@/lib/api';
-import type { Recommendation, StalledGame, GenreAffinity, GameSearchResult } from '@/types/game';
+import { getNextToPlay, getStalledGames, getGenreAffinity } from '@/lib/api';
+import type { Recommendation, StalledGame, GenreAffinity } from '@/types/game';
 
 // ── Radar chart ──────────────────────────────────────────────────────────────
 
@@ -143,22 +142,15 @@ interface RecCardProps {
   delay: number;
 }
 
+function rankClass(rank: number): string {
+  if (rank === 0) return 'disc-rec-rank disc-rec-rank-1';
+  if (rank === 1) return 'disc-rec-rank disc-rec-rank-2';
+  if (rank === 2) return 'disc-rec-rank disc-rec-rank-3';
+  return 'disc-rec-rank';
+}
+
 function RecCard({ rec, rank, visible, delay }: RecCardProps) {
-  const [added, setAdded] = useState(false);
   const palette = GRAD_PALETTES[rank % GRAD_PALETTES.length];
-
-  async function handleAdd(e: React.MouseEvent) {
-    e.stopPropagation();
-    if (added) return;
-    try {
-      await saveGame(rec as GameSearchResult);
-      setAdded(true);
-    } catch {
-      // silently ignore
-    }
-  }
-
-  const isTop = rank < 3;
 
   return (
     <article
@@ -179,16 +171,7 @@ function RecCard({ rec, rank, visible, delay }: RecCardProps) {
           <div className="disc-rec-cover-fallback">{coverInitials(rec.title)}</div>
         )}
 
-        <span className={`disc-rec-rank ${isTop ? 'disc-rec-rank-top' : ''}`}>#{rank + 1}</span>
-
-        <button
-          className="disc-rec-add"
-          onClick={(e) => void handleAdd(e)}
-          aria-label={`Add ${rec.title} to vault`}
-          title={added ? 'Added!' : `Add ${rec.title} to vault`}
-        >
-          <Plus size={16} strokeWidth={2.8} />
-        </button>
+        <span className={rankClass(rank)}>#{rank + 1}</span>
 
         <span className="disc-rec-corner disc-corner-tl" aria-hidden />
         <span className="disc-rec-corner disc-corner-tr" aria-hidden />

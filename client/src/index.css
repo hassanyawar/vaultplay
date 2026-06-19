@@ -1059,32 +1059,33 @@ body.app-mode #root { border-inline: none; }
   text-shadow: 0 4px 20px rgba(0,0,0,0.4);
 }
 
-/* Rank badge */
+/* Rank badge — base (ranks 4+) */
 .disc-rec-rank {
   position: absolute; top: 10px; left: 10px; z-index: 2;
   font-family: "Chakra Petch", sans-serif; font-weight: 700; font-size: 12.5px;
   letter-spacing: 0.04em; padding: 4px 10px; border-radius: 8px;
-  color: var(--vp-muted); background: rgba(8,7,16,0.5);
-  border: 1px solid rgba(255,255,255,0.18); backdrop-filter: blur(4px);
+  color: #ffffff; background: rgba(8,7,16,0.62);
+  border: 1px solid rgba(255,255,255,0.28); backdrop-filter: blur(4px);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
 }
-.disc-rec-rank-top {
+/* #1 — gold */
+.disc-rec-rank-1 {
   color: #0A0912;
-  background: linear-gradient(135deg, var(--vp-violet-bright), var(--vp-gold));
-  border: none; box-shadow: 0 6px 16px -6px rgba(255,193,94,0.6);
+  background: linear-gradient(135deg, #FFD700, #E89A2B);
+  border: none; box-shadow: 0 6px 18px -6px rgba(255,200,60,0.7);
 }
-
-/* Hover-reveal add button */
-.disc-rec-add {
-  position: absolute; top: 10px; right: 10px; z-index: 2;
-  width: 32px; height: 32px; border-radius: 9px; border: none; cursor: pointer;
-  display: grid; place-items: center;
-  background: linear-gradient(135deg, var(--vp-violet-bright), var(--vp-gold));
-  color: #0A0912; box-shadow: 0 8px 20px -6px rgba(0,0,0,0.5);
-  opacity: 0; transform: scale(0.82) translateY(-3px);
-  transition: opacity 0.18s, transform 0.18s;
+/* #2 — violet */
+.disc-rec-rank-2 {
+  color: #ffffff;
+  background: linear-gradient(135deg, #A78BFF, #6D45F0);
+  border: none; box-shadow: 0 6px 18px -6px rgba(139,108,255,0.65);
 }
-.disc-rec:hover .disc-rec-add { opacity: 1; transform: scale(1) translateY(0); }
-.disc-rec-add:focus-visible { opacity: 1; outline: 2px solid #fff; outline-offset: 2px; }
+/* #3 — bronze */
+.disc-rec-rank-3 {
+  color: #0A0912;
+  background: linear-gradient(135deg, #FF9A5C, #C97E12);
+  border: none; box-shadow: 0 6px 18px -6px rgba(201,126,18,0.6);
+}
 
 /* Gold corner brackets — hover reveal */
 .disc-rec-corner {
