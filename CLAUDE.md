@@ -14,7 +14,7 @@ VAULTPLAY is a personal, non-commercial full-stack web app for tracking video ga
 
 **M1 complete** — tagged `M1` on `master`. **M2 complete** — tagged `M2` on `master`. **M3 complete** — tagged `M3` on `master`. **M4 complete** — tagged `M4` on `master`. **M5 complete** — tagged `M5` on `master`. **M6 complete** — JWT auth with httpOnly cookies, per-user vault scoping, change password, admin panel, username support. **M7 complete** — tagged `M7` on `master`. Deployed to Vercel + Railway, dark/light mode, mobile responsive with bottom nav, load-more pagination.
 
-**M7 ongoing polish** — VP design system applied across all three main pages on `develop`: auth page (aurora bg, glassmorphism card, unified `AuthPage`, password toggle), search page (hero, cover-first `GameCard`, aurora atmosphere, redesigned bottom nav + slim header), vault page (glassmorphism rows, inline notes, filter chips, color-coded stat counters). Global `--vp-*` CSS design tokens, Chakra Petch + IBM Plex Mono fonts, `body.app-mode` aurora layers, and `AppShell` nav all live in `client/src/index.css` + `client/src/App.tsx`.
+**M7 ongoing polish** — VP design system applied across all four main pages on `develop`: auth page (aurora bg, glassmorphism card, unified `AuthPage`, password toggle), search page (hero, cover-first `GameCard`, aurora atmosphere, redesigned nav), vault page (glassmorphism rows, inline notes, filter chips, color-coded stats), discover page (glassmorphism rec cards with distinct rank badges, shelf rows, animated SVG radar chart with coverage bars). Global `--vp-*` CSS design tokens, Chakra Petch + IBM Plex Mono fonts, `body.app-mode` aurora layers live in `client/src/index.css` + `client/src/App.tsx`. Dashboard page not yet overhauled.
 
 ---
 
