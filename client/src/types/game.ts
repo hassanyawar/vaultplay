@@ -11,7 +11,7 @@ export interface AdminUser {
   username: string;
   is_admin: boolean;
   created_at: string;
-  vault_count: string;
+  vault_count: number;
 }
 
 export interface AdminVaultEntry {
@@ -37,13 +37,13 @@ export interface GameSearchResult {
 
 export interface SavedGame {
   id: number;
-  rawg_id: number;
+  rawgId: number;
   title: string;
-  cover_url: string | null;
+  coverUrl: string | null;
   platforms: string[];
   genres: string[];
-  release_year: number | null;
-  created_at: string;
+  releaseYear: number | null;
+  createdAt: string;
 }
 
 export type VaultStatus = 'backlog' | 'playing' | 'completed';

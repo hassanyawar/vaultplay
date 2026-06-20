@@ -24,7 +24,9 @@ router.get('/users', async (_req, res) => {
       GROUP BY u.id
       ORDER BY u.created_at ASC
     `);
-    res.json({ users: result.rows });
+    res.json({
+      users: result.rows.map((u) => ({ ...u, vault_count: parseInt(u.vault_count, 10) })),
+    });
   } catch (err) {
     res.status(500).json({ error: serverError(err) });
   }
