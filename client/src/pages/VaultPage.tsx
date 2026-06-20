@@ -46,8 +46,10 @@ export function VaultPage() {
   }
 
   useEffect(() => {
-    getVaultPlatforms().then(setPlatforms).catch(() => {});
-    getVaultCounts().then(setCounts).catch(() => {});
+    let cancelled = false;
+    getVaultPlatforms().then((p) => { if (!cancelled) setPlatforms(p); }).catch(() => {});
+    getVaultCounts().then((c) => { if (!cancelled) setCounts(c); }).catch(() => {});
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {

@@ -24,9 +24,3 @@ export interface GenreAffinity {
   totalRated: number;
   totalInVault: number;
 }
-
-export interface DiscoverySummary {
-  nextToPlay: Recommendation[];
-  stalled: StalledGame[];
-  genreAffinity: GenreAffinity[];
-}
