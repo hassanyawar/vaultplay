@@ -33,6 +33,9 @@ CREATE TABLE IF NOT EXISTS vault_entries (
   completed_at TIMESTAMPTZ
 );
 
-CREATE INDEX IF NOT EXISTS idx_vault_entries_status  ON vault_entries(status);
-CREATE INDEX IF NOT EXISTS idx_vault_entries_rating  ON vault_entries(rating);
-CREATE INDEX IF NOT EXISTS idx_vault_entries_game_id ON vault_entries(game_id);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_vault_game_user        ON vault_entries(game_id, user_id);
+CREATE INDEX        IF NOT EXISTS idx_vault_entries_user_id  ON vault_entries(user_id);
+CREATE INDEX        IF NOT EXISTS idx_vault_entries_user_status ON vault_entries(user_id, status);
+CREATE INDEX        IF NOT EXISTS idx_vault_entries_status   ON vault_entries(status);
+CREATE INDEX        IF NOT EXISTS idx_vault_entries_rating   ON vault_entries(rating);
+CREATE INDEX        IF NOT EXISTS idx_vault_entries_game_id  ON vault_entries(game_id);

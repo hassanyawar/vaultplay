@@ -149,10 +149,17 @@ router.patch('/password', requireAuth, async (req, res) => {
     }
 
     const newHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
-    await pool.query(`UPDATE users SET password_hash = $1 WHERE id = $2`, [
-      newHash,
-      req.user!.userId,
-    ]);
+    const updated = await pool.query<{ id: number; email: string; username: string; is_admin: boolean }>(
+      `UPDATE users SET password_hash = $1 WHERE id = $2 RETURNING id, email, username, is_admin`,
+      [newHash, req.user!.userId]
+    );
+    const u = updated.rows[0];
+    const newToken = jwt.sign(
+      { userId: u.id, email: u.email, username: u.username, isAdmin: u.is_admin },
+      process.env.JWT_SECRET as string,
+      { expiresIn: '7d' }
+    );
+    res.cookie('token', newToken, COOKIE_OPTIONS);
     res.json({ message: 'Password updated' });
   } catch (err) {
     res.status(500).json({ error: serverError(err) });
