@@ -13,19 +13,19 @@ import { AuthPage } from '@/pages/AuthPage';
 type Tab = 'search' | 'vault' | 'discover' | 'dashboard' | 'settings' | 'admin';
 
 const TAB_LABELS: Record<Tab, string> = {
+  dashboard: 'Home',
   search: 'Search',
   vault: 'My Vault',
   discover: 'Discover',
-  dashboard: 'Dashboard',
   settings: 'Settings',
   admin: 'Admin',
 };
 
 const BOTTOM_NAV_LABELS: Record<Tab, string> = {
+  dashboard: 'Home',
   search: 'Search',
   vault: 'Vault',
   discover: 'Discover',
-  dashboard: 'Dashboard',
   settings: 'Settings',
   admin: 'Admin',
 };
@@ -71,7 +71,7 @@ function BrandMini({ size = 'md' }: { size?: 'sm' | 'md' }) {
 
 function AppShell() {
   const { user, loading, logout } = useAuth();
-  const [tab, setTab] = useState<Tab>('search');
+  const [tab, setTab] = useState<Tab>('dashboard');
 
   useEffect(() => {
     if (!user) return;
@@ -91,7 +91,7 @@ function AppShell() {
     return <AuthPage />;
   }
 
-  const tabs = ['search', 'vault', 'discover', 'dashboard', 'settings', ...(user.isAdmin ? ['admin' as Tab] : [])] as Tab[];
+  const tabs = ['dashboard', 'search', 'vault', 'discover', 'settings', ...(user.isAdmin ? ['admin' as Tab] : [])] as Tab[];
 
   const userControls = (
     <>
@@ -166,7 +166,7 @@ function AppShell() {
         {tab === 'search' && <SearchPage />}
         {tab === 'vault' && <VaultPage />}
         {tab === 'discover' && <DiscoverPage />}
-        {tab === 'dashboard' && <DashboardPage />}
+        {tab === 'dashboard' && <DashboardPage onNavigateToSearch={() => setTab('search')} />}
         {tab === 'settings' && <SettingsPage />}
         {tab === 'admin' && user.isAdmin && <AdminPage />}
       </div>
