@@ -1471,7 +1471,7 @@ body.app-mode #root { border-inline: none; }
 
 /* ─── Settings ───────────────────────────────────────────────────────────── */
 .sett-wrap {
-  max-width: 560px; margin: 0 auto; padding: 0 16px 80px;
+  max-width: 560px; margin: 0 auto; padding: 0 16px 24px;
 }
 .sett-eyebrow {
   font-family: "IBM Plex Mono", monospace;
@@ -1564,8 +1564,8 @@ body.app-mode #root { border-inline: none; }
 
 /* Eye toggle */
 .sett-eye {
-  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-  width: 32px; height: 32px; border: none; background: none;
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  width: 40px; height: 40px; border: none; background: none;
   cursor: pointer; color: var(--vp-faint);
   display: grid; place-items: center; border-radius: 8px;
   transition: color 0.15s;
