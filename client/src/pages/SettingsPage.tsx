@@ -1,22 +1,56 @@
 import { useState } from 'react';
+import { Eye, EyeOff, Check, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { changePassword } from '@/lib/api';
 
+function getInitials(username?: string): string {
+  if (!username) return '?';
+  return username.slice(0, 2).toUpperCase();
+}
+
+function measureStrength(p: string): 0 | 1 | 2 | 3 | 4 {
+  if (!p) return 0;
+  let s = 0;
+  if (p.length >= 8) s++;
+  if (/[a-z]/.test(p) && /[A-Z]/.test(p)) s++;
+  if (/\d/.test(p)) s++;
+  if (/[^A-Za-z0-9]/.test(p)) s++;
+  return s as 0 | 1 | 2 | 3 | 4;
+}
+
+function strengthInfo(s: number): { pct: number; color: string; label: string } {
+  if (s === 0) return { pct: 0, color: 'transparent', label: '' };
+  if (s <= 1) return { pct: 25, color: 'var(--vp-warn)', label: 'Weak' };
+  if (s <= 3) return { pct: 65, color: 'var(--vp-gold)', label: 'Fair' };
+  return { pct: 100, color: 'var(--vp-ok)', label: 'Strong' };
+}
+
 export function SettingsPage() {
   const { user } = useAuth();
+
   const [current, setCurrent] = useState('');
   const [next, setNext] = useState('');
   const [confirm, setConfirm] = useState('');
+
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNext, setShowNext] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const strength = measureStrength(next);
+  const { pct, color, label } = strengthInfo(strength);
+  const passwordsMatch = confirm.length > 0 && next === confirm;
+  const passwordsMismatch = confirm.length > 0 && next !== confirm;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setSuccess(false);
     if (next !== confirm) {
-      setError('New passwords do not match');
+      setError("Passwords don't match");
       return;
     }
     setLoading(true);
@@ -34,74 +68,138 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
-      <h1 className="text-2xl font-bold text-foreground mb-8">Settings</h1>
+    <div className="min-h-screen">
+      <div className="sett-wrap">
 
-      <div className="max-w-sm mx-auto">
-        <div className="rounded-xl border border-border bg-card px-6 py-7">
-          <h2 className="text-base font-semibold text-foreground mb-1">Account</h2>
-          <p className="text-sm text-foreground">{user?.username}</p>
-          <p className="text-xs text-muted-foreground mb-6">{user?.email}</p>
+        <header style={{ padding: '28px 0 4px' }}>
+          <p className="sett-eyebrow">// account &amp; preferences</p>
+          <h1 className="sett-title">Settings</h1>
+        </header>
 
-          <h3 className="text-sm font-semibold text-foreground mb-4">Change password</h3>
+        <div className="sett-col">
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Current password
-              </label>
-              <input
-                type="password"
-                value={current}
-                onChange={(e) => setCurrent(e.target.value)}
-                required
-                autoComplete="current-password"
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                placeholder="••••••••"
-              />
+          {/* Account identity */}
+          <section className="sett-card">
+            <span className="sett-corner sett-c-tl" />
+            <span className="sett-corner sett-c-tr" />
+            <span className="sett-corner sett-c-bl" />
+            <span className="sett-corner sett-c-br" />
+            <h2 className="sett-card-title">Account</h2>
+            <div className="sett-profile">
+              <div className="sett-avatar">{getInitials(user?.username)}</div>
+              <div>
+                <div className="sett-profile-name">{user?.username}</div>
+                <div className="sett-profile-email">{user?.email}</div>
+              </div>
             </div>
+          </section>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                New password
-              </label>
-              <input
-                type="password"
-                value={next}
-                onChange={(e) => setNext(e.target.value)}
-                required
-                autoComplete="new-password"
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                placeholder="Min. 8 characters"
-              />
-            </div>
+          {/* Change password */}
+          <section className="sett-card sett-card-pw">
+            <h2 className="sett-card-title">Change password</h2>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Confirm new password
-              </label>
-              <input
-                type="password"
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                required
-                autoComplete="new-password"
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                placeholder="••••••••"
-              />
-            </div>
+            <form onSubmit={handleSubmit} noValidate>
 
-            {error && <p className="text-xs text-destructive">{error}</p>}
-            {success && <p className="text-xs text-green-600">Password updated successfully.</p>}
+              <div className="sett-field">
+                <label className="sett-field-label" htmlFor="sett-cur">Current password</label>
+                <div className="sett-ifield">
+                  <input
+                    id="sett-cur"
+                    type={showCurrent ? 'text' : 'password'}
+                    value={current}
+                    onChange={(e) => setCurrent(e.target.value)}
+                    required
+                    autoComplete="current-password"
+                    placeholder="••••••••"
+                    className="sett-input"
+                  />
+                  <button
+                    type="button"
+                    className="sett-eye"
+                    aria-label={showCurrent ? 'Hide password' : 'Show password'}
+                    onClick={() => setShowCurrent((v) => !v)}
+                  >
+                    {showCurrent ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-lg bg-foreground text-background px-4 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 mt-1"
-            >
-              {loading ? 'Updating…' : 'Update password'}
-            </button>
-          </form>
+              <div className="sett-field">
+                <label className="sett-field-label" htmlFor="sett-new">New password</label>
+                <div className="sett-ifield">
+                  <input
+                    id="sett-new"
+                    type={showNext ? 'text' : 'password'}
+                    value={next}
+                    onChange={(e) => setNext(e.target.value)}
+                    required
+                    autoComplete="new-password"
+                    placeholder="Min. 8 characters"
+                    className="sett-input"
+                  />
+                  <button
+                    type="button"
+                    className="sett-eye"
+                    aria-label={showNext ? 'Hide password' : 'Show password'}
+                    onClick={() => setShowNext((v) => !v)}
+                  >
+                    {showNext ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                {next.length > 0 && (
+                  <>
+                    <div className="sett-meter">
+                      <span className="sett-meter-bar" style={{ width: `${pct}%`, background: color }} />
+                    </div>
+                    <div className="sett-meter-label" style={{ color }}>Strength: {label}</div>
+                  </>
+                )}
+              </div>
+
+              <div className="sett-field">
+                <label className="sett-field-label" htmlFor="sett-conf">Confirm new password</label>
+                <div className="sett-ifield">
+                  <input
+                    id="sett-conf"
+                    type={showConfirm ? 'text' : 'password'}
+                    value={confirm}
+                    onChange={(e) => setConfirm(e.target.value)}
+                    required
+                    autoComplete="new-password"
+                    placeholder="••••••••"
+                    className="sett-input"
+                  />
+                  <button
+                    type="button"
+                    className="sett-eye"
+                    aria-label={showConfirm ? 'Hide password' : 'Show password'}
+                    onClick={() => setShowConfirm((v) => !v)}
+                  >
+                    {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                {passwordsMatch && (
+                  <div className="sett-match" style={{ color: 'var(--vp-ok)' }}>
+                    <Check size={13} strokeWidth={2.4} />Passwords match
+                  </div>
+                )}
+                {passwordsMismatch && (
+                  <div className="sett-match" style={{ color: 'var(--vp-warn)' }}>
+                    <X size={13} strokeWidth={2.4} />Passwords don't match
+                  </div>
+                )}
+              </div>
+
+              {error && <p className="sett-error">{error}</p>}
+              {success && <p className="sett-success">// password updated</p>}
+
+              <button type="submit" disabled={loading} className="sett-submit">
+                {loading ? 'Updating…' : 'Update password'}
+              </button>
+
+            </form>
+          </section>
+
         </div>
       </div>
     </div>
