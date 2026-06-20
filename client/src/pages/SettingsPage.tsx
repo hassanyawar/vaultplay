@@ -71,7 +71,7 @@ export function SettingsPage() {
     <div className="min-h-screen">
       <div className="sett-wrap">
 
-        <header style={{ padding: '40px 0 4px' }}>
+        <header style={{ padding: '28px 0 4px' }}>
           <p className="sett-eyebrow">// account &amp; preferences</p>
           <h1 className="sett-title">Settings</h1>
         </header>
@@ -146,11 +146,13 @@ export function SettingsPage() {
                     {showNext ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
-                <div className="sett-meter">
-                  <span className="sett-meter-bar" style={{ width: `${pct}%`, background: color }} />
-                </div>
-                {label && (
-                  <div className="sett-meter-label" style={{ color }}>Strength: {label}</div>
+                {next.length > 0 && (
+                  <>
+                    <div className="sett-meter">
+                      <span className="sett-meter-bar" style={{ width: `${pct}%`, background: color }} />
+                    </div>
+                    <div className="sett-meter-label" style={{ color }}>Strength: {label}</div>
+                  </>
                 )}
               </div>
 
