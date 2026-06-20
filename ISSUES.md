@@ -96,50 +96,50 @@ Apply to production DB via `migrate_001_vault_indexes.sql`.
 
 ## Priority 3 — Data Quality / UX
 
-### [DATA-01] `getStalledGames` — no minimum idle threshold
+### [DATA-01] `getStalledGames` — no minimum idle threshold ✅ FIXED
 **File:** `server/src/services/discovery/rule-based.ts` (line 56)
 **Problem:** Any game with `status = 'playing'` appears in "Left on the shelf," including one updated an hour ago. The section title implies genuine staleness.
 **Fix:** Add a minimum idle condition to the query:
 ```sql
 AND EXTRACT(DAY FROM NOW() - ve.updated_at) >= 7
 ```
-- [ ] Add stall threshold to query
+- [x] Add stall threshold to query
 
 ---
 
 ## Priority 4 — Maintenance / Debt
 
-### [DEBT-01] `AiDiscoveryService` is a pure stub — AI integration not implemented
+### [DEBT-01] `AiDiscoveryService` is a pure stub — AI integration not implemented ⏸ DEFERRED
 **File:** `server/src/services/discovery/ai.ts`
 **Problem:** All three methods delegate to `RuleBasedDiscoveryService`. `ANTHROPIC_API_KEY` has no effect. This is the core M4 AI feature that is deferred.
-**Fix:** Implement each method using the Anthropic SDK. The interface and fallback architecture are already in place.
+**Decision:** Keeping as an intentional stub. The fallback architecture is correct and the in-code comment documents the pattern. Real Claude API calls are future feature work (M8+), not debt cleanup.
 - [ ] Implement `getNextToPlay` with Claude API
 - [ ] Implement `getStalledGames` with Claude API
 - [ ] Implement `getGenreAffinity` with Claude API
 
 ---
 
-### [DEBT-02] Dead `DiscoverySummary` type
+### [DEBT-02] Dead `DiscoverySummary` type ✅ FIXED
 **File:** `server/src/services/discovery/types.ts` (lines 28–32)
 **Problem:** `DiscoverySummary` is defined and exported but never used anywhere.
-**Fix:** Remove the type, or use it as the return type for a combined discovery endpoint if one is ever added.
-- [ ] Remove or use `DiscoverySummary`
+**Fix:** Removed the dead interface.
+- [x] Remove or use `DiscoverySummary`
 
 ---
 
-### [DEBT-03] `vercel.json` hardcodes the Railway production URL
+### [DEBT-03] `vercel.json` hardcodes the Railway production URL ⚠️ ACCEPTED LIMITATION
 **File:** `client/vercel.json` (line 4)
 **Problem:** `https://vaultplay-production.up.railway.app` is a literal string. Renaming the Railway service or adding a staging environment requires manually editing this file.
-**Fix:** Use a Vercel environment variable (e.g., `RAILWAY_API_URL`) and reference it in the rewrite destination.
-- [ ] Extract Railway URL to Vercel env var
+**Decision:** Vercel does not support environment variable substitution in `rewrites[].destination`. A fix would require Vercel Edge Middleware or a custom `vercel.config.js`. Accepted as a known limitation for a single-environment personal project.
+- [ ] Extract Railway URL to Vercel env var (requires edge middleware)
 
 ---
 
-### [DEBT-04] `RAWG_API_KEY` not fail-fast validated at startup
+### [DEBT-04] `RAWG_API_KEY` not fail-fast validated at startup ✅ FIXED
 **File:** `server/src/index.ts` (lines 5–6)
 **Problem:** `JWT_SECRET` and `DATABASE_URL` throw on startup if missing, but `RAWG_API_KEY` only fails on the first RAWG request, surfacing as a runtime 502.
-**Fix:** Add `if (!process.env.RAWG_API_KEY) throw new Error('RAWG_API_KEY is not set');` alongside the existing startup checks.
-- [ ] Add startup validation for `RAWG_API_KEY`
+**Fix:** Added `if (!process.env.RAWG_API_KEY) throw new Error('RAWG_API_KEY is not set in server/.env');` alongside the existing startup checks.
+- [x] Add startup validation for `RAWG_API_KEY`
 
 ---
 
