@@ -22,6 +22,7 @@ export function AdminPage() {
   }, []);
 
   async function handleSelectUser(user: AdminUser) {
+    setError(null);
     setSelectedUser(user);
     setVault([]);
     setLoadingVault(true);
@@ -37,6 +38,7 @@ export function AdminPage() {
 
   async function handleDeleteUser(user: AdminUser) {
     if (!confirm(`Delete user ${user.email} and all their data? This cannot be undone.`)) return;
+    setError(null);
     try {
       await deleteAdminUser(user.id);
       setUsers((prev) => prev.filter((u) => u.id !== user.id));
@@ -49,7 +51,7 @@ export function AdminPage() {
     }
   }
 
-  const totalGames = users.reduce((sum, u) => sum + Number(u.vault_count), 0);
+  const totalGames = users.reduce((sum, u) => sum + u.vault_count, 0);
 
   return (
     <div className="min-h-screen">

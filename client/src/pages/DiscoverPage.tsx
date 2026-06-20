@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getNextToPlay, getStalledGames, getGenreAffinity } from '@/lib/api';
 import type { Recommendation, StalledGame, GenreAffinity } from '@/types/game';
 
@@ -217,14 +217,10 @@ export function DiscoverPage() {
   const [error, setError] = useState('');
   const [recsVisible, setRecsVisible] = useState(false);
   const [stalledVisible, setStalledVisible] = useState(false);
-  const isMounted = useRef(true);
 
   useEffect(() => {
-    isMounted.current = true;
-    return () => { isMounted.current = false; };
-  }, []);
+    let cancelled = false;
 
-  useEffect(() => {
     async function load() {
       try {
         const [recs, stalledGames, genreAffinity] = await Promise.all([
@@ -232,20 +228,21 @@ export function DiscoverPage() {
           getStalledGames(),
           getGenreAffinity(),
         ]);
-        if (!isMounted.current) return;
+        if (cancelled) return;
         setRecommendations(recs);
         setStalled(stalledGames);
         setAffinity(genreAffinity);
         setStatus('done');
-        setTimeout(() => { if (isMounted.current) setRecsVisible(true); }, 60);
-        setTimeout(() => { if (isMounted.current) setStalledVisible(true); }, 180);
+        setTimeout(() => { if (!cancelled) setRecsVisible(true); }, 60);
+        setTimeout(() => { if (!cancelled) setStalledVisible(true); }, 180);
       } catch (err) {
-        if (!isMounted.current) return;
+        if (cancelled) return;
         setError((err as Error).message);
         setStatus('error');
       }
     }
     void load();
+    return () => { cancelled = true; };
   }, []);
 
   if (status === 'loading') {

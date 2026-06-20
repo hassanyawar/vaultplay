@@ -7,6 +7,24 @@ import { serverError } from '../lib/errors';
 
 const router = Router();
 
+type DbGame = {
+  id: number; rawg_id: number; title: string; cover_url: string | null;
+  platforms: string[]; genres: string[]; release_year: number | null; created_at: string;
+};
+
+function toSavedGame(row: DbGame) {
+  return {
+    id: row.id,
+    rawgId: row.rawg_id,
+    title: row.title,
+    coverUrl: row.cover_url,
+    platforms: row.platforms,
+    genres: row.genres,
+    releaseYear: row.release_year,
+    createdAt: row.created_at,
+  };
+}
+
 let popularCache: { results: GameSearchResult[]; fetchedAt: number } | null = null;
 const POPULAR_CACHE_TTL = 60 * 60 * 1000; // 1 hour
 
@@ -52,7 +70,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
   }
 
   try {
-    const result = await pool.query(
+    const result = await pool.query<DbGame>(
       `INSERT INTO games (rawg_id, title, cover_url, platforms, genres, release_year)
        VALUES ($1, $2, $3, $4, $5, $6)
        ON CONFLICT (rawg_id) DO NOTHING
@@ -62,7 +80,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
 
     if (result.rowCount === 0) {
       // Game row exists — check if this user's vault entry was deleted and needs to be recreated
-      const existing = await pool.query('SELECT * FROM games WHERE rawg_id = $1', [rawgId]);
+      const existing = await pool.query<DbGame>('SELECT * FROM games WHERE rawg_id = $1', [rawgId]);
       const game = existing.rows[0];
       const vaultCheck = await pool.query(
         'SELECT id FROM vault_entries WHERE game_id = $1 AND user_id = $2',
@@ -73,7 +91,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
           'INSERT INTO vault_entries (game_id, user_id) VALUES ($1, $2)',
           [game.id, userId]
         );
-        res.status(201).json({ game });
+        res.status(201).json({ game: toSavedGame(game) });
         return;
       }
       res.status(200).json({ message: 'Game already in vault', alreadyExists: true });
@@ -86,7 +104,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
       [game.id, userId]
     );
 
-    res.status(201).json({ game });
+    res.status(201).json({ game: toSavedGame(game) });
   } catch (err) {
     res.status(500).json({ error: serverError(err) });
   }

@@ -266,23 +266,22 @@ export function DashboardPage() {
     let cancelled = false;
 
     async function load() {
-      try {
-        const [summaryData, playingData, recentData, completionsData, genresData] = await Promise.all([
-          getStatsSummary(),
-          getCurrentlyPlaying(),
-          getRecentlyAdded(),
-          getCompletionsByMonth(),
-          getGenreBreakdown(),
-        ]);
-        if (cancelled) return;
-        setSummary(summaryData);
-        setPlaying(playingData);
-        setRecent(recentData);
-        setCompletions(completionsData);
-        setGenres(genresData);
-      } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load dashboard');
-      }
+      const [summaryRes, playingRes, recentRes, completionsRes, genresRes] = await Promise.allSettled([
+        getStatsSummary(),
+        getCurrentlyPlaying(),
+        getRecentlyAdded(),
+        getCompletionsByMonth(),
+        getGenreBreakdown(),
+      ]);
+      if (cancelled) return;
+
+      if (summaryRes.status === 'fulfilled') setSummary(summaryRes.value);
+      else setError(summaryRes.reason instanceof Error ? summaryRes.reason.message : 'Failed to load dashboard');
+
+      if (playingRes.status === 'fulfilled') setPlaying(playingRes.value);
+      if (recentRes.status === 'fulfilled') setRecent(recentRes.value);
+      if (completionsRes.status === 'fulfilled') setCompletions(completionsRes.value);
+      if (genresRes.status === 'fulfilled') setGenres(genresRes.value);
     }
 
     void load();

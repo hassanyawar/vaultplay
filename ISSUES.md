@@ -46,78 +46,51 @@ Apply to production DB via `migrate_001_vault_indexes.sql`.
 
 ## Priority 2 — Architecture / Design
 
-### [ARCH-01] No global JSON 404 / error handler in `index.ts`
+### [ARCH-01] No global JSON 404 / error handler in `index.ts` ✅ FIXED
 **File:** `server/src/index.ts`
-**Problem:** Unmatched routes return Express's default HTML `Cannot GET /api/unknown`. The API never speaks JSON for unknown routes or uncaught middleware errors.
-**Fix:** After all `app.use(...)` registrations, add:
-```ts
-app.use((_req, res) => res.status(404).json({ error: 'Not found' }));
-app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
-  res.status(500).json({ error: serverError(err) });
-});
-```
-- [ ] Add 404 handler
-- [ ] Add global error handler
+**Fix:** Added a 404 catch-all and a 4-arg Express error handler after all route registrations, both returning JSON.
 
 ---
 
-### [ARCH-02] Client `tsconfig.app.json` missing `"strict": true`
+### [ARCH-02] Client `tsconfig.app.json` missing `"strict": true` ✅ FIXED
 **File:** `client/tsconfig.app.json`
-**Problem:** The client has individual lint flags but no `"strict": true`. `strictNullChecks`, `strictFunctionTypes`, etc. are all off — TypeScript won't catch null dereferences on the client.
-**Fix:** Add `"strict": true` to `compilerOptions`. Resolve any new type errors that surface.
-- [ ] Enable strict mode
-- [ ] Fix resulting type errors
+**Fix:** Added `"strict": true`. No new type errors surfaced — existing client code was already sound.
 
 ---
 
-### [ARCH-03] `DiscoverPage` uses `isMounted` ref instead of cancellation variable
-**File:** `client/src/pages/DiscoverPage.tsx` (lines 220–249)
-**Problem:** Uses `isMounted.current` ref which prevents state updates after unmount but does not cancel in-flight requests. If the user switches tabs quickly, two concurrent loads race. `DashboardPage` handles this correctly with a local `cancelled` variable.
-**Fix:** Replace `isMounted` ref with the same `let cancelled = false` / `if (cancelled) return` pattern used in `DashboardPage` and `VaultPage`.
-- [ ] Refactor `DiscoverPage` load effect
+### [ARCH-03] `DiscoverPage` uses `isMounted` ref instead of cancellation variable ✅ FIXED
+**File:** `client/src/pages/DiscoverPage.tsx`
+**Fix:** Removed `isMounted` ref and its dedicated effect; replaced with single `let cancelled = false` pattern matching `DashboardPage`/`VaultPage`.
 
 ---
 
-### [ARCH-04] `VaultPage` first effect has no cleanup
-**File:** `client/src/pages/VaultPage.tsx` (lines 48–51)
-**Problem:** `getVaultPlatforms().then(setPlatforms)` and `getVaultCounts().then(setCounts)` fire without any cancellation guard. If the component unmounts mid-flight, React warns about state updates on unmounted components.
-**Fix:** Add a cancelled flag or use `AbortController`.
-- [ ] Add cleanup to platforms/counts effect
+### [ARCH-04] `VaultPage` first effect has no cleanup ✅ FIXED
+**File:** `client/src/pages/VaultPage.tsx`
+**Fix:** Added `cancelled` flag to the platforms/counts effect; both `.then()` callbacks check it before calling state setters.
 
 ---
 
-### [ARCH-05] `AdminPage` does not clear error before new operations
-**File:** `client/src/pages/AdminPage.tsx` (lines 24, 38)
-**Problem:** Old error message persists when starting a new action after a failure.
-**Fix:** Add `setError(null)` at the start of `handleSelectUser` and `handleDeleteUser`.
-- [ ] Clear error in `handleSelectUser`
-- [ ] Clear error in `handleDeleteUser`
+### [ARCH-05] `AdminPage` does not clear error before new operations ✅ FIXED
+**File:** `client/src/pages/AdminPage.tsx`
+**Fix:** Added `setError(null)` at the start of both `handleSelectUser` and `handleDeleteUser`.
 
 ---
 
-### [ARCH-06] `DashboardPage` — `Promise.all` kills all sections if one fails
-**File:** `client/src/pages/DashboardPage.tsx` (line 270)
-**Problem:** A 502 from `/stats/completions-by-month` kills KPIs, currently-playing, and all other dashboard sections.
-**Fix:** Switch to `Promise.allSettled` and set each data slice independently, allowing sections to degrade independently.
-- [ ] Refactor to `Promise.allSettled`
+### [ARCH-06] `DashboardPage` — `Promise.all` kills all sections if one fails ✅ FIXED
+**File:** `client/src/pages/DashboardPage.tsx`
+**Fix:** Switched to `Promise.allSettled`; each data slice is set independently so a failing chart endpoint doesn't take down KPIs or currently-playing.
 
 ---
 
-### [ARCH-07] `SavedGame` type uses snake_case; all other client types use camelCase
-**File:** `client/src/types/game.ts` (lines 38–47), `server/src/routes/games.ts` (line 83)
-**Problem:** `cover_url`, `release_year`, `rawg_id` reflect raw DB column names. The server returns the raw DB row without transformation, inconsistent with every other API response.
-**Fix:** Transform the `game` row in `POST /api/games` before sending (map to camelCase), and update `SavedGame` type accordingly.
-- [ ] Transform game row in route response
-- [ ] Update `SavedGame` type on client
+### [ARCH-07] `SavedGame` type uses snake_case; all other client types use camelCase ✅ FIXED
+**File:** `server/src/routes/games.ts`, `client/src/types/game.ts`
+**Fix:** Added `toSavedGame()` helper in `games.ts` to transform both POST response paths to camelCase. Updated `SavedGame` client type to match.
 
 ---
 
-### [ARCH-08] `AdminUser.vault_count` typed as `string` on client
-**File:** `client/src/types/game.ts` (line 14), `server/src/routes/admin.ts` (line 18)
-**Problem:** `pg` returns `COUNT()` as a string. The client compensates with `Number(u.vault_count)` at use sites. Better to coerce at the source.
-**Fix:** In `admin.ts`, parse `vault_count` to `parseInt` before sending the response. Update `AdminUser.vault_count` to `number`.
-- [ ] `parseInt` vault_count in admin route
-- [ ] Update `AdminUser` type
+### [ARCH-08] `AdminUser.vault_count` typed as `string` on client ✅ FIXED
+**File:** `server/src/routes/admin.ts`, `client/src/types/game.ts`, `client/src/pages/AdminPage.tsx`
+**Fix:** `admin.ts` now maps rows through `parseInt(u.vault_count, 10)` before sending. `AdminUser.vault_count` updated to `number`. Removed `Number()` cast in `AdminPage`.
 
 ---
 
