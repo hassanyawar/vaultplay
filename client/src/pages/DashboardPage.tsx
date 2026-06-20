@@ -254,7 +254,7 @@ function GenreBreakdownChart({ data }: { data: GenreBreakdown[] }) {
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
-export function DashboardPage() {
+export function DashboardPage({ onNavigateToSearch }: { onNavigateToSearch?: () => void }) {
   const [summary,     setSummary]     = useState<StatsSummary | null>(null);
   const [playing,     setPlaying]     = useState<CurrentlyPlayingGame[] | null>(null);
   const [recent,      setRecent]      = useState<RecentlyAddedGame[] | null>(null);
@@ -302,6 +302,86 @@ export function DashboardPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="dash-empty" style={{ color: 'var(--destructive)' }}>{error}</p>
+      </div>
+    );
+  }
+
+  if (summary && summary.total === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div
+          className="dash-card"
+          style={{
+            maxWidth: 440,
+            width: '100%',
+            padding: '48px 40px',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 16,
+          }}
+        >
+          <svg viewBox="0 0 48 48" style={{ width: 48, height: 48, opacity: 0.6 }}>
+            <defs>
+              <linearGradient id="es-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor="#A78BFF" />
+                <stop offset="1" stopColor="#FFC15E" />
+              </linearGradient>
+            </defs>
+            <path d="M26 4 8 28h12l-2 16 18-24H22z" fill="url(#es-grad)" />
+          </svg>
+
+          <h2
+            style={{
+              fontFamily: '"Chakra Petch", sans-serif',
+              fontWeight: 700,
+              fontSize: 22,
+              letterSpacing: '0.04em',
+              color: 'var(--foreground)',
+              margin: 0,
+            }}
+          >
+            Your vault is empty
+          </h2>
+
+          <p style={{ color: 'var(--vp-muted)', fontSize: 14, lineHeight: 1.6, margin: 0 }}>
+            Search for a game and add it to your backlog to get started. Your stats, charts, and
+            progress will appear here once your vault has games in it.
+          </p>
+
+          {onNavigateToSearch && (
+            <button
+              onClick={onNavigateToSearch}
+              style={{
+                marginTop: 8,
+                padding: '10px 28px',
+                borderRadius: 10,
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: '"Chakra Petch", sans-serif',
+                fontWeight: 600,
+                fontSize: 13,
+                letterSpacing: '0.06em',
+                color: '#fff',
+                background: 'linear-gradient(135deg, var(--vp-violet) 0%, var(--vp-gold) 100%)',
+                backgroundSize: '200% 100%',
+                backgroundPosition: '0% 0',
+                transition: 'background-position 0.4s ease, box-shadow 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundPosition = '100% 0';
+                e.currentTarget.style.boxShadow = '0 16px 38px -10px rgba(232, 154, 43, 0.5)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundPosition = '0% 0';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              Search for a game
+            </button>
+          )}
+        </div>
       </div>
     );
   }
