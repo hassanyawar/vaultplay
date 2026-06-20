@@ -2,6 +2,10 @@ import { useEffect, useState } from 'react';
 import { getAdminUsers, getAdminUserVault, deleteAdminUser } from '@/lib/api';
 import type { AdminUser, AdminVaultEntry } from '@/types/game';
 
+function getInitials(username: string): string {
+  return username.slice(0, 2).toUpperCase();
+}
+
 export function AdminPage() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
@@ -45,103 +49,142 @@ export function AdminPage() {
     }
   }
 
+  const totalGames = users.reduce((sum, u) => sum + Number(u.vault_count), 0);
+
   return (
-    <div className="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
-      <h1 className="text-2xl font-bold text-foreground mb-8">Admin</h1>
+    <div className="min-h-screen">
+      <div className="adm-wrap">
 
-      {error && (
-        <p className="text-xs text-destructive mb-4">{error}</p>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* User list */}
-        <div className="md:col-span-1">
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-            Users ({users.length})
-          </h2>
-          {loadingUsers ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {users.map((user) => (
-                <div
-                  key={user.id}
-                  className={`rounded-lg border px-4 py-3 cursor-pointer transition-colors ${
-                    selectedUser?.id === user.id
-                      ? 'border-foreground bg-card'
-                      : 'border-border bg-card hover:border-foreground/40'
-                  }`}
-                  onClick={() => void handleSelectUser(user)}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">
-                        {user.username}
-                        {user.is_admin && (
-                          <span className="ml-2 text-xs text-amber-500 font-medium">admin</span>
-                        )}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-0.5 truncate">{user.email}</p>
-                      <p className="text-xs text-muted-foreground">{user.vault_count} game{user.vault_count === '1' ? '' : 's'}</p>
-                    </div>
-                    {!user.is_admin && (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); void handleDeleteUser(user); }}
-                        className="text-xs text-destructive hover:opacity-70 transition-opacity shrink-0"
-                      >
-                        Delete
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+        <header style={{ padding: '44px 0 4px' }}>
+          <p className="adm-eyebrow">// administration</p>
+          <h1 className="adm-title">Admin</h1>
+          {!loadingUsers && (
+            <p className="adm-stat">
+              <b>{users.length}</b> users · <b>{totalGames}</b> games across all vaults
+            </p>
           )}
-        </div>
+        </header>
 
-        {/* Vault viewer */}
-        <div className="md:col-span-2">
-          {!selectedUser ? (
-            <div className="rounded-lg border border-dashed border-border flex items-center justify-center h-48">
-              <p className="text-sm text-muted-foreground">Select a user to view their vault</p>
+        {error && <p className="adm-error">{error}</p>}
+
+        <div className="adm-grid">
+
+          {/* Left — Users */}
+          <section>
+            <div className="adm-panel-h">
+              <h2>Users</h2>
+              <span className="adm-count">{users.length}</span>
             </div>
-          ) : (
-            <>
-              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-                {selectedUser.username}'s vault
-              </h2>
-              {loadingVault ? (
-                <p className="text-sm text-muted-foreground">Loading…</p>
-              ) : vault.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No games in vault.</p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {vault.map((entry) => (
-                    <div
-                      key={entry.id}
-                      className="rounded-lg border border-border bg-card px-4 py-3 flex items-center gap-4"
+            {loadingUsers ? (
+              <p className="adm-loading">Loading…</p>
+            ) : (
+              <div className="adm-users">
+                {users.map((user) => {
+                  const isSelected = selectedUser?.id === user.id;
+                  return (
+                    <article
+                      key={user.id}
+                      className="adm-ucard"
+                      data-selected={isSelected ? 'true' : undefined}
+                      tabIndex={0}
+                      onClick={() => void handleSelectUser(user)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          void handleSelectUser(user);
+                        }
+                      }}
                     >
-                      {entry.cover_url && (
-                        <img
-                          src={entry.cover_url}
-                          alt={entry.title}
-                          className="w-10 h-12 object-cover rounded shrink-0"
-                          loading="lazy"
-                        />
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-foreground truncate">{entry.title}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {entry.status}
-                          {entry.rating != null && ` · ${entry.rating}/10`}
-                        </p>
+                      <div className="adm-uav">{getInitials(user.username)}</div>
+                      <div className="adm-ub">
+                        <div className="adm-urow">
+                          <span className="adm-uname">{user.username}</span>
+                          {user.is_admin && <span className="adm-role">admin</span>}
+                        </div>
+                        <div className="adm-uemail">{user.email}</div>
+                        <div className="adm-ugames">
+                          {user.vault_count} game{user.vault_count === '1' ? '' : 's'}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                      {!user.is_admin && (
+                        <button
+                          className="adm-udel"
+                          onClick={(e) => { e.stopPropagation(); void handleDeleteUser(user); }}
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+
+          {/* Right — Vault */}
+          <section>
+            {!selectedUser ? (
+              <div className="adm-vault-empty">
+                <p>Select a user to view their vault</p>
+              </div>
+            ) : (
+              <>
+                <div className="adm-panel-h">
+                  <h2>{selectedUser.username}'s vault</h2>
+                  <span className="adm-count">
+                    {loadingVault
+                      ? '…'
+                      : `${vault.length} game${vault.length === 1 ? '' : 's'}`}
+                  </span>
                 </div>
-              )}
-            </>
-          )}
+                {loadingVault ? (
+                  <p className="adm-loading">Loading…</p>
+                ) : vault.length === 0 ? (
+                  <p className="adm-loading">No games in vault.</p>
+                ) : (
+                  <div className="adm-vault">
+                    {vault.map((entry) => {
+                      const mono = entry.title.slice(0, 2).toUpperCase();
+                      return (
+                        <article key={entry.id} className="adm-grow">
+                          <div
+                            className="adm-gthumb"
+                            style={{ background: 'linear-gradient(150deg, #3A2B8C, #1A1245)' }}
+                          >
+                            {entry.cover_url ? (
+                              <img
+                                src={entry.cover_url}
+                                alt={entry.title}
+                                loading="lazy"
+                                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                              />
+                            ) : (
+                              <>
+                                <div className="adm-gthumb-grain" />
+                                <div className="adm-gthumb-mono">{mono}</div>
+                              </>
+                            )}
+                          </div>
+                          <div className="adm-gb">
+                            <div className="adm-gtitle">{entry.title}</div>
+                            <div className="adm-gmeta">
+                              <span className="adm-badge" data-status={entry.status}>
+                                {entry.status}
+                              </span>
+                              {entry.rating != null && entry.status === 'completed' && (
+                                <span className="adm-rating">{entry.rating}/10</span>
+                              )}
+                            </div>
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
+            )}
+          </section>
+
         </div>
       </div>
     </div>
