@@ -105,7 +105,7 @@ export function AdminPage() {
                         </div>
                         <div className="adm-uemail">{user.email}</div>
                         <div className="adm-ugames">
-                          {user.vault_count} game{user.vault_count === '1' ? '' : 's'}
+                          {user.vault_count} game{user.vault_count === 1 ? '' : 's'}
                         </div>
                       </div>
                       {!user.is_admin && (
