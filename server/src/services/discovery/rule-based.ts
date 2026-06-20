@@ -70,6 +70,7 @@ export class RuleBasedDiscoveryService implements IDiscoveryService {
       FROM vault_entries ve
       JOIN games g ON g.id = ve.game_id
       WHERE ve.status = 'playing' AND ve.user_id = $1
+        AND EXTRACT(DAY FROM NOW() - ve.updated_at) >= 7
       ORDER BY ve.updated_at ASC
       LIMIT 5
     `, [userId]);

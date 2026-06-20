@@ -7,4 +7,4 @@ export const discoveryService: IDiscoveryService = process.env.ANTHROPIC_API_KEY
   : new RuleBasedDiscoveryService();
 
 export type { IDiscoveryService };
-export type { Recommendation, StalledGame, GenreAffinity, DiscoverySummary } from './types';
+export type { Recommendation, StalledGame, GenreAffinity } from './types';
